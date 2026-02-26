@@ -63,7 +63,7 @@ class _ProfileView extends StatelessWidget {
 
           User? user;
           if (state is ProfileLoaded) user = state.user;
-          if (state is ProfileUpdateSuccess) user = state.user;
+          // ProfileUpdateSuccess doesn't carry user, use auth state
 
           if (user == null) {
             // fallback to auth state user
@@ -225,7 +225,7 @@ class _ProfileHeader extends StatelessWidget {
           const SizedBox(height: 4),
           // Email
           Text(
-            user.email ?? '',
+            user.email,
             style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
           ),
           const SizedBox(height: 6),
@@ -292,24 +292,8 @@ class _InfoSection extends StatelessWidget {
               _InfoRow(
                 icon: Icons.email_outlined,
                 label: tr('profile.email'),
-                value: user.email ?? '-',
+                value: user.email,
               ),
-              if (user.city != null) ...[
-                const Divider(height: 24),
-                _InfoRow(
-                  icon: Icons.location_city_outlined,
-                  label: tr('profile.city'),
-                  value: user.city!,
-                ),
-              ],
-              if (user.country != null) ...[
-                const Divider(height: 24),
-                _InfoRow(
-                  icon: Icons.flag_outlined,
-                  label: tr('profile.country'),
-                  value: user.country!,
-                ),
-              ],
             ],
           ),
         ),

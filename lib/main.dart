@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/app.dart';
-import 'app/di/injection.dart' as di;
+import 'app/di/injection.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
   // Initialize dependency injection
-  await di.init();
+  await initDependencies();
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -20,7 +20,7 @@ void main() async {
 
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
     ),

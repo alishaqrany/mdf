@@ -47,8 +47,8 @@ class _AppViewState extends State<_AppView> {
       locale: context.locale,
 
       // ─── Theme ───
-      theme: AppTheme.lightTheme(context.locale),
-      darkTheme: AppTheme.darkTheme(context.locale),
+      theme: AppTheme.light(locale: context.locale.languageCode),
+      darkTheme: AppTheme.dark(locale: context.locale.languageCode),
       themeMode: ThemeMode.system,
 
       // ─── Router ───

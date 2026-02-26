@@ -6,7 +6,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
-import '../../domain/entities/course_section.dart';
+import '../../domain/entities/course_content.dart';
 import '../bloc/course_content_bloc.dart';
 
 class CourseContentPage extends StatelessWidget {
@@ -163,7 +163,7 @@ class _SectionWidgetState extends State<_SectionWidget> {
                     ),
                     child: Center(
                       child: Text(
-                        '${widget.section.sectionNumber ?? 0}',
+                        '${widget.section.sectionNumber}',
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -244,18 +244,18 @@ class _ModuleItem extends StatelessWidget {
     if (module.isLabel) return Icons.label_rounded;
     if (module.isVideo) return Icons.play_circle_rounded;
     if (module.isScorm) return Icons.smart_display_rounded;
-    if (module.isH5p) return Icons.extension_rounded;
+    if (module.isH5P) return Icons.extension_rounded;
     if (module.isBBB) return Icons.video_camera_front_rounded;
-    if (module.isChat) return Icons.chat_rounded;
     if (module.isBook) return Icons.menu_book_rounded;
-    if (module.isWiki) return Icons.public_rounded;
-    if (module.isGlossary) return Icons.abc_rounded;
-    if (module.isChoice) return Icons.poll_rounded;
-    if (module.isFeedback) return Icons.feedback_rounded;
-    if (module.isSurvey) return Icons.assessment_rounded;
     if (module.isLesson) return Icons.school_rounded;
-    if (module.isWorkshop) return Icons.handshake_rounded;
-    if (module.isDatabase) return Icons.storage_rounded;
+    if (module.modName == 'chat') return Icons.chat_rounded;
+    if (module.modName == 'wiki') return Icons.public_rounded;
+    if (module.modName == 'glossary') return Icons.abc_rounded;
+    if (module.modName == 'choice') return Icons.poll_rounded;
+    if (module.modName == 'feedback') return Icons.feedback_rounded;
+    if (module.modName == 'survey') return Icons.assessment_rounded;
+    if (module.modName == 'workshop') return Icons.handshake_rounded;
+    if (module.modName == 'data') return Icons.storage_rounded;
     return Icons.extension_rounded;
   }
 

@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -136,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                           TextFormField(
                             controller: _serverUrlController,
                             keyboardType: TextInputType.url,
-                            textDirection: TextDirection.ltr,
+                            textDirection: ui.TextDirection.ltr,
                             decoration: InputDecoration(
                               labelText: tr('login.server_url'),
                               hintText: tr('login.server_url_hint'),

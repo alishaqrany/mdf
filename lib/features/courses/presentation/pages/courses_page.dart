@@ -17,7 +17,9 @@ class CoursesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<CoursesBloc>()..add(const LoadEnrolledCourses()),
+      create: (context) {
+        return sl<CoursesBloc>()..add(const LoadEnrolledCourses(userId: 0));
+      },
       child: const _CoursesView(),
     );
   }
@@ -85,7 +87,7 @@ class _CoursesViewState extends State<_CoursesView>
                             onPressed: () {
                               _searchController.clear();
                               context.read<CoursesBloc>().add(
-                                const LoadEnrolledCourses(),
+                                const LoadEnrolledCourses(userId: 0),
                               );
                               setState(() {});
                             },
@@ -140,7 +142,7 @@ class _CoursesViewState extends State<_CoursesView>
                   ElevatedButton.icon(
                     onPressed: () {
                       context.read<CoursesBloc>().add(
-                        const LoadEnrolledCourses(),
+                        const LoadEnrolledCourses(userId: 0),
                       );
                     },
                     icon: const Icon(Icons.refresh),
