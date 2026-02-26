@@ -30,10 +30,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     await apiClient.setBaseUrl(serverUrl);
 
     // Authenticate and get token
-    await apiClient.login(
-      username: username,
-      password: password,
-    );
+    await apiClient.login(username: username, password: password);
 
     // Get user info
     return getSiteInfo();

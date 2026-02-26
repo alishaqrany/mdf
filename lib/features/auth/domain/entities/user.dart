@@ -31,7 +31,8 @@ class User extends Equatable {
   });
 
   /// User's display name.
-  String get displayName => fullName.isNotEmpty ? fullName : '$firstName $lastName';
+  String get displayName =>
+      fullName.isNotEmpty ? fullName : '$firstName $lastName';
 
   /// User's initials for avatar placeholder.
   String get initials {
@@ -45,17 +46,17 @@ class User extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        username,
-        firstName,
-        lastName,
-        fullName,
-        email,
-        profileImageUrl,
-        lang,
-        isSiteAdmin,
-        siteId,
-        siteName,
-        siteUrl,
-      ];
+    id,
+    username,
+    firstName,
+    lastName,
+    fullName,
+    email,
+    profileImageUrl,
+    lang,
+    isSiteAdmin,
+    siteId,
+    siteName,
+    siteUrl,
+  ];
 }

@@ -42,9 +42,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => Connectivity());
 
   // ─── Core ───
-  sl.registerLazySingleton<NetworkInfo>(
-    () => NetworkInfoImpl(sl()),
-  );
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton<MoodleApiClient>(
     () => MoodleApiClient(secureStorage: sl()),
   );
@@ -54,10 +52,7 @@ Future<void> initDependencies() async {
     () => AuthRemoteDataSourceImpl(apiClient: sl()),
   );
   sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(
-      secureStorage: sl(),
-      sharedPreferences: sl(),
-    ),
+    () => AuthLocalDataSourceImpl(secureStorage: sl(), sharedPreferences: sl()),
   );
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -82,19 +77,13 @@ Future<void> initDependencies() async {
     () => CoursesRemoteDataSourceImpl(apiClient: sl()),
   );
   sl.registerLazySingleton<CoursesRepository>(
-    () => CoursesRepositoryImpl(
-      remoteDataSource: sl(),
-      networkInfo: sl(),
-    ),
+    () => CoursesRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerLazySingleton(() => GetEnrolledCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseContentsUseCase(sl()));
   sl.registerLazySingleton(() => SearchCoursesUseCase(sl()));
   sl.registerFactory(
-    () => CoursesBloc(
-      getEnrolledCourses: sl(),
-      searchCourses: sl(),
-    ),
+    () => CoursesBloc(getEnrolledCourses: sl(), searchCourses: sl()),
   );
 
   // ─── Course Content Feature ───
@@ -102,39 +91,25 @@ Future<void> initDependencies() async {
     () => CourseContentRemoteDataSourceImpl(apiClient: sl()),
   );
   sl.registerLazySingleton<CourseContentRepository>(
-    () => CourseContentRepositoryImpl(
-      remoteDataSource: sl(),
-      networkInfo: sl(),
-    ),
+    () =>
+        CourseContentRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
-  sl.registerFactory(
-    () => CourseContentBloc(repository: sl()),
-  );
+  sl.registerFactory(() => CourseContentBloc(repository: sl()));
 
   // ─── Student Dashboard ───
   sl.registerFactory(
-    () => StudentDashboardBloc(
-      coursesRepository: sl(),
-      authRepository: sl(),
-    ),
+    () => StudentDashboardBloc(coursesRepository: sl(), authRepository: sl()),
   );
 
   // ─── Admin Dashboard ───
-  sl.registerFactory(
-    () => AdminDashboardBloc(apiClient: sl()),
-  );
+  sl.registerFactory(() => AdminDashboardBloc(apiClient: sl()));
 
   // ─── Profile Feature ───
   sl.registerLazySingleton<ProfileRemoteDataSource>(
     () => ProfileRemoteDataSourceImpl(apiClient: sl()),
   );
   sl.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepositoryImpl(
-      remoteDataSource: sl(),
-      networkInfo: sl(),
-    ),
+    () => ProfileRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
-  sl.registerFactory(
-    () => ProfileBloc(repository: sl()),
-  );
+  sl.registerFactory(() => ProfileBloc(repository: sl()));
 }
