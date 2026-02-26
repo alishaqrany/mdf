@@ -41,7 +41,9 @@ class ErrorInterceptor extends Interceptor {
             DioException(
               requestOptions: response.requestOptions,
               response: response,
-              error: AuthException(message: 'Session expired. Please login again.'),
+              error: AuthException(
+                message: 'Session expired. Please login again.',
+              ),
               type: DioExceptionType.badResponse,
             ),
           );
@@ -114,7 +116,9 @@ class ErrorInterceptor extends Interceptor {
         handler.next(
           DioException(
             requestOptions: err.requestOptions,
-            error: const NetworkException(message: 'Could not connect to server'),
+            error: const NetworkException(
+              message: 'Could not connect to server',
+            ),
             type: err.type,
           ),
         );

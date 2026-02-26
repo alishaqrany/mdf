@@ -14,7 +14,8 @@ class MoodleApiEndpoints {
   static const String createUsers = 'core_user_create_users';
   static const String updateUsers = 'core_user_update_users';
   static const String deleteUsers = 'core_user_delete_users';
-  static const String getUserCourseProfiles = 'core_user_get_course_user_profiles';
+  static const String getUserCourseProfiles =
+      'core_user_get_course_user_profiles';
   static const String updateUserPicture = 'core_user_update_picture';
 
   // ─── Course Management ───
@@ -57,7 +58,8 @@ class MoodleApiEndpoints {
 
   // ─── Quiz ───
   static const String getQuizzes = 'mod_quiz_get_quizzes_by_courses';
-  static const String getQuizAccessInfo = 'mod_quiz_get_quiz_access_information';
+  static const String getQuizAccessInfo =
+      'mod_quiz_get_quiz_access_information';
   static const String startAttempt = 'mod_quiz_start_attempt';
   static const String getAttemptData = 'mod_quiz_get_attempt_data';
   static const String processAttempt = 'mod_quiz_process_attempt';
@@ -79,22 +81,29 @@ class MoodleApiEndpoints {
   // ─── Grades ───
   static const String getGradesTable = 'gradereport_user_get_grades_table';
   static const String getGradeItems = 'gradereport_user_get_grade_items';
-  static const String getCourseGrades = 'gradereport_overview_get_course_grades';
+  static const String getCourseGrades =
+      'gradereport_overview_get_course_grades';
 
   // ─── Messaging ───
   static const String getMessages = 'core_message_get_messages';
-  static const String sendInstantMessages = 'core_message_send_instant_messages';
+  static const String sendInstantMessages =
+      'core_message_send_instant_messages';
   static const String getConversations = 'core_message_get_conversations';
-  static const String getConversationMessages = 'core_message_get_conversation_messages';
-  static const String getPopupNotifications = 'message_popup_get_popup_notifications';
+  static const String getConversationMessages =
+      'core_message_get_conversation_messages';
+  static const String getPopupNotifications =
+      'message_popup_get_popup_notifications';
   static const String getUnreadNotificationCount =
       'message_popup_get_unread_popup_notification_count';
-  static const String markNotificationRead = 'core_message_mark_notification_read';
+  static const String markNotificationRead =
+      'core_message_mark_notification_read';
 
   // ─── Calendar ───
   static const String getCalendarEvents = 'core_calendar_get_calendar_events';
-  static const String getCalendarMonthlyView = 'core_calendar_get_calendar_monthly_view';
-  static const String getCalendarUpcomingView = 'core_calendar_get_calendar_upcoming_view';
+  static const String getCalendarMonthlyView =
+      'core_calendar_get_calendar_monthly_view';
+  static const String getCalendarUpcomingView =
+      'core_calendar_get_calendar_upcoming_view';
 
   // ─── Forums ───
   static const String getForums = 'mod_forum_get_forums_by_courses';

@@ -22,9 +22,8 @@ class MoodleApiClient {
 
   String? _baseUrl;
 
-  MoodleApiClient({
-    required FlutterSecureStorage secureStorage,
-  }) : _secureStorage = secureStorage {
+  MoodleApiClient({required FlutterSecureStorage secureStorage})
+    : _secureStorage = secureStorage {
     _dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 30),
@@ -70,11 +69,7 @@ class MoodleApiClient {
     try {
       final response = await _dio.post(
         '$baseUrl${AppConstants.moodleLoginPath}',
-        data: {
-          'username': username,
-          'password': password,
-          'service': service,
-        },
+        data: {'username': username, 'password': password, 'service': service},
       );
 
       final data = response.data as Map<String, dynamic>;
@@ -170,10 +165,7 @@ class MoodleApiClient {
       'token': token,
       'filearea': fileArea,
       'itemid': itemId,
-      'file': await MultipartFile.fromFile(
-        file.path,
-        filename: fileName,
-      ),
+      'file': await MultipartFile.fromFile(file.path, filename: fileName),
     });
 
     try {
@@ -212,11 +204,7 @@ class MoodleApiClient {
         : '$fileUrl?token=$token';
 
     try {
-      await _dio.download(
-        url,
-        savePath,
-        onReceiveProgress: onProgress,
-      );
+      await _dio.download(url, savePath, onReceiveProgress: onProgress);
       return savePath;
     } on DioException catch (e) {
       throw ServerException(

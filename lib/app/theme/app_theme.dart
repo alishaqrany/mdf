@@ -82,14 +82,21 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.backgroundLight,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: AppColors.divider.withValues(alpha: 0.5),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: AppColors.divider.withValues(alpha: 0.5),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -110,15 +117,16 @@ class AppTheme {
         unselectedItemColor: AppColors.textTertiaryLight,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
-        selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
         unselectedLabelStyle: TextStyle(fontSize: 12),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surfaceLight,
         indicatorColor: AppColors.primarySurface,
-        labelTextStyle: WidgetStatePropertyAll(
-          textTheme.labelSmall,
-        ),
+        labelTextStyle: WidgetStatePropertyAll(textTheme.labelSmall),
         elevation: 2,
         height: 65,
       ),
@@ -127,10 +135,10 @@ class AppTheme {
         selectedColor: AppColors.primary,
         secondarySelectedColor: AppColors.primary,
         labelStyle: textTheme.labelMedium!,
-        secondaryLabelStyle: textTheme.labelMedium!.copyWith(color: Colors.white),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+        secondaryLabelStyle: textTheme.labelMedium!.copyWith(
+          color: Colors.white,
         ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         side: BorderSide.none,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
@@ -154,16 +162,12 @@ class AppTheme {
         indicatorSize: TabBarIndicatorSize.label,
       ),
       dialogTheme: DialogThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: AppColors.surfaceLight,
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         contentTextStyle: textTheme.bodyMedium?.copyWith(color: Colors.white),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
@@ -241,14 +245,21 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.cardDark,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.dividerDark.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: AppColors.dividerDark.withValues(alpha: 0.5),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.dividerDark.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: AppColors.dividerDark.withValues(alpha: 0.5),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -273,9 +284,7 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surfaceDark,
         indicatorColor: const Color(0xFF2A2A4A),
-        labelTextStyle: WidgetStatePropertyAll(
-          textTheme.labelSmall,
-        ),
+        labelTextStyle: WidgetStatePropertyAll(textTheme.labelSmall),
         elevation: 2,
         height: 65,
       ),
@@ -283,9 +292,7 @@ class AppTheme {
         backgroundColor: const Color(0xFF2A2A4A),
         selectedColor: AppColors.primary,
         labelStyle: textTheme.labelMedium!,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         side: BorderSide.none,
       ),
       dividerTheme: const DividerThemeData(
@@ -308,17 +315,13 @@ class AppTheme {
         indicatorSize: TabBarIndicatorSize.label,
       ),
       dialogTheme: DialogThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: AppColors.cardDark,
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.cardDark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         contentTextStyle: textTheme.bodyMedium?.copyWith(
           color: AppColors.textPrimaryDark,
         ),

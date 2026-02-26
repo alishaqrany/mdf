@@ -15,11 +15,7 @@ abstract class Failure extends Equatable {
 class ServerFailure extends Failure {
   final String? errorCode;
 
-  const ServerFailure({
-    required super.message,
-    super.code,
-    this.errorCode,
-  });
+  const ServerFailure({required super.message, super.code, this.errorCode});
 }
 
 /// Network failures (no connection, timeout, etc.)
@@ -34,10 +30,7 @@ class CacheFailure extends Failure {
 
 /// Authentication failures
 class AuthFailure extends Failure {
-  const AuthFailure({
-    super.message = 'Authentication failed',
-    super.code,
-  });
+  const AuthFailure({super.message = 'Authentication failed', super.code});
 }
 
 /// Permission failures
@@ -51,10 +44,7 @@ class PermissionFailure extends Failure {
 class ValidationFailure extends Failure {
   final Map<String, String>? fieldErrors;
 
-  const ValidationFailure({
-    required super.message,
-    this.fieldErrors,
-  });
+  const ValidationFailure({required super.message, this.fieldErrors});
 }
 
 /// Unknown/unexpected failures
