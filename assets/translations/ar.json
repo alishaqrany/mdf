@@ -296,7 +296,9 @@
     "skip": "تخطي",
     "home": "الرئيسية",
     "more": "المزيد",
-    "coming_soon": "قريباً"
+    "minutes": "دقائق",
+    "coming_soon": "قريباً",
+    "link_copied": "تم نسخ الرابط"
   },
   "onboarding": {
     "title1": "تعلَّم في أي وقت ومكان",

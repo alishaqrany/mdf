@@ -63,30 +63,51 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           sl<CourseContentBloc>()
             ..add(LoadCourseContent(courseId: widget.courseId)),
       child: Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            // ─── Hero App Bar ───
-            SliverAppBar(
-              expandedHeight: 220,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  widget.courseTitle,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+        body: RefreshIndicator(
+          onRefresh: () async {
+            context.read<CourseContentBloc>().add(
+              LoadCourseContent(courseId: widget.courseId),
+            );
+            _loadCourseDetails();
+            await Future.delayed(const Duration(milliseconds: 500));
+          },
+          child: CustomScrollView(
+            slivers: [
+              // ─── Hero App Bar ───
+              SliverAppBar(
+                expandedHeight: 220,
+                pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    widget.courseTitle,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty)
-                      CachedNetworkImage(
-                        imageUrl: widget.imageUrl!,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => Container(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (widget.imageUrl != null &&
+                          widget.imageUrl!.isNotEmpty)
+                        CachedNetworkImage(
+                          imageUrl: widget.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, __, ___) => Container(
+                            decoration: const BoxDecoration(
+                              gradient: AppColors.primaryGradient,
+                            ),
+                            child: const Icon(
+                              Icons.school,
+                              size: 64,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        )
+                      else
+                        Container(
                           decoration: const BoxDecoration(
                             gradient: AppColors.primaryGradient,
                           ),
@@ -96,110 +117,111 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                             color: Colors.white54,
                           ),
                         ),
-                      )
-                    else
-                      Container(
-                        decoration: const BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                        ),
-                        child: const Icon(
-                          Icons.school,
-                          size: 64,
-                          color: Colors.white54,
+                      // Gradient overlay for readability
+                      const DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.transparent, Colors.black54],
+                          ),
                         ),
                       ),
-                    // Gradient overlay for readability
-                    const DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Colors.black54],
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.share_rounded),
+                    onPressed: () {
+                      final url =
+                          'https://ecoursesdesgin.com/moodle/course/view.php?id=${widget.courseId}';
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${tr("common.link_copied")}: $url'),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.share_rounded),
-                  onPressed: () {
-                    // Share course link
-                  },
-                ),
-              ],
-            ),
 
-            // ─── Course Info Card ───
-            SliverToBoxAdapter(
-              child: _courseLoading
-                  ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  : _course != null
-                  ? FadeInUp(
-                      duration: const Duration(milliseconds: 400),
-                      child: _CourseInfoCard(course: _course!),
-                    )
-                  : const SizedBox(),
-            ),
+              // ─── Course Info Card ───
+              SliverToBoxAdapter(
+                child: _courseLoading
+                    ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : _course != null
+                    ? FadeInUp(
+                        duration: const Duration(milliseconds: 400),
+                        child: _CourseInfoCard(course: _course!),
+                      )
+                    : const SizedBox(),
+              ),
 
-            // ─── Tab-like section: Content ───
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Text(
-                  tr('courses.course_content'),
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+              // ─── Course Quick Actions ───
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    children: [
+                      _ActionChip(
+                        icon: Icons.quiz_rounded,
+                        label: tr('quizzes.title'),
+                        onTap: () =>
+                            context.push('/quiz/list/${widget.courseId}'),
+                      ),
+                      const SizedBox(width: 8),
+                      _ActionChip(
+                        icon: Icons.assignment_rounded,
+                        label: tr('assignments.title'),
+                        onTap: () =>
+                            context.push('/assignment/list/${widget.courseId}'),
+                      ),
+                      const SizedBox(width: 8),
+                      _ActionChip(
+                        icon: Icons.grade_rounded,
+                        label: tr('grades.title'),
+                        onTap: () => context.push('/grades/${widget.courseId}'),
+                      ),
+                      const SizedBox(width: 8),
+                      _ActionChip(
+                        icon: Icons.forum_rounded,
+                        label: tr('forums.title'),
+                        onTap: () =>
+                            context.push('/forum/list/${widget.courseId}'),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
 
-            // ─── Course Content Sections ───
-            BlocBuilder<CourseContentBloc, CourseContentState>(
-              builder: (context, state) {
-                if (state is CourseContentLoading) {
-                  return const SliverToBoxAdapter(child: _DetailShimmer());
-                }
-
-                if (state is CourseContentError) {
-                  return SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: AppColors.error,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(state.message),
-                            const SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.refresh),
-                              label: Text(tr('common.retry')),
-                              onPressed: () =>
-                                  context.read<CourseContentBloc>().add(
-                                    LoadCourseContent(
-                                      courseId: widget.courseId,
-                                    ),
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
+              // ─── Tab-like section: Content ───
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Text(
+                    tr('courses.course_content'),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                }
+                  ),
+                ),
+              ),
 
-                if (state is CourseContentLoaded) {
-                  if (state.sections.isEmpty) {
+              // ─── Course Content Sections ───
+              BlocBuilder<CourseContentBloc, CourseContentState>(
+                builder: (context, state) {
+                  if (state is CourseContentLoading) {
+                    return const SliverToBoxAdapter(child: _DetailShimmer());
+                  }
+
+                  if (state is CourseContentError) {
                     return SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(32),
@@ -207,12 +229,23 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                           child: Column(
                             children: [
                               Icon(
-                                Icons.folder_open,
-                                size: 64,
-                                color: AppColors.textTertiaryLight,
+                                Icons.error_outline,
+                                size: 48,
+                                color: AppColors.error,
                               ),
                               const SizedBox(height: 8),
-                              Text(tr('content.no_content')),
+                              Text(state.message),
+                              const SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.refresh),
+                                label: Text(tr('common.retry')),
+                                onPressed: () =>
+                                    context.read<CourseContentBloc>().add(
+                                      LoadCourseContent(
+                                        courseId: widget.courseId,
+                                      ),
+                                    ),
+                              ),
                             ],
                           ),
                         ),
@@ -220,29 +253,52 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     );
                   }
 
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final section = state.sections[index];
-                      return FadeInUp(
-                        duration: const Duration(milliseconds: 400),
-                        delay: Duration(milliseconds: index * 60),
-                        child: _DetailSectionCard(
-                          section: section,
-                          courseId: widget.courseId,
-                          initiallyExpanded: index == 0,
+                  if (state is CourseContentLoaded) {
+                    if (state.sections.isEmpty) {
+                      return SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.folder_open,
+                                  size: 64,
+                                  color: AppColors.textTertiaryLight,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(tr('content.no_content')),
+                              ],
+                            ),
+                          ),
                         ),
                       );
-                    }, childCount: state.sections.length),
-                  );
-                }
+                    }
 
-                return const SliverToBoxAdapter(child: SizedBox());
-              },
-            ),
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final section = state.sections[index];
+                        return FadeInUp(
+                          duration: const Duration(milliseconds: 400),
+                          delay: Duration(milliseconds: index * 60),
+                          child: _DetailSectionCard(
+                            section: section,
+                            courseId: widget.courseId,
+                            initiallyExpanded: index == 0,
+                          ),
+                        );
+                      }, childCount: state.sections.length),
+                    );
+                  }
 
-            // Bottom padding
-            const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
-          ],
+                  return const SliverToBoxAdapter(child: SizedBox());
+                },
+              ),
+
+              // Bottom padding
+              const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+            ],
+          ),
         ),
       ),
     );
@@ -349,6 +405,34 @@ class _InfoChip extends StatelessWidget {
       label: Text(label, style: const TextStyle(fontSize: 12)),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       visualDensity: VisualDensity.compact,
+    );
+  }
+}
+
+class _ActionChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _ActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: ActionChip(
+        avatar: Icon(icon, size: 16, color: AppColors.primary),
+        label: Text(
+          label,
+          style: const TextStyle(fontSize: 11),
+          overflow: TextOverflow.ellipsis,
+        ),
+        onPressed: onTap,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: VisualDensity.compact,
+      ),
     );
   }
 }
@@ -635,19 +719,32 @@ class _DetailModuleItem extends StatelessWidget {
         },
       );
     } else if (module.isQuiz) {
-      // TODO: Phase 3 — Quiz
-      _showComingSoon(context);
+      context.push(
+        '/quiz/list/$courseId?title=${Uri.encodeComponent(module.name)}',
+      );
     } else if (module.isAssignment) {
-      // TODO: Phase 3 — Assignment
-      _showComingSoon(context);
+      context.push('/assignment/list/$courseId');
     } else if (module.isForum) {
-      // TODO: Phase 5 — Forum
-      _showComingSoon(context);
+      context.push('/forum/list/$courseId');
     } else if (module.isBBB) {
-      // TODO: Phase 5 — BigBlueButton
-      _showComingSoon(context);
+      context.push(
+        '/content/html',
+        extra: {
+          'title': module.name,
+          'url': module.url,
+          'description': module.description,
+        },
+      );
+    } else if (module.isLabel) {
+      // Labels are inline text — show description if available
+      if (module.description != null && module.description!.isNotEmpty) {
+        context.push(
+          '/content/html',
+          extra: {'title': module.name, 'description': module.description},
+        );
+      }
     } else {
-      // Generic: try to open URL or show description
+      // Generic: try to open URL, description or contents
       if (module.url != null) {
         context.push(
           '/content/html',
@@ -658,6 +755,25 @@ class _DetailModuleItem extends StatelessWidget {
             'contents': module.contents,
           },
         );
+      } else if (module.description != null && module.description!.isNotEmpty) {
+        context.push(
+          '/content/html',
+          extra: {
+            'title': module.name,
+            'description': module.description,
+            'contents': module.contents,
+          },
+        );
+      } else if (module.contents.isNotEmpty) {
+        _openResourceContent(context);
+      } else if (module.modName.isNotEmpty) {
+        // Construct a fallback Moodle URL from modName + id
+        final fallbackUrl =
+            'https://ecoursesdesgin.com/moodle/mod/${module.modName}/view.php?id=${module.id}';
+        context.push(
+          '/content/html',
+          extra: {'title': module.name, 'url': fallbackUrl},
+        );
       } else {
         _showComingSoon(context);
       }
@@ -666,6 +782,24 @@ class _DetailModuleItem extends StatelessWidget {
 
   void _openResourceContent(BuildContext context) {
     if (module.contents.isEmpty) {
+      // Try to open via URL if available
+      if (module.url != null) {
+        context.push(
+          '/content/html',
+          extra: {'title': module.name, 'url': module.url},
+        );
+        return;
+      }
+      // Construct fallback URL from modName + id
+      if (module.modName.isNotEmpty) {
+        final fallbackUrl =
+            'https://ecoursesdesgin.com/moodle/mod/${module.modName}/view.php?id=${module.id}';
+        context.push(
+          '/content/html',
+          extra: {'title': module.name, 'url': fallbackUrl},
+        );
+        return;
+      }
       _showComingSoon(context);
       return;
     }

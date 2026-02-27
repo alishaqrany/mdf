@@ -224,23 +224,39 @@ class _CoursesList extends StatelessWidget {
     this.emptyMessage,
   });
 
+  Future<void> _onRefresh(BuildContext context) async {
+    final authState = context.read<AuthBloc>().state;
+    final userId = authState is AuthAuthenticated ? authState.user.id : 0;
+    context.read<CoursesBloc>().add(RefreshCourses(userId: userId));
+    // Wait briefly so the indicator shows
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (courses.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      return RefreshIndicator(
+        onRefresh: () => _onRefresh(context),
+        child: ListView(
           children: [
-            Icon(
-              Icons.school_outlined,
-              size: 80,
-              color: AppColors.textTertiaryLight,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              emptyMessage ?? tr('courses.no_courses'),
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondaryLight,
+            const SizedBox(height: 120),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.school_outlined,
+                    size: 80,
+                    color: AppColors.textTertiaryLight,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    emptyMessage ?? tr('courses.no_courses'),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.textSecondaryLight,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -249,30 +265,36 @@ class _CoursesList extends StatelessWidget {
     }
 
     if (isGrid) {
-      return GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.72,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemCount: courses.length,
-        itemBuilder: (context, index) => FadeInUp(
-          duration: const Duration(milliseconds: 400),
-          delay: Duration(milliseconds: index * 50),
-          child: _CourseGridCard(course: courses[index]),
+      return RefreshIndicator(
+        onRefresh: () => _onRefresh(context),
+        child: GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: courses.length,
+          itemBuilder: (context, index) => FadeInUp(
+            duration: const Duration(milliseconds: 400),
+            delay: Duration(milliseconds: index * 50),
+            child: _CourseGridCard(course: courses[index]),
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: courses.length,
-      itemBuilder: (context, index) => FadeInUp(
-        duration: const Duration(milliseconds: 400),
-        delay: Duration(milliseconds: index * 50),
-        child: _CourseListCard(course: courses[index]),
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(context),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: courses.length,
+        itemBuilder: (context, index) => FadeInUp(
+          duration: const Duration(milliseconds: 400),
+          delay: Duration(milliseconds: index * 50),
+          child: _CourseListCard(course: courses[index]),
+        ),
       ),
     );
   }

@@ -88,6 +88,7 @@ class _StudentDashboardView extends StatelessWidget {
                       child: _WelcomeHeader(
                         userName: user?.firstName ?? '',
                         profileImageUrl: user?.profileImageUrl,
+                        userId: user?.id ?? 0,
                       ),
                     ),
                   ),
@@ -105,6 +106,15 @@ class _StudentDashboardView extends StatelessWidget {
                     ),
                   ),
 
+                  // ─── Quick Access Grid ───
+                  SliverToBoxAdapter(
+                    child: FadeInUp(
+                      duration: const Duration(milliseconds: 500),
+                      delay: const Duration(milliseconds: 150),
+                      child: _QuickAccessGrid(userId: user?.id ?? 0),
+                    ),
+                  ),
+
                   // ─── Continue Learning Section ───
                   if (state.recentCourses.isNotEmpty) ...[
                     SliverToBoxAdapter(
@@ -113,7 +123,7 @@ class _StudentDashboardView extends StatelessWidget {
                         delay: const Duration(milliseconds: 200),
                         child: _SectionHeader(
                           title: tr('dashboard.continue_learning'),
-                          onViewAll: () {},
+                          onViewAll: () => context.go('/student/courses'),
                         ),
                       ),
                     ),
@@ -144,7 +154,7 @@ class _StudentDashboardView extends StatelessWidget {
                       delay: const Duration(milliseconds: 300),
                       child: _SectionHeader(
                         title: tr('dashboard.my_courses'),
-                        onViewAll: () {},
+                        onViewAll: () => context.go('/student/courses'),
                       ),
                     ),
                   ),
@@ -204,8 +214,13 @@ class _StudentDashboardView extends StatelessWidget {
 class _WelcomeHeader extends StatelessWidget {
   final String userName;
   final String? profileImageUrl;
+  final int userId;
 
-  const _WelcomeHeader({required this.userName, this.profileImageUrl});
+  const _WelcomeHeader({
+    required this.userName,
+    this.profileImageUrl,
+    required this.userId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -246,6 +261,17 @@ class _WelcomeHeader extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          // Search icon
+          IconButton(
+            icon: const Icon(Icons.search_rounded, color: Colors.white),
+            onPressed: () => context.push('/student/search'),
+          ),
+          // Notifications icon
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+            onPressed: () =>
+                context.push('/student/notifications?userId=$userId'),
           ),
           CircleAvatar(
             radius: 28,
@@ -392,6 +418,94 @@ class _SectionHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─── Quick Access Grid ───
+class _QuickAccessGrid extends StatelessWidget {
+  final int userId;
+
+  const _QuickAccessGrid({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      _QuickItem(
+        Icons.assignment_rounded,
+        tr('assignments.title'),
+        AppColors.warning,
+        () => context.push('/student/grades?userId=$userId'),
+      ),
+      _QuickItem(
+        Icons.grade_rounded,
+        tr('grades.title'),
+        AppColors.success,
+        () => context.push('/student/grades?userId=$userId'),
+      ),
+      _QuickItem(
+        Icons.notifications_rounded,
+        tr('notifications.title'),
+        AppColors.info,
+        () => context.push('/student/notifications?userId=$userId'),
+      ),
+      _QuickItem(
+        Icons.search_rounded,
+        tr('common.search'),
+        AppColors.accent,
+        () => context.push('/student/search'),
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: items
+            .map(
+              (item) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: InkWell(
+                    onTap: item.onTap,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: item.color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(item.icon, color: item.color, size: 26),
+                          const SizedBox(height: 6),
+                          Text(
+                            item.label,
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: item.color,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+}
+
+class _QuickItem {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  _QuickItem(this.icon, this.label, this.color, this.onTap);
 }
 
 // ─── Continue Learning Card ───

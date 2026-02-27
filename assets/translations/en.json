@@ -296,7 +296,9 @@
     "skip": "Skip",
     "home": "Home",
     "more": "More",
-    "coming_soon": "Coming Soon"
+    "minutes": "Minutes",
+    "coming_soon": "Coming Soon",
+    "link_copied": "Link copied"
   },
   "onboarding": {
     "title1": "Learn Anytime, Anywhere",

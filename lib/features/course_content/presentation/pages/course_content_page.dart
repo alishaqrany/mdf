@@ -25,15 +25,16 @@ class CourseContentPage extends StatelessWidget {
     return BlocProvider(
       create: (_) =>
           sl<CourseContentBloc>()..add(LoadCourseContent(courseId: courseId)),
-      child: _CourseContentView(courseTitle: courseTitle),
+      child: _CourseContentView(courseTitle: courseTitle, courseId: courseId),
     );
   }
 }
 
 class _CourseContentView extends StatelessWidget {
   final String courseTitle;
+  final int courseId;
 
-  const _CourseContentView({required this.courseTitle});
+  const _CourseContentView({required this.courseTitle, required this.courseId});
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +100,7 @@ class _CourseContentView extends StatelessWidget {
                 delay: Duration(milliseconds: index * 60),
                 child: _SectionWidget(
                   section: state.sections[index],
+                  courseId: courseId,
                   isExpanded: index == 0,
                 ),
               ),
@@ -115,9 +117,14 @@ class _CourseContentView extends StatelessWidget {
 // ─── Section Widget ───
 class _SectionWidget extends StatefulWidget {
   final CourseSection section;
+  final int courseId;
   final bool isExpanded;
 
-  const _SectionWidget({required this.section, this.isExpanded = false});
+  const _SectionWidget({
+    required this.section,
+    required this.courseId,
+    this.isExpanded = false,
+  });
 
   @override
   State<_SectionWidget> createState() => _SectionWidgetState();
@@ -215,7 +222,10 @@ class _SectionWidgetState extends State<_SectionWidget> {
             firstChild: const SizedBox(width: double.infinity),
             secondChild: Column(
               children: widget.section.modules
-                  .map((module) => _ModuleItem(module: module))
+                  .map(
+                    (module) =>
+                        _ModuleItem(module: module, courseId: widget.courseId),
+                  )
                   .toList(),
             ),
             crossFadeState: _isExpanded
@@ -232,8 +242,9 @@ class _SectionWidgetState extends State<_SectionWidget> {
 // ─── Module Item ───
 class _ModuleItem extends StatelessWidget {
   final CourseModule module;
+  final int courseId;
 
-  const _ModuleItem({required this.module});
+  const _ModuleItem({required this.module, required this.courseId});
 
   IconData _getModuleIcon() {
     if (module.isQuiz) return Icons.quiz_rounded;
@@ -390,6 +401,30 @@ class _ModuleItem extends StatelessWidget {
           'instance': module.instance,
         },
       );
+    } else if (module.isQuiz) {
+      context.push(
+        '/quiz/list/$courseId?title=${Uri.encodeComponent(module.name)}',
+      );
+    } else if (module.isAssignment) {
+      context.push('/assignment/list/$courseId');
+    } else if (module.isForum) {
+      context.push('/forum/list/$courseId');
+    } else if (module.isBBB) {
+      context.push(
+        '/content/html',
+        extra: {
+          'title': module.name,
+          'url': module.url,
+          'description': module.description,
+        },
+      );
+    } else if (module.isLabel) {
+      if (module.description != null && module.description!.isNotEmpty) {
+        context.push(
+          '/content/html',
+          extra: {'title': module.name, 'description': module.description},
+        );
+      }
     } else if (module.url != null) {
       context.push(
         '/content/html',
@@ -399,6 +434,25 @@ class _ModuleItem extends StatelessWidget {
           'description': module.description,
           'contents': module.contents,
         },
+      );
+    } else if (module.description != null && module.description!.isNotEmpty) {
+      context.push(
+        '/content/html',
+        extra: {
+          'title': module.name,
+          'description': module.description,
+          'contents': module.contents,
+        },
+      );
+    } else if (module.contents.isNotEmpty) {
+      _openResourceContent(context);
+    } else if (module.modName.isNotEmpty) {
+      // Construct a fallback Moodle URL from modName + id
+      final fallbackUrl =
+          'https://ecoursesdesgin.com/moodle/mod/${module.modName}/view.php?id=${module.id}';
+      context.push(
+        '/content/html',
+        extra: {'title': module.name, 'url': fallbackUrl},
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -416,6 +470,16 @@ class _ModuleItem extends StatelessWidget {
         context.push(
           '/content/html',
           extra: {'title': module.name, 'url': module.url},
+        );
+        return;
+      }
+      // Construct fallback URL from modName + id
+      if (module.modName.isNotEmpty) {
+        final fallbackUrl =
+            'https://ecoursesdesgin.com/moodle/mod/${module.modName}/view.php?id=${module.id}';
+        context.push(
+          '/content/html',
+          extra: {'title': module.name, 'url': fallbackUrl},
         );
       }
       return;

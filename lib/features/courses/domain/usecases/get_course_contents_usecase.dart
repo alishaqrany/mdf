@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
-import '../../../course_content/domain/entities/course_content.dart';
 import '../repositories/courses_repository.dart';
 
 class GetCourseContentsUseCase {

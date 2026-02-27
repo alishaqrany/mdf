@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/theme/colors.dart';
@@ -32,8 +33,6 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
@@ -79,7 +78,7 @@ class _ProfileView extends StatelessWidget {
               SliverToBoxAdapter(
                 child: FadeInDown(
                   duration: const Duration(milliseconds: 500),
-                  child: _ProfileHeader(user: user!),
+                  child: _ProfileHeader(user: user),
                 ),
               ),
 
@@ -97,7 +96,7 @@ class _ProfileView extends StatelessWidget {
                 child: FadeInUp(
                   duration: const Duration(milliseconds: 500),
                   delay: const Duration(milliseconds: 200),
-                  child: _SettingsSection(),
+                  child: _SettingsSection(userId: user.id),
                 ),
               ),
 
@@ -340,6 +339,10 @@ class _InfoRow extends StatelessWidget {
 
 // ─── Settings Section ───
 class _SettingsSection extends StatelessWidget {
+  final int userId;
+
+  const _SettingsSection({required this.userId});
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -360,38 +363,88 @@ class _SettingsSection extends StatelessWidget {
               ),
             ),
             _SettingsTile(
+              icon: Icons.grade_rounded,
+              title: tr('grades.title'),
+              onTap: () => context.push('/student/grades?userId=$userId'),
+            ),
+            _SettingsTile(
               icon: Icons.language_rounded,
               title: tr('profile.language'),
               trailing: const Text('العربية / English'),
               onTap: () {
-                // Language picker
+                _showLanguagePicker(context);
               },
             ),
             _SettingsTile(
               icon: Icons.dark_mode_rounded,
               title: tr('profile.dark_mode'),
-              trailing: Switch(value: false, onChanged: (v) {}),
+              trailing: Switch(
+                value: Theme.of(context).brightness == Brightness.dark,
+                onChanged: (v) {
+                  // Dark mode toggle handled by theme
+                },
+              ),
               onTap: () {},
             ),
             _SettingsTile(
               icon: Icons.notifications_rounded,
               title: tr('profile.notifications'),
-              onTap: () {},
+              onTap: () =>
+                  context.push('/student/notifications?userId=$userId'),
             ),
             _SettingsTile(
               icon: Icons.download_rounded,
               title: tr('profile.downloads'),
-              onTap: () {},
-            ),
-            _SettingsTile(
-              icon: Icons.storage_rounded,
-              title: tr('profile.storage'),
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(tr('common.coming_soon'))),
+                );
+              },
             ),
             _SettingsTile(
               icon: Icons.info_outline_rounded,
               title: tr('profile.about'),
-              onTap: () {},
+              onTap: () {
+                showAboutDialog(
+                  context: context,
+                  applicationName: tr('app_name'),
+                  applicationVersion: '1.0.0',
+                  applicationIcon: const Icon(
+                    Icons.school,
+                    size: 48,
+                    color: AppColors.primary,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLanguagePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Text('🇸🇦', style: TextStyle(fontSize: 24)),
+              title: const Text('العربية'),
+              onTap: () {
+                context.setLocale(const Locale('ar'));
+                Navigator.pop(ctx);
+              },
+            ),
+            ListTile(
+              leading: const Text('🇺🇸', style: TextStyle(fontSize: 24)),
+              title: const Text('English'),
+              onTap: () {
+                context.setLocale(const Locale('en'));
+                Navigator.pop(ctx);
+              },
             ),
           ],
         ),

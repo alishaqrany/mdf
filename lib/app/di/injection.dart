@@ -32,6 +32,48 @@ import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 
+// ─── Quizzes ───
+import '../../features/quizzes/data/datasources/quiz_remote_datasource.dart';
+import '../../features/quizzes/data/repositories/quiz_repository_impl.dart';
+import '../../features/quizzes/domain/repositories/quiz_repository.dart';
+import '../../features/quizzes/presentation/bloc/quiz_bloc.dart';
+
+// ─── Assignments ───
+import '../../features/assignments/data/datasources/assignment_remote_datasource.dart';
+import '../../features/assignments/data/repositories/assignment_repository_impl.dart';
+import '../../features/assignments/domain/repositories/assignment_repository.dart';
+import '../../features/assignments/presentation/bloc/assignment_bloc.dart';
+
+// ─── Grades ───
+import '../../features/grades/data/datasources/grade_remote_datasource.dart';
+import '../../features/grades/data/repositories/grade_repository_impl.dart';
+import '../../features/grades/domain/repositories/grade_repository.dart';
+import '../../features/grades/presentation/bloc/grades_bloc.dart';
+
+// ─── Messaging ───
+import '../../features/messaging/data/datasources/messaging_remote_datasource.dart';
+import '../../features/messaging/data/repositories/messaging_repository_impl.dart';
+import '../../features/messaging/domain/repositories/messaging_repository.dart';
+import '../../features/messaging/presentation/bloc/messaging_bloc.dart';
+
+// ─── Forums ───
+import '../../features/forums/data/datasources/forum_remote_datasource.dart';
+import '../../features/forums/data/repositories/forum_repository_impl.dart';
+import '../../features/forums/domain/repositories/forum_repository.dart';
+import '../../features/forums/presentation/bloc/forum_bloc.dart';
+
+// ─── Notifications ───
+import '../../features/notifications/data/datasources/notification_remote_datasource.dart';
+import '../../features/notifications/data/repositories/notification_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notification_repository.dart';
+import '../../features/notifications/presentation/bloc/notification_bloc.dart';
+
+// ─── Calendar ───
+import '../../features/calendar/data/datasources/calendar_remote_datasource.dart';
+import '../../features/calendar/data/repositories/calendar_repository_impl.dart';
+import '../../features/calendar/domain/repositories/calendar_repository.dart';
+import '../../features/calendar/presentation/bloc/calendar_bloc.dart';
+
 final sl = GetIt.instance;
 
 /// Initialize all dependencies.
@@ -118,4 +160,67 @@ Future<void> initDependencies() async {
     () => ProfileRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerFactory(() => ProfileBloc(repository: sl()));
+
+  // ─── Quizzes Feature ───
+  sl.registerLazySingleton<QuizRemoteDataSource>(
+    () => QuizRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<QuizRepository>(
+    () => QuizRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => QuizBloc(repository: sl()));
+
+  // ─── Assignments Feature ───
+  sl.registerLazySingleton<AssignmentRemoteDataSource>(
+    () => AssignmentRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<AssignmentRepository>(
+    () => AssignmentRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => AssignmentBloc(repository: sl()));
+
+  // ─── Grades Feature ───
+  sl.registerLazySingleton<GradeRemoteDataSource>(
+    () => GradeRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<GradeRepository>(
+    () => GradeRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => GradesBloc(repository: sl()));
+
+  // ─── Messaging Feature ───
+  sl.registerLazySingleton<MessagingRemoteDataSource>(
+    () => MessagingRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<MessagingRepository>(
+    () => MessagingRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => MessagingBloc(repository: sl()));
+
+  // ─── Forums Feature ───
+  sl.registerLazySingleton<ForumRemoteDataSource>(
+    () => ForumRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<ForumRepository>(
+    () => ForumRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => ForumBloc(repository: sl()));
+
+  // ─── Notifications Feature ───
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => NotificationBloc(repository: sl()));
+
+  // ─── Calendar Feature ───
+  sl.registerLazySingleton<CalendarRemoteDataSource>(
+    () => CalendarRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<CalendarRepository>(
+    () => CalendarRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => CalendarBloc(repository: sl()));
 }
