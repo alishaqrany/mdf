@@ -22,14 +22,28 @@ class ErrorInterceptor extends Interceptor {
         _logger.e('Moodle API Error: $errorCode - $message');
 
         // Handle specific error codes
-        if (errorCode == 'invalidtoken' ||
-            errorCode == 'accessexception' ||
-            errorCode == 'invalidlogin') {
+        if (errorCode == 'invalidtoken' || errorCode == 'invalidlogin') {
           handler.reject(
             DioException(
               requestOptions: response.requestOptions,
               response: response,
               error: AuthException(message: message),
+              type: DioExceptionType.badResponse,
+            ),
+          );
+          return;
+        }
+
+        if (errorCode == 'accessexception') {
+          handler.reject(
+            DioException(
+              requestOptions: response.requestOptions,
+              response: response,
+              error: MoodleException(
+                message: message,
+                errorCode: errorCode,
+                debugInfo: debugInfo,
+              ),
               type: DioExceptionType.badResponse,
             ),
           );

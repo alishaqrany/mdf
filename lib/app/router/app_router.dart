@@ -6,7 +6,13 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/student_dashboard/presentation/pages/student_dashboard_page.dart';
 import '../../features/admin_dashboard/presentation/pages/admin_dashboard_page.dart';
 import '../../features/courses/presentation/pages/courses_page.dart';
-import '../../features/course_content/presentation/pages/course_content_page.dart';
+import '../../features/course_detail/presentation/pages/course_detail_page.dart';
+import '../../features/content_viewer/presentation/pages/video_player_page.dart';
+import '../../features/content_viewer/presentation/pages/pdf_viewer_page.dart';
+import '../../features/content_viewer/presentation/pages/html_content_page.dart';
+import '../../features/content_viewer/presentation/pages/scorm_player_page.dart';
+import '../../features/content_viewer/presentation/pages/h5p_player_page.dart';
+import '../../features/course_content/domain/entities/course_content.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 
 /// Route name constants
@@ -16,6 +22,12 @@ abstract class AppRoutes {
   static const adminDashboard = 'admin-dashboard';
   static const courses = 'courses';
   static const courseContent = 'course-content';
+  static const courseDetail = 'course-detail';
+  static const videoPlayer = 'video-player';
+  static const pdfViewer = 'pdf-viewer';
+  static const htmlContent = 'html-content';
+  static const scormPlayer = 'scorm-player';
+  static const h5pPlayer = 'h5p-player';
   static const profile = 'profile';
   static const settings = 'settings';
 }
@@ -79,9 +91,11 @@ class AppRouter {
               final courseId =
                   int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
               final courseTitle = state.uri.queryParameters['title'] ?? '';
-              return CourseContentPage(
+              final imageUrl = state.uri.queryParameters['image'];
+              return CourseDetailPage(
                 courseId: courseId,
                 courseTitle: courseTitle,
+                imageUrl: imageUrl,
               );
             },
           ),
@@ -108,18 +122,104 @@ class AppRouter {
             builder: (context, state) => const CoursesPage(),
           ),
           GoRoute(
+            path: '/admin/course/:courseId',
+            name: 'admin-course-detail',
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              final courseTitle = state.uri.queryParameters['title'] ?? '';
+              final imageUrl = state.uri.queryParameters['image'];
+              return CourseDetailPage(
+                courseId: courseId,
+                courseTitle: courseTitle,
+                imageUrl: imageUrl,
+              );
+            },
+          ),
+          GoRoute(
             path: '/admin/profile',
             name: '${AppRoutes.profile}-admin',
             builder: (context, state) => const ProfilePage(),
           ),
         ],
       ),
+
+      // ─── Content Viewer Routes (shared) ───
+      ..._contentViewerRoutes,
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(child: Text('Page not found: ${state.matchedLocation}')),
     ),
   );
 }
+
+/// Extract typed extra data safely.
+T? _extra<T>(GoRouterState state, String key) {
+  final extra = state.extra;
+  if (extra is Map<String, dynamic>) {
+    return extra[key] as T?;
+  }
+  return null;
+}
+
+/// Content viewer routes — accessible from any shell.
+List<RouteBase> get _contentViewerRoutes => [
+  GoRoute(
+    path: '/content/video',
+    name: AppRoutes.videoPlayer,
+    builder: (context, state) {
+      return VideoPlayerPage(
+        title: _extra<String>(state, 'title') ?? '',
+        videoUrl: _extra<String>(state, 'videoUrl') ?? '',
+      );
+    },
+  ),
+  GoRoute(
+    path: '/content/pdf',
+    name: AppRoutes.pdfViewer,
+    builder: (context, state) {
+      return PdfViewerPage(
+        title: _extra<String>(state, 'title') ?? '',
+        pdfUrl: _extra<String>(state, 'pdfUrl') ?? '',
+      );
+    },
+  ),
+  GoRoute(
+    path: '/content/html',
+    name: AppRoutes.htmlContent,
+    builder: (context, state) {
+      return HtmlContentPage(
+        title: _extra<String>(state, 'title') ?? '',
+        url: _extra<String>(state, 'url'),
+        description: _extra<String>(state, 'description'),
+        contents: _extra<List<ModuleContent>>(state, 'contents'),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/content/scorm',
+    name: AppRoutes.scormPlayer,
+    builder: (context, state) {
+      return ScormPlayerPage(
+        title: _extra<String>(state, 'title') ?? '',
+        url: _extra<String>(state, 'url'),
+        instance: _extra<int>(state, 'instance'),
+        courseId: _extra<int>(state, 'courseId'),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/content/h5p',
+    name: AppRoutes.h5pPlayer,
+    builder: (context, state) {
+      return H5pPlayerPage(
+        title: _extra<String>(state, 'title') ?? '',
+        url: _extra<String>(state, 'url'),
+        instance: _extra<int>(state, 'instance'),
+      );
+    },
+  ),
+];
 
 // ─── Student Bottom Navigation Shell ───
 class _StudentShell extends StatefulWidget {

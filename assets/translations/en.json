@@ -50,12 +50,19 @@
     "add_user": "Add User",
     "add_course": "Add Course",
     "manage_roles": "Manage Roles",
-    "site_settings": "Site Settings"
+    "site_settings": "Site Settings",
+    "overview": "Overview",
+    "create_course": "Create Course",
+    "manage_enrollments": "Manage Enrollments",
+    "view_reports": "View Reports"
   },
   "courses": {
     "title": "Courses",
     "my_courses": "My Courses",
     "all_courses": "All Courses",
+    "all": "All",
+    "in_progress": "In Progress",
+    "search_courses": "Search courses...",
     "search": "Search courses...",
     "categories": "Categories",
     "filter": "Filter",
@@ -98,7 +105,12 @@
     "downloaded": "Downloaded",
     "open": "Open",
     "mark_complete": "Mark as Complete",
-    "completed": "Completed"
+    "completed": "Completed",
+    "no_content": "No content available",
+    "section_unnamed": "Untitled Section",
+    "activities": "activities",
+    "attachments": "Attachments",
+    "file": "File"
   },
   "quiz": {
     "title": "Quiz",
@@ -186,6 +198,9 @@
   "profile": {
     "title": "Profile",
     "edit_profile": "Edit Profile",
+    "personal_info": "Personal Information",
+    "username": "Username",
+    "full_name": "Full Name",
     "change_photo": "Change Photo",
     "first_name": "First Name",
     "last_name": "Last Name",
@@ -193,6 +208,15 @@
     "phone": "Phone",
     "city": "City",
     "country": "Country",
+    "role_admin": "Administrator",
+    "role_student": "Student",
+    "settings": "Settings",
+    "language": "Language",
+    "dark_mode": "Dark Mode",
+    "notifications": "Notifications",
+    "downloads": "Downloads",
+    "storage": "Storage",
+    "update_success": "Profile updated successfully",
     "about": "About",
     "save": "Save Changes",
     "logout": "Logout",
@@ -271,7 +295,8 @@
     "previous": "Previous",
     "skip": "Skip",
     "home": "Home",
-    "more": "More"
+    "more": "More",
+    "coming_soon": "Coming Soon"
   },
   "onboarding": {
     "title1": "Learn Anytime, Anywhere",

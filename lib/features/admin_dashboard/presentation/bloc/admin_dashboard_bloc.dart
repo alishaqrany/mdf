@@ -35,10 +35,23 @@ class AdminDashboardBloc
   Future<void> _loadDashboard(Emitter<AdminDashboardState> emit) async {
     try {
       // Get total courses
-      final coursesResponse = await apiClient.call(
-        MoodleApiEndpoints.getCourses,
-      );
-      final totalCourses = coursesResponse is List ? coursesResponse.length : 0;
+      int totalCourses = 0;
+      try {
+        final coursesResponse = await apiClient.call(
+          MoodleApiEndpoints.getCourses,
+        );
+        totalCourses = coursesResponse is List ? coursesResponse.length : 0;
+      } catch (_) {
+        final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+        final userId = (siteInfo as Map<String, dynamic>)['userid'] as int?;
+        if (userId != null) {
+          final enrolledCourses = await apiClient.call(
+            MoodleApiEndpoints.getUsersCourses,
+            params: {'userid': userId},
+          );
+          totalCourses = enrolledCourses is List ? enrolledCourses.length : 0;
+        }
+      }
 
       // Get users (basic search for count)
       int totalUsers = 0;

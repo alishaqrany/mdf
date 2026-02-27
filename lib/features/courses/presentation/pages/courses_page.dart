@@ -2,14 +2,28 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../domain/entities/course.dart';
 import '../bloc/courses_bloc.dart';
+
+void _navigateToCourse(BuildContext context, Course course) {
+  // Detect if we're in admin or student shell
+  final location = GoRouterState.of(context).matchedLocation;
+  final prefix = location.startsWith('/admin') ? '/admin' : '/student';
+  final imageParam = course.imageUrl != null
+      ? '&image=${Uri.encodeComponent(course.imageUrl!)}'
+      : '';
+  context.push(
+    '$prefix/course/${course.id}?title=${Uri.encodeComponent(course.fullName)}$imageParam',
+  );
+}
 
 class CoursesPage extends StatelessWidget {
   const CoursesPage({super.key});
@@ -18,7 +32,9 @@ class CoursesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return sl<CoursesBloc>()..add(const LoadEnrolledCourses(userId: 0));
+        final authState = context.read<AuthBloc>().state;
+        final userId = authState is AuthAuthenticated ? authState.user.id : 0;
+        return sl<CoursesBloc>()..add(LoadEnrolledCourses(userId: userId));
       },
       child: const _CoursesView(),
     );
@@ -86,8 +102,12 @@ class _CoursesViewState extends State<_CoursesView>
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
+                              final authState = context.read<AuthBloc>().state;
+                              final userId = authState is AuthAuthenticated
+                                  ? authState.user.id
+                                  : 0;
                               context.read<CoursesBloc>().add(
-                                const LoadEnrolledCourses(userId: 0),
+                                LoadEnrolledCourses(userId: userId),
                               );
                               setState(() {});
                             },
@@ -141,8 +161,12 @@ class _CoursesViewState extends State<_CoursesView>
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
                     onPressed: () {
+                      final authState = context.read<AuthBloc>().state;
+                      final userId = authState is AuthAuthenticated
+                          ? authState.user.id
+                          : 0;
                       context.read<CoursesBloc>().add(
-                        const LoadEnrolledCourses(userId: 0),
+                        LoadEnrolledCourses(userId: userId),
                       );
                     },
                     icon: const Icon(Icons.refresh),
@@ -268,9 +292,7 @@ class _CourseGridCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          // Navigate to course detail
-        },
+        onTap: () => _navigateToCourse(context, course),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -388,9 +410,7 @@ class _CourseListCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () {
-          // Navigate to course detail
-        },
+        onTap: () => _navigateToCourse(context, course),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(12),

@@ -19,27 +19,61 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
 
   @override
   Future<List<CourseModel>> getEnrolledCourses(int userId) async {
-    final response = await apiClient.call(
-      MoodleApiEndpoints.getUsersCourses,
-      params: {'userid': userId},
-    );
-
-    if (response is List) {
-      return response
-          .map(
-            (json) =>
-                CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
-          )
-          .toList();
+    // Resolve userId=0 — happens if auth state was not ready when page loaded
+    int resolvedUserId = userId;
+    if (resolvedUserId == 0) {
+      final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+      resolvedUserId =
+          (siteInfo as Map<String, dynamic>)['userid'] as int? ?? 0;
     }
-    return [];
+    if (resolvedUserId == 0) return [];
+
+    try {
+      final response = await apiClient.call(
+        MoodleApiEndpoints.getUsersCourses,
+        params: {'userid': resolvedUserId},
+      );
+
+      if (response is List) {
+        return response
+            .map(
+              (json) =>
+                  CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
+            )
+            .toList();
+      }
+      return [];
+    } catch (_) {
+      // Fallback: use core_course_get_courses if enrol_get_users_courses fails
+      try {
+        final response = await apiClient.call(MoodleApiEndpoints.getCourses);
+        if (response is List) {
+          return response
+              .map(
+                (json) => CourseModel.fromEnrolledCourse(
+                  json as Map<String, dynamic>,
+                ),
+              )
+              .toList();
+        }
+      } catch (_) {}
+      return [];
+    }
   }
 
   @override
   Future<List<CourseModel>> getRecentCourses(int userId) async {
+    int resolvedUserId = userId;
+    if (resolvedUserId == 0) {
+      final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+      resolvedUserId =
+          (siteInfo as Map<String, dynamic>)['userid'] as int? ?? 0;
+    }
+    if (resolvedUserId == 0) return [];
+
     final response = await apiClient.call(
       MoodleApiEndpoints.getRecentCourses,
-      params: {'userid': userId, 'limit': 5},
+      params: {'userid': resolvedUserId, 'limit': 5},
     );
 
     if (response is List) {
@@ -73,16 +107,38 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
 
   @override
   Future<List<CourseModel>> getAllCourses() async {
-    final response = await apiClient.call(MoodleApiEndpoints.getCourses);
+    try {
+      final response = await apiClient.call(MoodleApiEndpoints.getCourses);
 
-    if (response is List) {
-      return response
-          .map(
-            (json) =>
-                CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
-          )
-          .toList();
+      if (response is List) {
+        return response
+            .map(
+              (json) =>
+                  CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
+            )
+            .toList();
+      }
+      return [];
+    } catch (_) {
+      final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+      final userId = (siteInfo as Map<String, dynamic>)['userid'] as int?;
+      if (userId == null) return [];
+
+      final enrolledResponse = await apiClient.call(
+        MoodleApiEndpoints.getUsersCourses,
+        params: {'userid': userId},
+      );
+
+      if (enrolledResponse is List) {
+        return enrolledResponse
+            .map(
+              (json) =>
+                  CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
+            )
+            .toList();
+      }
     }
+
     return [];
   }
 

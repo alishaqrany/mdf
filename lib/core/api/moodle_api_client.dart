@@ -2,11 +2,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:logger/logger.dart';
 
 import '../constants/app_constants.dart';
 import '../error/exceptions.dart';
-import 'api_endpoints.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
@@ -18,7 +16,6 @@ import 'interceptors/logging_interceptor.dart';
 class MoodleApiClient {
   late final Dio _dio;
   final FlutterSecureStorage _secureStorage;
-  final Logger _logger = Logger();
 
   String? _baseUrl;
 
@@ -66,38 +63,96 @@ class MoodleApiClient {
       throw const ServerException(message: 'Server URL not configured');
     }
 
-    try {
-      final response = await _dio.post(
-        '$baseUrl${AppConstants.moodleLoginPath}',
-        data: {'username': username, 'password': password, 'service': service},
-      );
+    ServerException? lastServerException;
+    AuthException? lastAuthException;
 
-      final data = response.data as Map<String, dynamic>;
+    final fallbackServices = <String>{service, 'moodle_mobile_app'};
 
-      if (data.containsKey('token')) {
-        // Save token
-        await _secureStorage.write(
-          key: AppConstants.tokenKey,
-          value: data['token'] as String,
+    for (final currentService in fallbackServices) {
+      try {
+        final response = await _dio.post(
+          '$baseUrl${AppConstants.moodleLoginPath}',
+          data: {
+            'username': username,
+            'password': password,
+            'service': currentService,
+          },
         );
-        if (data.containsKey('privatetoken')) {
-          await _secureStorage.write(
-            key: AppConstants.privateTokenKey,
-            value: data['privatetoken'] as String,
-          );
-        }
-        return data;
-      }
 
-      throw ServerException(
-        message: data['error'] as String? ?? 'Login failed',
-        errorCode: data['errorcode'] as String?,
-      );
-    } on DioException catch (e) {
-      if (e.error is ServerException) rethrow;
-      if (e.error is AuthException) rethrow;
-      throw ServerException(message: e.message ?? 'Login failed');
+        final rawData = response.data;
+        if (rawData is! Map<String, dynamic>) {
+          throw const ServerException(message: 'Invalid login response');
+        }
+
+        final data = rawData;
+        final token = data['token']?.toString();
+
+        if (token != null && token.isNotEmpty) {
+          await _secureStorage.write(key: AppConstants.tokenKey, value: token);
+          final privateToken = data['privatetoken']?.toString();
+          if (privateToken != null && privateToken.isNotEmpty) {
+            await _secureStorage.write(
+              key: AppConstants.privateTokenKey,
+              value: privateToken,
+            );
+          }
+          return data;
+        }
+
+        final errorCode = data['errorcode']?.toString();
+        final errorMessage = data['error']?.toString() ?? 'Login failed';
+
+        final shouldTryFallback =
+            errorCode == 'servicenotavailable' ||
+            errorCode == 'cannotcreatetoken' ||
+            errorCode == 'invalidservice';
+
+        if (shouldTryFallback) {
+          lastServerException = ServerException(
+            message:
+                'لا يمكن إنشاء رمز خدمة الويب للخدمة الحالية. فعّل خدمة mdf_mobile_service أو moodle_mobile_app وتأكد من صلاحيات المستخدم في Moodle.',
+            errorCode: errorCode,
+          );
+          continue;
+        }
+
+        throw ServerException(message: errorMessage, errorCode: errorCode);
+      } on DioException catch (e) {
+        if (e.error is AuthException) {
+          lastAuthException = e.error as AuthException;
+          break;
+        }
+        if (e.error is ServerException) {
+          final serverException = e.error as ServerException;
+          final shouldTryFallback =
+              serverException.errorCode == 'servicenotavailable' ||
+              serverException.errorCode == 'cannotcreatetoken' ||
+              serverException.errorCode == 'invalidservice';
+
+          if (shouldTryFallback) {
+            lastServerException = ServerException(
+              message:
+                  'لا يمكن إنشاء رمز خدمة الويب للخدمة الحالية. فعّل خدمة mdf_mobile_service أو moodle_mobile_app وتأكد من صلاحيات المستخدم في Moodle.',
+              errorCode: serverException.errorCode,
+              statusCode: serverException.statusCode,
+            );
+            continue;
+          }
+          throw serverException;
+        }
+        throw ServerException(message: e.message ?? 'Login failed');
+      }
     }
+
+    if (lastAuthException != null) {
+      throw lastAuthException;
+    }
+
+    if (lastServerException != null) {
+      throw lastServerException;
+    }
+
+    throw const ServerException(message: 'Login failed');
   }
 
   /// Call a Moodle Web Service function.

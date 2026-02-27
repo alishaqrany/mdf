@@ -14,6 +14,17 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   @override
   Future<UserModel> getUserProfile(int userId) async {
+    final siteInfoResponse = await apiClient.call(
+      MoodleApiEndpoints.getSiteInfo,
+    );
+    final siteInfoUser = UserModel.fromSiteInfo(
+      siteInfoResponse as Map<String, dynamic>,
+    );
+
+    if (userId == 0 || siteInfoUser.id == userId) {
+      return siteInfoUser;
+    }
+
     final response = await apiClient.call(
       MoodleApiEndpoints.getUsersByField,
       params: {'field': 'id', 'values[0]': userId},
@@ -22,7 +33,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     if (response is List && response.isNotEmpty) {
       return UserModel.fromUserData(response.first as Map<String, dynamic>);
     }
-    throw Exception('User not found');
+
+    return siteInfoUser;
   }
 
   @override

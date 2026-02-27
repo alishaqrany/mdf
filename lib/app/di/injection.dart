@@ -24,6 +24,7 @@ import '../../features/course_content/data/datasources/course_content_remote_dat
 import '../../features/course_content/data/repositories/course_content_repository_impl.dart';
 import '../../features/course_content/domain/repositories/course_content_repository.dart';
 import '../../features/course_content/presentation/bloc/course_content_bloc.dart';
+import '../../features/course_detail/data/datasources/course_detail_remote_datasource.dart';
 import '../../features/student_dashboard/presentation/bloc/student_dashboard_bloc.dart';
 import '../../features/admin_dashboard/presentation/bloc/admin_dashboard_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
@@ -95,6 +96,11 @@ Future<void> initDependencies() async {
         CourseContentRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerFactory(() => CourseContentBloc(repository: sl()));
+
+  // ─── Course Detail Feature ───
+  sl.registerLazySingleton<CourseDetailRemoteDataSource>(
+    () => CourseDetailRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // ─── Student Dashboard ───
   sl.registerFactory(

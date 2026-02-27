@@ -105,7 +105,7 @@
 - [ ] دعم الصور والروابط والجداول
 - [ ] أو استخدام WebView
 
-#### 2.5 عارض SCORM
+#### 2.5 عارض SCORM~
 - [ ] ```ScormPlayerPage``` — تشغيل حزم SCORM
 - [ ] WebView مع JavaScriptChannel
 - [ ] تتبع التقدم عبر SCORM API

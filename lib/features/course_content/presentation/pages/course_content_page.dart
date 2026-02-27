@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/theme/colors.dart';
@@ -290,9 +291,7 @@ class _ModuleItem extends StatelessWidget {
     }
 
     return InkWell(
-      onTap: () {
-        // Navigate to module content viewer
-      },
+      onTap: () => _navigateToContent(context),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -349,6 +348,101 @@ class _ModuleItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _navigateToContent(BuildContext context) {
+    if (module.isResource || module.isFolder) {
+      _openResourceContent(context);
+    } else if (module.isPage || module.isBook || module.isLesson) {
+      context.push(
+        '/content/html',
+        extra: {
+          'title': module.name,
+          'url': module.url,
+          'description': module.description,
+          'contents': module.contents,
+        },
+      );
+    } else if (module.isUrl) {
+      context.push(
+        '/content/html',
+        extra: {
+          'title': module.name,
+          'url': module.url,
+          'description': module.description,
+        },
+      );
+    } else if (module.isScorm) {
+      context.push(
+        '/content/scorm',
+        extra: {
+          'title': module.name,
+          'url': module.url,
+          'instance': module.instance,
+        },
+      );
+    } else if (module.isH5P) {
+      context.push(
+        '/content/h5p',
+        extra: {
+          'title': module.name,
+          'url': module.url,
+          'instance': module.instance,
+        },
+      );
+    } else if (module.url != null) {
+      context.push(
+        '/content/html',
+        extra: {
+          'title': module.name,
+          'url': module.url,
+          'description': module.description,
+          'contents': module.contents,
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(tr('common.coming_soon')),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _openResourceContent(BuildContext context) {
+    if (module.contents.isEmpty) {
+      if (module.url != null) {
+        context.push(
+          '/content/html',
+          extra: {'title': module.name, 'url': module.url},
+        );
+      }
+      return;
+    }
+
+    final content = module.contents.first;
+    if (content.isVideo || module.isVideo) {
+      context.push(
+        '/content/video',
+        extra: {'title': module.name, 'videoUrl': content.fileUrl ?? ''},
+      );
+    } else if (content.isPdf) {
+      context.push(
+        '/content/pdf',
+        extra: {'title': module.name, 'pdfUrl': content.fileUrl ?? ''},
+      );
+    } else {
+      context.push(
+        '/content/html',
+        extra: {
+          'title': module.name,
+          'url': content.fileUrl,
+          'description': module.description,
+          'contents': module.contents,
+        },
+      );
+    }
   }
 }
 

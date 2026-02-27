@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:animate_do/animate_do.dart';
@@ -411,7 +412,12 @@ class _ContinueLearningCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-            // Navigate to course content
+            final imageParam = course.imageUrl != null
+                ? '&image=${Uri.encodeComponent(course.imageUrl!)}'
+                : '';
+            context.push(
+              '/student/course/${course.id}?title=${Uri.encodeComponent(course.fullName)}$imageParam',
+            );
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,7 +511,12 @@ class _CourseListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: () {
-          // Navigate to course
+          final imageParam = course.imageUrl != null
+              ? '&image=${Uri.encodeComponent(course.imageUrl!)}'
+              : '';
+          context.push(
+            '/student/course/${course.id}?title=${Uri.encodeComponent(course.fullName)}$imageParam',
+          );
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(

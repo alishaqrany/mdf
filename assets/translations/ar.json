@@ -50,12 +50,19 @@
     "add_user": "إضافة مستخدم",
     "add_course": "إضافة مقرر",
     "manage_roles": "إدارة الصلاحيات",
-    "site_settings": "إعدادات الموقع"
+    "site_settings": "إعدادات الموقع",
+    "overview": "نظرة عامة",
+    "create_course": "إنشاء مقرر",
+    "manage_enrollments": "إدارة التسجيلات",
+    "view_reports": "عرض التقارير"
   },
   "courses": {
     "title": "المقررات",
     "my_courses": "مقرراتي",
     "all_courses": "جميع المقررات",
+    "all": "الكل",
+    "in_progress": "قيد التنفيذ",
+    "search_courses": "ابحث عن مقرر...",
     "search": "ابحث عن مقرر...",
     "categories": "التصنيفات",
     "filter": "تصفية",
@@ -98,7 +105,12 @@
     "downloaded": "تم التحميل",
     "open": "فتح",
     "mark_complete": "وضع علامة مكتمل",
-    "completed": "مكتمل"
+    "completed": "مكتمل",
+    "no_content": "لا يوجد محتوى",
+    "section_unnamed": "قسم بدون عنوان",
+    "activities": "أنشطة",
+    "attachments": "المرفقات",
+    "file": "ملف"
   },
   "quiz": {
     "title": "اختبار",
@@ -186,6 +198,9 @@
   "profile": {
     "title": "الملف الشخصي",
     "edit_profile": "تعديل الملف الشخصي",
+    "personal_info": "المعلومات الشخصية",
+    "username": "اسم المستخدم",
+    "full_name": "الاسم الكامل",
     "change_photo": "تغيير الصورة",
     "first_name": "الاسم الأول",
     "last_name": "اسم العائلة",
@@ -193,6 +208,15 @@
     "phone": "الهاتف",
     "city": "المدينة",
     "country": "الدولة",
+    "role_admin": "مدير النظام",
+    "role_student": "طالب",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "dark_mode": "الوضع الليلي",
+    "notifications": "الإشعارات",
+    "downloads": "التحميلات",
+    "storage": "التخزين",
+    "update_success": "تم تحديث الملف الشخصي بنجاح",
     "about": "نبذة",
     "save": "حفظ التغييرات",
     "logout": "تسجيل الخروج",
@@ -271,7 +295,8 @@
     "previous": "السابق",
     "skip": "تخطي",
     "home": "الرئيسية",
-    "more": "المزيد"
+    "more": "المزيد",
+    "coming_soon": "قريباً"
   },
   "onboarding": {
     "title1": "تعلَّم في أي وقت ومكان",
