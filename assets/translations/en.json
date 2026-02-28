@@ -132,7 +132,19 @@
     "time_up": "Time's up!",
     "correct": "Correct",
     "incorrect": "Incorrect",
-    "partially_correct": "Partially Correct"
+    "partially_correct": "Partially Correct",
+    "questions": "questions",
+    "page": "Page",
+    "no_questions": "No questions found",
+    "submitted_success": "Quiz submitted successfully",
+    "question_navigator": "Question Navigator",
+    "answered": "Answered",
+    "not_answered": "Not Answered",
+    "flagged": "Flagged",
+    "flag_question": "Flag Question",
+    "unanswered": "Unanswered questions",
+    "enter_answer": "Enter your answer...",
+    "enter_essay": "Write your essay answer here..."
   },
   "assignments": {
     "title": "Assignments",
@@ -156,7 +168,11 @@
     "range": "Range",
     "feedback": "Feedback",
     "overall": "Overall Grade",
-    "no_grades": "No grades available"
+    "no_grades": "No grades available",
+    "max": "Max",
+    "dates": "Dates",
+    "date_submitted": "Date Submitted",
+    "graded_on": "Graded On"
   },
   "messages": {
     "title": "Messages",

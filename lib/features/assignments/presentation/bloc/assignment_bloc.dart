@@ -15,6 +15,7 @@ class AssignmentBloc extends Bloc<AssignmentEvent, AssignmentState> {
     on<LoadSubmissions>(_onLoadSubmissions);
     on<SubmitAssignment>(_onSubmitAssignment);
     on<SaveAssignmentSubmission>(_onSaveSubmission);
+    on<LoadGrades>(_onLoadGrades);
   }
 
   Future<void> _onLoadAssignments(
@@ -66,6 +67,17 @@ class AssignmentBloc extends Bloc<AssignmentEvent, AssignmentState> {
     result.fold(
       (f) => emit(AssignmentError(message: f.message)),
       (_) => emit(AssignmentSubmitted()),
+    );
+  }
+
+  Future<void> _onLoadGrades(
+    LoadGrades event,
+    Emitter<AssignmentState> emit,
+  ) async {
+    final result = await repository.getGrades(event.assignmentId);
+    result.fold(
+      (f) => emit(AssignmentError(message: f.message)),
+      (grades) => emit(AssignmentGradesLoaded(grades: grades)),
     );
   }
 }

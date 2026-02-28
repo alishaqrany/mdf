@@ -26,6 +26,13 @@ class SubmissionsLoaded extends AssignmentState {
 
 class AssignmentSubmitted extends AssignmentState {}
 
+class AssignmentGradesLoaded extends AssignmentState {
+  final List<AssignmentGrade> grades;
+  const AssignmentGradesLoaded({required this.grades});
+  @override
+  List<Object?> get props => [grades];
+}
+
 class AssignmentError extends AssignmentState {
   final String message;
   const AssignmentError({required this.message});

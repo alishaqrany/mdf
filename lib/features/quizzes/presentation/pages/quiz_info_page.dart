@@ -53,10 +53,12 @@ class _QuizInfoPageState extends State<QuizInfoPage> {
         body: BlocConsumer<QuizBloc, QuizState>(
           listener: (context, state) {
             if (state is QuizAttemptStarted) {
+              final timeLimitParam = quiz.timeLimit != null && quiz.timeLimit! > 0
+                  ? '&timeLimit=${quiz.timeLimit}'
+                  : '';
               context
                   .push(
-                    '/quiz/attempt/${state.attempt.id}',
-                    extra: {'quizId': quiz.id},
+                    '/quiz/attempt/${state.attempt.id}?quizId=${quiz.id}$timeLimitParam',
                   )
                   .then((_) => _reloadAttempts());
             }
@@ -138,10 +140,12 @@ class _QuizInfoPageState extends State<QuizInfoPage> {
                               .where((a) => a.isInProgress)
                               .toList();
                           if (inProgress.isNotEmpty) {
+                            final timeLimitParam = quiz.timeLimit != null && quiz.timeLimit! > 0
+                                ? '&timeLimit=${quiz.timeLimit}'
+                                : '';
                             context
                                 .push(
-                                  '/quiz/attempt/${inProgress.first.id}',
-                                  extra: {'quizId': quiz.id},
+                                  '/quiz/attempt/${inProgress.first.id}?quizId=${quiz.id}$timeLimitParam',
                                 )
                                 .then((_) => _reloadAttempts());
                             return;

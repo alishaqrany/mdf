@@ -27,6 +27,8 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
   final List<File> _selectedFiles = [];
   int? _draftItemId;
   bool _isUploading = false;
+  List<AssignmentSubmission> _submissions = [];
+  List<AssignmentGrade> _grades = [];
 
   @override
   void dispose() {
@@ -103,6 +105,14 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                 SnackBar(content: Text('assignments.submitted'.tr())),
               );
             }
+            if (state is SubmissionsLoaded) {
+              _submissions = state.submissions;
+              // Load grades after submissions
+              context.read<AssignmentBloc>().add(LoadGrades(assignmentId: a.id));
+            }
+            if (state is AssignmentGradesLoaded) {
+              setState(() => _grades = state.grades);
+            }
           },
           builder: (context, state) {
             return SingleChildScrollView(
@@ -143,8 +153,7 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                   const SizedBox(height: 16),
 
                   // Submission status
-                  if (state is SubmissionsLoaded &&
-                      state.submissions.isNotEmpty)
+                  if (_submissions.isNotEmpty)
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -158,7 +167,7 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            ...state.submissions.map(
+                            ..._submissions.map(
                               (s) => ListTile(
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -181,6 +190,61 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                         ),
                       ),
                     ),
+
+                  // Grade / Feedback section
+                  if (_grades.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      color: Colors.green.shade50,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.grade, color: Colors.amber),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'grades.grade'.tr(),
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ..._grades.map((g) {
+                              final gradeDate = g.timeModified != null
+                                  ? DateTime.fromMillisecondsSinceEpoch(g.timeModified! * 1000)
+                                  : null;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _Row(
+                                    'grades.grade'.tr(),
+                                    g.grade != null
+                                        ? '${g.grade!.toStringAsFixed(1)} / ${a.grade ?? '-'}'
+                                        : '-',
+                                  ),
+                                  if (g.grade != null && a.grade != null && a.grade! > 0)
+                                    _Row(
+                                      'grades.percentage'.tr(),
+                                      '${((g.grade! / a.grade!) * 100).toStringAsFixed(0)}%',
+                                    ),
+                                  if (gradeDate != null)
+                                    _Row(
+                                      'grades.graded_on'.tr(),
+                                      '${gradeDate.day}/${gradeDate.month}/${gradeDate.year}',
+                                    ),
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(height: 24),
 

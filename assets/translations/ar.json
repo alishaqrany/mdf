@@ -132,7 +132,19 @@
     "time_up": "انتهى الوقت!",
     "correct": "صحيح",
     "incorrect": "خاطئ",
-    "partially_correct": "صحيح جزئياً"
+    "partially_correct": "صحيح جزئياً",
+    "questions": "أسئلة",
+    "page": "صفحة",
+    "no_questions": "لا توجد أسئلة",
+    "submitted_success": "تم إرسال الاختبار بنجاح",
+    "question_navigator": "تصفح الأسئلة",
+    "answered": "تمت الإجابة",
+    "not_answered": "لم تتم الإجابة",
+    "flagged": "مُعلّم",
+    "flag_question": "تعليم السؤال",
+    "unanswered": "أسئلة بدون إجابة",
+    "enter_answer": "أدخل الإجابة...",
+    "enter_essay": "اكتب إجابتك المقالية هنا..."
   },
   "assignments": {
     "title": "الواجبات",
@@ -156,7 +168,11 @@
     "range": "النطاق",
     "feedback": "الملاحظات",
     "overall": "الدرجة الكلية",
-    "no_grades": "لا توجد درجات متاحة"
+    "no_grades": "لا توجد درجات متاحة",
+    "max": "الحد الأقصى",
+    "dates": "التواريخ",
+    "date_submitted": "تاريخ التسليم",
+    "graded_on": "تاريخ التقييم"
   },
   "messages": {
     "title": "الرسائل",

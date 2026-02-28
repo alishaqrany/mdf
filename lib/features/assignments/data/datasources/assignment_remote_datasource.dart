@@ -5,6 +5,7 @@ import '../models/assignment_model.dart';
 abstract class AssignmentRemoteDataSource {
   Future<List<AssignmentModel>> getAssignmentsByCourse(int courseId);
   Future<List<AssignmentSubmissionModel>> getSubmissions(int assignmentId);
+  Future<List<AssignmentGradeModel>> getGrades(int assignmentId);
   Future<void> saveSubmission(
     int assignmentId,
     String? onlineText,
@@ -60,6 +61,26 @@ class AssignmentRemoteDataSourceImpl implements AssignmentRemoteDataSource {
               (j) =>
                   AssignmentSubmissionModel.fromJson(j as Map<String, dynamic>),
             )
+            .toList();
+      }
+    }
+    return [];
+  }
+
+  @override
+  Future<List<AssignmentGradeModel>> getGrades(int assignmentId) async {
+    final response = await apiClient.call(
+      MoodleApiEndpoints.getAssignGrades,
+      params: {'assignmentids[0]': assignmentId},
+    );
+
+    if (response is Map && response.containsKey('assignments')) {
+      final assignments = response['assignments'] as List;
+      if (assignments.isNotEmpty) {
+        final grades =
+            (assignments.first as Map<String, dynamic>)['grades'] as List? ?? [];
+        return grades
+            .map((j) => AssignmentGradeModel.fromJson(j as Map<String, dynamic>))
             .toList();
       }
     }

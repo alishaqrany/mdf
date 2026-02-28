@@ -49,6 +49,21 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
   }
 
   @override
+  Future<Either<Failure, List<AssignmentGrade>>> getGrades(
+    int assignmentId,
+  ) async {
+    if (!await networkInfo.isConnected) return const Left(NetworkFailure());
+    try {
+      final grades = await remoteDataSource.getGrades(assignmentId);
+      return Right(grades);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> saveSubmission(
     int assignmentId,
     String? onlineText,

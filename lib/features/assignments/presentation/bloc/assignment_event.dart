@@ -39,3 +39,10 @@ class SubmitAssignment extends AssignmentEvent {
   @override
   List<Object?> get props => [assignmentId];
 }
+
+class LoadGrades extends AssignmentEvent {
+  final int assignmentId;
+  const LoadGrades({required this.assignmentId});
+  @override
+  List<Object?> get props => [assignmentId];
+}
