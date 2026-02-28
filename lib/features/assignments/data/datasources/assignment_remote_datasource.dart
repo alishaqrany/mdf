@@ -78,9 +78,12 @@ class AssignmentRemoteDataSourceImpl implements AssignmentRemoteDataSource {
       final assignments = response['assignments'] as List;
       if (assignments.isNotEmpty) {
         final grades =
-            (assignments.first as Map<String, dynamic>)['grades'] as List? ?? [];
+            (assignments.first as Map<String, dynamic>)['grades'] as List? ??
+            [];
         return grades
-            .map((j) => AssignmentGradeModel.fromJson(j as Map<String, dynamic>))
+            .map(
+              (j) => AssignmentGradeModel.fromJson(j as Map<String, dynamic>),
+            )
             .toList();
       }
     }

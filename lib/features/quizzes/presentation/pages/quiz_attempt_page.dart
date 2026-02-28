@@ -125,9 +125,9 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
           children: [
             Text(
               'quiz.question_navigator'.tr(),
-              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                ctx,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Flexible(
@@ -149,10 +149,12 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
                         for (final pageEntry in _pageQuestions.entries) {
                           if (pageEntry.value.any((pq) => pq.slot == q.slot)) {
                             setState(() => _currentPage = pageEntry.key);
-                            _bloc.add(LoadAttemptQuestions(
-                              attemptId: widget.attemptId,
-                              page: pageEntry.key,
-                            ));
+                            _bloc.add(
+                              LoadAttemptQuestions(
+                                attemptId: widget.attemptId,
+                                page: pageEntry.key,
+                              ),
+                            );
                             break;
                           }
                         }
@@ -166,7 +168,9 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
                               : Colors.grey.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: answered ? AppColors.primary : Colors.grey.shade300,
+                            color: answered
+                                ? AppColors.primary
+                                : Colors.grey.shade300,
                             width: 1.5,
                           ),
                         ),
@@ -177,7 +181,9 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
                               '${q.slot}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: answered ? AppColors.primary : Colors.grey,
+                                color: answered
+                                    ? AppColors.primary
+                                    : Colors.grey,
                               ),
                             ),
                             if (flagged)
@@ -203,16 +209,25 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _legendItem(AppColors.primary.withValues(alpha: 0.15), 'quiz.answered'.tr()),
+                _legendItem(
+                  AppColors.primary.withValues(alpha: 0.15),
+                  'quiz.answered'.tr(),
+                ),
                 const SizedBox(width: 16),
-                _legendItem(Colors.grey.withValues(alpha: 0.1), 'quiz.not_answered'.tr()),
+                _legendItem(
+                  Colors.grey.withValues(alpha: 0.1),
+                  'quiz.not_answered'.tr(),
+                ),
                 const SizedBox(width: 16),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.flag, size: 14, color: Colors.orange),
                     const SizedBox(width: 4),
-                    Text('quiz.flagged'.tr(), style: const TextStyle(fontSize: 12)),
+                    Text(
+                      'quiz.flagged'.tr(),
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   ],
                 ),
               ],
@@ -268,18 +283,17 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
               ? PreferredSize(
                   preferredSize: const Size.fromHeight(36),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
                     color: _remainingSeconds <= 60
                         ? Colors.red.withValues(alpha: 0.2)
                         : AppColors.primary.withValues(alpha: 0.1),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.timer,
-                          size: 18,
-                          color: _timerColor(),
-                        ),
+                        Icon(Icons.timer, size: 18, color: _timerColor()),
                         const SizedBox(width: 8),
                         Text(
                           '${'quiz.time_remaining'.tr()}: ${_formatTime(_remainingSeconds)}',
@@ -564,7 +578,10 @@ class _QuestionCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -705,7 +722,9 @@ class _QuestionCard extends StatelessWidget {
       maxLines: maxLines,
       keyboardType: numeric ? TextInputType.number : TextInputType.text,
       decoration: InputDecoration(
-        hintText: maxLines > 1 ? 'quiz.enter_essay'.tr() : 'quiz.enter_answer'.tr(),
+        hintText: maxLines > 1
+            ? 'quiz.enter_essay'.tr()
+            : 'quiz.enter_answer'.tr(),
         border: const OutlineInputBorder(),
       ),
       controller: TextEditingController(text: answers[key] ?? ''),
@@ -729,7 +748,10 @@ class _QuestionCard extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: pair.questionHtml.isNotEmpty
-                      ? HtmlWidget(pair.questionHtml, textStyle: theme.textTheme.bodyMedium)
+                      ? HtmlWidget(
+                          pair.questionHtml,
+                          textStyle: theme.textTheme.bodyMedium,
+                        )
                       : Text(pair.questionText),
                 ),
                 const SizedBox(width: 8),
@@ -740,11 +762,17 @@ class _QuestionCard extends StatelessWidget {
                     decoration: const InputDecoration(
                       isDense: true,
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
                     ),
                     isExpanded: true,
                     items: pair.choices.map((c) {
-                      return DropdownMenuItem(value: c.value, child: Text(c.text, overflow: TextOverflow.ellipsis));
+                      return DropdownMenuItem(
+                        value: c.value,
+                        child: Text(c.text, overflow: TextOverflow.ellipsis),
+                      );
                     }).toList(),
                     onChanged: (val) {
                       if (val != null) onAnswerChanged(key, val);
@@ -794,13 +822,18 @@ class _QuestionCard extends StatelessWidget {
       }
 
       // Detect question type from CSS classes or input types
-      final isMatchingQ = html.contains('class="answer') && html.contains('<select');
+      final isMatchingQ =
+          html.contains('class="answer') && html.contains('<select');
       final hasCheckbox = html.contains('type="checkbox"');
       final hasRadio = html.contains('type="radio"');
-      final hasTextInput = RegExp(r'type="text"[^>]*class="[^"]*\bform-control\b').hasMatch(html);
+      final hasTextInput = RegExp(
+        r'type="text"[^>]*class="[^"]*\bform-control\b',
+      ).hasMatch(html);
       final hasTextArea = html.contains('<textarea');
-      final isTrueFalse = question.type == 'truefalse' ||
-          (hasRadio && RegExp(r'>\s*(True|False|صح|خطأ|صواب)\s*<').hasMatch(html));
+      final isTrueFalse =
+          question.type == 'truefalse' ||
+          (hasRadio &&
+              RegExp(r'>\s*(True|False|صح|خطأ|صواب)\s*<').hasMatch(html));
 
       if (isMatchingQ) {
         questionType = _QuestionType.matching;
@@ -810,14 +843,18 @@ class _QuestionCard extends StatelessWidget {
         // Extract textarea name
         final taName = RegExp(r'<textarea[^>]*name="([^"]*)"').firstMatch(html);
         if (taName != null) inputName = taName.group(1)!;
-      } else if (question.type == 'numerical' || (hasTextInput && !hasRadio && !hasCheckbox)) {
+      } else if (question.type == 'numerical' ||
+          (hasTextInput && !hasRadio && !hasCheckbox)) {
         questionType = hasTextInput || question.type == 'numerical'
             ? _QuestionType.numerical
             : _QuestionType.shortanswer;
         // Extract text input name
-        final textName = RegExp(r'<input[^>]*type="text"[^>]*name="([^"]*)"').firstMatch(html);
+        final textName = RegExp(
+          r'<input[^>]*type="text"[^>]*name="([^"]*)"',
+        ).firstMatch(html);
         if (textName != null) inputName = textName.group(1)!;
-        if (question.type == 'shortanswer') questionType = _QuestionType.shortanswer;
+        if (question.type == 'shortanswer')
+          questionType = _QuestionType.shortanswer;
       } else if (isTrueFalse) {
         questionType = _QuestionType.truefalse;
         _parseRadioOptions(html, options, inputName);
@@ -860,7 +897,9 @@ class _QuestionCard extends StatelessWidget {
       final labelHtml = match.group(2) ?? '';
       final cleanText = labelHtml.replaceAll(RegExp(r'<[^>]*>'), '').trim();
       if (value.isNotEmpty && value != '-1') {
-        options.add(_AnswerOption(value: value, text: cleanText, html: labelHtml.trim()));
+        options.add(
+          _AnswerOption(value: value, text: cleanText, html: labelHtml.trim()),
+        );
       }
     }
     // Fallback: answer div pattern
@@ -876,7 +915,13 @@ class _QuestionCard extends StatelessWidget {
         final labelHtml = match.group(2) ?? '';
         final cleanText = labelHtml.replaceAll(RegExp(r'<[^>]*>'), '').trim();
         if (value.isNotEmpty && value != '-1') {
-          options.add(_AnswerOption(value: value, text: cleanText, html: labelHtml.trim()));
+          options.add(
+            _AnswerOption(
+              value: value,
+              text: cleanText,
+              html: labelHtml.trim(),
+            ),
+          );
         }
       }
     }
@@ -894,12 +939,14 @@ class _QuestionCard extends StatelessWidget {
       final labelHtml = match.group(3) ?? '';
       final cleanText = labelHtml.replaceAll(RegExp(r'<[^>]*>'), '').trim();
       if (value.isNotEmpty) {
-        options.add(_AnswerOption(
-          value: value,
-          text: cleanText,
-          html: labelHtml.trim(),
-          inputName: name,
-        ));
+        options.add(
+          _AnswerOption(
+            value: value,
+            text: cleanText,
+            html: labelHtml.trim(),
+            inputName: name,
+          ),
+        );
       }
     }
   }
@@ -921,19 +968,26 @@ class _QuestionCard extends StatelessWidget {
       final qText = qHtml.replaceAll(RegExp(r'<[^>]*>'), '').trim();
 
       final choices = <_MatchChoice>[];
-      final optPattern = RegExp(r'<option[^>]*value="([^"]*)"[^>]*>(.*?)</option>', dotAll: true);
+      final optPattern = RegExp(
+        r'<option[^>]*value="([^"]*)"[^>]*>(.*?)</option>',
+        dotAll: true,
+      );
       for (final optMatch in optPattern.allMatches(optionsHtml)) {
         final val = optMatch.group(1) ?? '';
-        final label = (optMatch.group(2) ?? '').replaceAll(RegExp(r'<[^>]*>'), '').trim();
+        final label = (optMatch.group(2) ?? '')
+            .replaceAll(RegExp(r'<[^>]*>'), '')
+            .trim();
         choices.add(_MatchChoice(value: val, text: label));
       }
 
-      pairs.add(_MatchingPair(
-        questionText: qText,
-        questionHtml: qHtml,
-        inputName: selectName,
-        choices: choices,
-      ));
+      pairs.add(
+        _MatchingPair(
+          questionText: qText,
+          questionHtml: qHtml,
+          inputName: selectName,
+          choices: choices,
+        ),
+      );
     }
   }
 }

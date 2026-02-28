@@ -157,47 +157,47 @@ lib/features/content_viewer/
 ### المهام
 
 #### 3.1 الاختبارات (Quizzes)
-- [ ] `QuizListPage` — قائمة اختبارات المقرر
-- [ ] `QuizInfoPage` — معلومات + محاولات سابقة
-- [ ] `QuizAttemptPage` — شاشة المحاولة
-- [ ] `QuizReviewPage` — مراجعة الإجابات
+- [x] `QuizListPage` — قائمة اختبارات المقرر
+- [x] `QuizInfoPage` — معلومات + محاولات سابقة
+- [x] `QuizAttemptPage` — شاشة المحاولة
+- [x] `QuizReviewPage` — مراجعة الإجابات
 
 **أنواع الأسئلة المطلوبة:**
-- [ ] اختيار من متعدد (Single choice)
-- [ ] اختيار متعدد (Multiple choice)
-- [ ] صح/خطأ (True/False)
-- [ ] إجابة قصيرة (Short answer)
-- [ ] مقالي (Essay)
+- [x] اختيار من متعدد (Single choice)
+- [x] اختيار متعدد (Multiple choice)
+- [x] صح/خطأ (True/False)
+- [x] إجابة قصيرة (Short answer)
+- [x] مقالي (Essay)
 - [ ] إكمال الفراغ (Cloze)
-- [ ] مطابقة (Matching)
-- [ ] عددي (Numerical)
+- [x] مطابقة (Matching)
+- [x] عددي (Numerical)
 - [ ] سحب وإفلات (Drag & Drop)
 
 **المميزات:**
-- [ ] مؤقت عد تنازلي
-- [ ] حفظ تلقائي للإجابات
-- [ ] التنقل بين الأسئلة
-- [ ] علامات مرجعية للأسئلة
-- [ ] تأكيد قبل التسليم
+- [x] مؤقت عد تنازلي
+- [x] حفظ تلقائي للإجابات
+- [x] التنقل بين الأسئلة
+- [x] علامات مرجعية للأسئلة
+- [x] تأكيد قبل التسليم (مع عدد الأسئلة غير المُجابة)
 
 #### 3.2 الواجبات (Assignments)
-- [ ] `AssignmentListPage` — قائمة الواجبات
-- [ ] `AssignmentDetailPage` — تفاصيل الواجب
-- [ ] `AssignmentSubmitPage` — تسليم الواجب
-- [ ] رفع ملفات (File Picker)
-- [ ] تسليم نص أونلاين (Rich Text Editor)
-- [ ] عرض الملاحظات والتقييم
+- [x] `AssignmentListPage` — قائمة الواجبات
+- [x] `AssignmentDetailPage` — تفاصيل الواجب
+- [x] `AssignmentSubmitPage` — تسليم الواجب (مدمج في DetailPage)
+- [x] رفع ملفات (File Picker)
+- [x] تسليم نص أونلاين (TextField)
+- [x] عرض الملاحظات والتقييم (درجة + نسبة + تاريخ التقييم)
 
 **للمعلم/المدير:**
 - [ ] `AssignmentGradingPage` — قائمة التسليمات
 - [ ] تقييم + تعليقات + درجة
 
 #### 3.3 الدرجات (Grades)
-- [ ] `GradeOverviewPage` — نظرة عامة لجميع المقررات
-- [ ] `CourseGradePage` — دفتر درجات مقرر محدد
-- [ ] رسوم بيانية للأداء
-- [ ] نسبة مئوية + تقدير حرفي
-- [ ] تفاصيل كل عنصر تقييم
+- [x] `GradeOverviewPage` — نظرة عامة لجميع المقررات (مع رسم بياني)
+- [x] `CourseGradePage` — دفتر درجات مقرر محدد
+- [x] رسوم بيانية للأداء (BarChart)
+- [x] نسبة مئوية + شريط تقدم ملون
+- [x] تفاصيل كل عنصر تقييم (BottomSheet مع درجة/نسبة/تواريخ/ملاحظات)
 
 ### الملفات المطلوبة (~40 ملف)
 ```

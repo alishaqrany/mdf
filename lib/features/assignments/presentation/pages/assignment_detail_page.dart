@@ -108,7 +108,9 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
             if (state is SubmissionsLoaded) {
               _submissions = state.submissions;
               // Load grades after submissions
-              context.read<AssignmentBloc>().add(LoadGrades(assignmentId: a.id));
+              context.read<AssignmentBloc>().add(
+                LoadGrades(assignmentId: a.id),
+              );
             }
             if (state is AssignmentGradesLoaded) {
               setState(() => _grades = state.grades);
@@ -216,7 +218,9 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                             const SizedBox(height: 12),
                             ..._grades.map((g) {
                               final gradeDate = g.timeModified != null
-                                  ? DateTime.fromMillisecondsSinceEpoch(g.timeModified! * 1000)
+                                  ? DateTime.fromMillisecondsSinceEpoch(
+                                      g.timeModified! * 1000,
+                                    )
                                   : null;
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +231,9 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                                         ? '${g.grade!.toStringAsFixed(1)} / ${a.grade ?? '-'}'
                                         : '-',
                                   ),
-                                  if (g.grade != null && a.grade != null && a.grade! > 0)
+                                  if (g.grade != null &&
+                                      a.grade != null &&
+                                      a.grade! > 0)
                                     _Row(
                                       'grades.percentage'.tr(),
                                       '${((g.grade! / a.grade!) * 100).toStringAsFixed(0)}%',

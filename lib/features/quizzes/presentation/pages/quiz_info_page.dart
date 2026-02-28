@@ -53,7 +53,8 @@ class _QuizInfoPageState extends State<QuizInfoPage> {
         body: BlocConsumer<QuizBloc, QuizState>(
           listener: (context, state) {
             if (state is QuizAttemptStarted) {
-              final timeLimitParam = quiz.timeLimit != null && quiz.timeLimit! > 0
+              final timeLimitParam =
+                  quiz.timeLimit != null && quiz.timeLimit! > 0
                   ? '&timeLimit=${quiz.timeLimit}'
                   : '';
               context
@@ -140,7 +141,8 @@ class _QuizInfoPageState extends State<QuizInfoPage> {
                               .where((a) => a.isInProgress)
                               .toList();
                           if (inProgress.isNotEmpty) {
-                            final timeLimitParam = quiz.timeLimit != null && quiz.timeLimit! > 0
+                            final timeLimitParam =
+                                quiz.timeLimit != null && quiz.timeLimit! > 0
                                 ? '&timeLimit=${quiz.timeLimit}'
                                 : '';
                             context

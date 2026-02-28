@@ -9,9 +9,7 @@ abstract class AssignmentRepository {
   Future<Either<Failure, List<AssignmentSubmission>>> getSubmissions(
     int assignmentId,
   );
-  Future<Either<Failure, List<AssignmentGrade>>> getGrades(
-    int assignmentId,
-  );
+  Future<Either<Failure, List<AssignmentGrade>>> getGrades(int assignmentId);
   Future<Either<Failure, void>> saveSubmission(
     int assignmentId,
     String? onlineText,

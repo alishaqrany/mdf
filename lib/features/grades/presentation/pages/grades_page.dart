@@ -212,10 +212,11 @@ class _GradeItemsList extends StatelessWidget {
                       child: hasGrade
                           ? Text(
                               '${item.gradeRaw!.toStringAsFixed(0)}',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: _gradeColor(percentage),
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _gradeColor(percentage),
+                                  ),
                             )
                           : Icon(Icons.remove, color: Colors.grey.shade400),
                     ),
@@ -228,9 +229,8 @@ class _GradeItemsList extends StatelessWidget {
                       children: [
                         Text(
                           item.itemName,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 2),
                         Row(
@@ -244,21 +244,28 @@ class _GradeItemsList extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 item.itemModule!,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondaryLight,
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: AppColors.textSecondaryLight,
+                                    ),
                               ),
                             ],
                             if (item.gradeDateGraded != null) ...[
-                              if (item.itemModule != null) const SizedBox(width: 8),
-                              Icon(Icons.event, size: 12, color: AppColors.textSecondaryLight),
+                              if (item.itemModule != null)
+                                const SizedBox(width: 8),
+                              Icon(
+                                Icons.event,
+                                size: 12,
+                                color: AppColors.textSecondaryLight,
+                              ),
                               const SizedBox(width: 2),
                               Text(
                                 item.gradeDateGraded!,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondaryLight,
-                                  fontSize: 11,
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: AppColors.textSecondaryLight,
+                                      fontSize: 11,
+                                    ),
                               ),
                             ],
                           ],
@@ -274,7 +281,9 @@ class _GradeItemsList extends StatelessWidget {
                                   child: LinearProgressIndicator(
                                     value: (percentage / 100).clamp(0.0, 1.0),
                                     backgroundColor: Colors.grey.shade200,
-                                    valueColor: AlwaysStoppedAnimation(_gradeColor(percentage)),
+                                    valueColor: AlwaysStoppedAnimation(
+                                      _gradeColor(percentage),
+                                    ),
                                     minHeight: 6,
                                   ),
                                 ),
@@ -282,10 +291,11 @@ class _GradeItemsList extends StatelessWidget {
                               const SizedBox(width: 8),
                               Text(
                                 '${percentage.toStringAsFixed(0)}%',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: _gradeColor(percentage),
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: _gradeColor(percentage),
+                                    ),
                               ),
                             ],
                           ),
@@ -299,15 +309,18 @@ class _GradeItemsList extends StatelessWidget {
                       children: [
                         Text(
                           '/ ${item.gradeMax!.toStringAsFixed(0)}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondaryLight,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textSecondaryLight),
                         ),
                       ],
                     ),
                   const SizedBox(width: 4),
                   if (item.feedback != null && item.feedback!.isNotEmpty)
-                    Icon(Icons.comment, size: 16, color: AppColors.primary.withValues(alpha: 0.6)),
+                    Icon(
+                      Icons.comment,
+                      size: 16,
+                      color: AppColors.primary.withValues(alpha: 0.6),
+                    ),
                 ],
               ),
             ),
@@ -392,7 +405,9 @@ class _GradeItemsList extends StatelessWidget {
                   // Grade display
                   Card(
                     color: item.gradeRaw != null
-                        ? _gradeColor(item.percentageFormatted).withValues(alpha: 0.08)
+                        ? _gradeColor(
+                            item.percentageFormatted,
+                          ).withValues(alpha: 0.08)
                         : Colors.grey.shade50,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -403,12 +418,20 @@ class _GradeItemsList extends StatelessWidget {
                             label: 'grades.grade'.tr(),
                             value: item.gradeRaw?.toStringAsFixed(1) ?? '-',
                           ),
-                          Container(width: 1, height: 40, color: Colors.grey.shade300),
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: Colors.grey.shade300,
+                          ),
                           _GradeStatColumn(
                             label: 'grades.max'.tr(),
                             value: item.gradeMax?.toStringAsFixed(0) ?? '-',
                           ),
-                          Container(width: 1, height: 40, color: Colors.grey.shade300),
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: Colors.grey.shade300,
+                          ),
                           _GradeStatColumn(
                             label: 'grades.percentage'.tr(),
                             value: item.percentageFormatted != null
@@ -500,9 +523,9 @@ class _GradeStatColumn extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondaryLight,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryLight),
         ),
       ],
     );
@@ -532,9 +555,9 @@ class _DetailRow extends StatelessWidget {
           const Spacer(),
           Text(
             value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),

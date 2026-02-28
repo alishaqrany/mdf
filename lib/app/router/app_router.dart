@@ -356,9 +356,14 @@ List<RouteBase> get _featureRoutes => [
           int.tryParse(state.pathParameters['attemptId'] ?? '') ?? 0;
       final quizId =
           int.tryParse(state.uri.queryParameters['quizId'] ?? '') ?? 0;
-      final timeLimit =
-          int.tryParse(state.uri.queryParameters['timeLimit'] ?? '');
-      return QuizAttemptPage(attemptId: attemptId, quizId: quizId, timeLimit: timeLimit);
+      final timeLimit = int.tryParse(
+        state.uri.queryParameters['timeLimit'] ?? '',
+      );
+      return QuizAttemptPage(
+        attemptId: attemptId,
+        quizId: quizId,
+        timeLimit: timeLimit,
+      );
     },
   ),
   GoRoute(
