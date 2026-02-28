@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
@@ -209,7 +210,8 @@ class _AdminDashboardView extends StatelessWidget {
                                 _QuickActionChip(
                                   icon: Icons.person_add_rounded,
                                   label: tr('admin.add_user'),
-                                  onTap: () {},
+                                  onTap: () =>
+                                      context.push('/admin/users/create'),
                                 ),
                                 _QuickActionChip(
                                   icon: Icons.add_box_rounded,
@@ -219,7 +221,13 @@ class _AdminDashboardView extends StatelessWidget {
                                 _QuickActionChip(
                                   icon: Icons.group_add_rounded,
                                   label: tr('admin.manage_enrollments'),
-                                  onTap: () {},
+                                  onTap: () =>
+                                      context.push('/admin/enrollment'),
+                                ),
+                                _QuickActionChip(
+                                  icon: Icons.people_rounded,
+                                  label: tr('admin.user_management'),
+                                  onTap: () => context.push('/admin/users'),
                                 ),
                                 _QuickActionChip(
                                   icon: Icons.bar_chart_rounded,

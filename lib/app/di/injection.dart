@@ -74,6 +74,18 @@ import '../../features/calendar/data/repositories/calendar_repository_impl.dart'
 import '../../features/calendar/domain/repositories/calendar_repository.dart';
 import '../../features/calendar/presentation/bloc/calendar_bloc.dart';
 
+// ─── User Management ───
+import '../../features/user_management/data/datasources/user_management_remote_datasource.dart';
+import '../../features/user_management/data/repositories/user_management_repository_impl.dart';
+import '../../features/user_management/domain/repositories/user_management_repository.dart';
+import '../../features/user_management/presentation/bloc/user_management_bloc.dart';
+
+// ─── Enrollment ───
+import '../../features/enrollment/data/datasources/enrollment_remote_datasource.dart';
+import '../../features/enrollment/data/repositories/enrollment_repository_impl.dart';
+import '../../features/enrollment/domain/repositories/enrollment_repository.dart';
+import '../../features/enrollment/presentation/bloc/enrollment_bloc.dart';
+
 final sl = GetIt.instance;
 
 /// Initialize all dependencies.
@@ -223,4 +235,23 @@ Future<void> initDependencies() async {
     () => CalendarRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerFactory(() => CalendarBloc(repository: sl()));
+
+  // ─── User Management Feature ───
+  sl.registerLazySingleton<UserManagementRemoteDataSource>(
+    () => UserManagementRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<UserManagementRepository>(
+    () =>
+        UserManagementRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => UserManagementBloc(repository: sl()));
+
+  // ─── Enrollment Feature ───
+  sl.registerLazySingleton<EnrollmentRemoteDataSource>(
+    () => EnrollmentRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<EnrollmentRepository>(
+    () => EnrollmentRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => EnrollmentBloc(repository: sl()));
 }

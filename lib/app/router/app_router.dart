@@ -28,6 +28,10 @@ import '../../features/forums/presentation/pages/discussion_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
+import '../../features/user_management/presentation/pages/user_list_page.dart';
+import '../../features/user_management/presentation/pages/user_detail_page.dart';
+import '../../features/user_management/presentation/pages/user_create_page.dart';
+import '../../features/enrollment/presentation/pages/enrollment_page.dart';
 
 /// Route name constants
 abstract class AppRoutes {
@@ -60,6 +64,10 @@ abstract class AppRoutes {
   static const notifications = 'notifications';
   static const calendar = 'calendar';
   static const search = 'search';
+  static const userList = 'user-list';
+  static const userDetail = 'user-detail';
+  static const userCreate = 'user-create';
+  static const enrollment = 'enrollment';
 }
 
 /// GoRouter configuration with role-based guards
@@ -243,6 +251,40 @@ class AppRouter {
               final userId =
                   int.tryParse(state.uri.queryParameters['userId'] ?? '') ?? 0;
               return GradesPage(userId: userId);
+            },
+          ),
+          // ─── User Management Routes ───
+          GoRoute(
+            path: '/admin/users',
+            name: AppRoutes.userList,
+            builder: (context, state) => const UserListPage(),
+          ),
+          GoRoute(
+            path: '/admin/users/create',
+            name: AppRoutes.userCreate,
+            builder: (context, state) => const UserCreatePage(),
+          ),
+          GoRoute(
+            path: '/admin/users/:userId',
+            name: AppRoutes.userDetail,
+            builder: (context, state) {
+              final userId =
+                  int.tryParse(state.pathParameters['userId'] ?? '') ?? 0;
+              return UserDetailPage(userId: userId);
+            },
+          ),
+          // ─── Enrollment Route ───
+          GoRoute(
+            path: '/admin/enrollment',
+            name: AppRoutes.enrollment,
+            builder: (context, state) {
+              final courseId = int.tryParse(
+                state.uri.queryParameters['courseId'] ?? '',
+              );
+              final userId = int.tryParse(
+                state.uri.queryParameters['userId'] ?? '',
+              );
+              return EnrollmentPage(preselectedCourseId: courseId);
             },
           ),
         ],
