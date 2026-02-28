@@ -49,8 +49,10 @@ dependencies:
   # Content Display
   flutter_widget_from_html: ^0.15.2
   webview_flutter: ^4.10.0
+  webview_flutter_android: ^4.3.0
   video_player: ^2.9.2
   chewie: ^1.8.5
+  flutter_pdfview: ^1.4.0
 
   # Notifications
   firebase_core: ^3.8.1

@@ -1,9 +1,13 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/theme/colors.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -296,18 +300,9 @@ class _ModuleItem extends StatelessWidget {
     final color = _getModuleColor();
     final isCompleted = module.completionState == 1;
 
-    // Labels are small dividers, render differently
+    // Labels (Text and Media Area) — render rich HTML inline
     if (module.isLabel) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Text(
-          module.name,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondaryLight,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-      );
+      return _InlineLabelContent(module: module);
     }
 
     return InkWell(
@@ -801,6 +796,238 @@ class _ContentShimmer extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Inline Label (Text and Media Area) ───
+/// Renders label/text-media-area description as rich inline HTML.
+/// Resolves @@PLUGINFILE@@ URLs with auth tokens so images & videos display.
+class _InlineLabelContent extends StatefulWidget {
+  final CourseModule module;
+  const _InlineLabelContent({required this.module});
+
+  @override
+  State<_InlineLabelContent> createState() => _InlineLabelContentState();
+}
+
+class _InlineLabelContentState extends State<_InlineLabelContent> {
+  String? _resolvedHtml;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolveDescription();
+  }
+
+  Future<void> _resolveDescription() async {
+    var html = widget.module.description ?? '';
+    if (html.isEmpty) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
+
+    try {
+      final token = await sl<FlutterSecureStorage>().read(
+        key: AppConstants.tokenKey,
+      );
+      final apiClient = sl<MoodleApiClient>();
+      final baseUrl = await apiClient.getBaseUrl();
+
+      if (token != null) {
+        // Resolve @@PLUGINFILE@@ URLs for label (intro area)
+        // Label files are served under mod_label/intro
+        if (html.contains('@@PLUGINFILE@@') && baseUrl != null) {
+          // Try to get contextid from module contents
+          String? contextId;
+          for (final c in widget.module.contents) {
+            if (c.fileUrl != null) {
+              final m = RegExp(
+                r'pluginfile\.php/(\d+)/',
+              ).firstMatch(c.fileUrl!);
+              if (m != null) {
+                contextId = m.group(1);
+                break;
+              }
+            }
+          }
+          contextId ??= widget.module.id.toString();
+
+          html = html.replaceAllMapped(RegExp(r'@@PLUGINFILE@@/([^"<\s]+)'), (
+            match,
+          ) {
+            final path = match.group(1)!;
+            return '$baseUrl/webservice/pluginfile.php/'
+                '$contextId/mod_label/intro/0/$path?token=$token';
+          });
+        }
+
+        // Authenticate any absolute pluginfile URLs
+        html = html.replaceAllMapped(
+          RegExp(r'(https?://[^"\s<>]*pluginfile\.php/[^"\s<>]+)'),
+          (match) {
+            var url = match.group(1)!;
+            if (url.contains('token=')) return url;
+            url = url.replaceAll(RegExp(r'[?&]forcedownload=[^&]*'), '');
+            final sep = url.contains('?') ? '&' : '?';
+            return '$url${sep}token=$token';
+          },
+        );
+      }
+
+      // Preprocess video links (convert to safe placeholders)
+      html = HtmlContentPage.preprocessVideoLinks(html);
+    } catch (_) {
+      // On error, show raw HTML as-is
+    }
+
+    if (mounted) {
+      setState(() {
+        _resolvedHtml = html;
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final description = widget.module.description;
+
+    // No description at all — show plain name if available
+    if (description == null || description.isEmpty) {
+      if (widget.module.name.isNotEmpty) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            widget.module.name,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondaryLight,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
+
+    if (_loading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Directionality(
+        textDirection: ui.TextDirection.rtl,
+        child: HtmlWidget(
+          _resolvedHtml ?? description,
+          textStyle: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
+          customStylesBuilder: (element) {
+            final tag = element.localName;
+            if (tag == 'img') {
+              return {
+                'max-width': '100%',
+                'height': 'auto',
+                'border-radius': '8px',
+                'margin': '8px 0',
+              };
+            }
+            if (tag == 'video' || tag == 'iframe') {
+              return {'max-width': '100%', 'border-radius': '8px'};
+            }
+            if (tag == 'table') {
+              return {'border-collapse': 'collapse', 'width': '100%'};
+            }
+            if (tag == 'td' || tag == 'th') {
+              return {'border': '1px solid #ddd', 'padding': '8px'};
+            }
+            return null;
+          },
+          customWidgetBuilder: (element) {
+            // Intercept <div data-video-src> placeholders
+            if (element.localName == 'div') {
+              final videoSrc = element.attributes['data-video-src'];
+              if (videoSrc != null && videoSrc.isNotEmpty) {
+                return _buildVideoPlaceholder(videoSrc);
+              }
+            }
+            // Safety: intercept any remaining <video> tags
+            if (element.localName == 'video') {
+              String? src = element.attributes['src'];
+              if (src == null || src.isEmpty) {
+                for (final child in element.children) {
+                  if (child.localName == 'source') {
+                    src = child.attributes['src'];
+                    if (src != null && src.isNotEmpty) break;
+                  }
+                }
+              }
+              if (src != null && src.isNotEmpty) {
+                return _buildVideoPlaceholder(src);
+              }
+            }
+            // Catch <a> to video files
+            if (element.localName == 'a') {
+              final href = element.attributes['href'];
+              if (href != null &&
+                  HtmlContentPage.videoExtensions.hasMatch(href)) {
+                return _buildVideoPlaceholder(href);
+              }
+            }
+            return null;
+          },
+          onTapUrl: (url) async {
+            final uri = Uri.parse(url);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+            return true;
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Opens the video URL in the external browser (reliable fallback).
+  Widget _buildVideoPlaceholder(String videoUrl) {
+    return GestureDetector(
+      onTap: () async {
+        final uri = Uri.parse(videoUrl);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      },
+      child: Container(
+        height: 180,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.black87,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.play_circle_outline, color: Colors.white, size: 48),
+              SizedBox(height: 8),
+              Text(
+                'اضغط لتشغيل الفيديو',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+            ],
           ),
         ),
       ),

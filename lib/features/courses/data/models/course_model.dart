@@ -20,6 +20,7 @@ class CourseModel extends Course {
     super.completed,
     super.isFavourite,
     super.lastAccess,
+    super.contacts,
   });
 
   /// Create from Moodle enrolled course response.
@@ -32,6 +33,20 @@ class CourseModel extends Course {
     }
     // Also check courseimage field
     imageUrl ??= json['courseimage'] as String?;
+
+    // Parse course contacts/teachers
+    final contactsList = <CourseContact>[];
+    if (json['contacts'] is List) {
+      for (final c in json['contacts'] as List) {
+        if (c is Map<String, dynamic>) {
+          contactsList.add(CourseContact(
+            id: c['id'] as int? ?? 0,
+            fullName: c['fullname'] as String? ?? '',
+            profileImageUrl: c['profileimageurl'] as String?,
+          ));
+        }
+      }
+    }
 
     return CourseModel(
       id: json['id'] as int,
@@ -53,6 +68,7 @@ class CourseModel extends Course {
       completed: json['completed'] as bool?,
       isFavourite: json['isfavourite'] as bool?,
       lastAccess: json['lastaccess'] as int?,
+      contacts: contactsList,
     );
   }
 

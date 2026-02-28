@@ -6,6 +6,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 import '../../../../app/di/injection.dart';
 import '../../../../app/theme/colors.dart';
@@ -37,19 +38,52 @@ class HtmlContentPage extends StatefulWidget {
     caseSensitive: false,
   );
 
-  /// Convert <a> links pointing to video files into <video> tags so that
-  /// fwfh_chewie can render them as inline players.
+  /// Convert all video elements (<a> links, <video> tags) into safe
+  /// placeholder <div>s so that flutter_widget_from_html's built-in
+  /// Chewie/ExoPlayer extension never sees them (avoids error 153).
   static String preprocessVideoLinks(String html) {
-    // Pattern 1: <a href="...video.mp4">...</a>  →  <video controls src="..."></video>
+    // 1. <a href="...video.mp4">...</a>  →  placeholder div
     html = html.replaceAllMapped(
       RegExp(
-        r'<a\s[^>]*href="([^"]+\.(mp4|m4v|webm|ogv|mov|3gp)(\?[^"]*)?)"[^>]*>[\s\S]*?</a>',
+        r'<a\s[^>]*href="([^"]+\.(mp4|m4v|webm|ogv|mov|3gp)(\?[^"]*)?)".^>]*>[\s\S]*?</a>',
         caseSensitive: false,
       ),
       (match) {
         final url = match.group(1)!;
-        return '<video controls style="max-width:100%;border-radius:8px"'
-            ' src="$url"></video>';
+        return '<div data-video-src="$url"></div>';
+      },
+    );
+
+    // 2. <video ...><source src="...">...</video>  →  placeholder div
+    html = html.replaceAllMapped(
+      RegExp(
+        r'<video[^>]*>[\s\S]*?<source[^>]*\ssrc="([^"]+)"[^>]*/?>([\s\S]*?)</video>',
+        caseSensitive: false,
+      ),
+      (match) {
+        final url = match.group(1)!;
+        return '<div data-video-src="$url"></div>';
+      },
+    );
+
+    // 3. <video src="...">...</video>  →  placeholder div
+    html = html.replaceAllMapped(
+      RegExp(
+        r'<video[^>]*\ssrc="([^"]+)"[^>]*>[\s\S]*?</video>',
+        caseSensitive: false,
+      ),
+      (match) {
+        final url = match.group(1)!;
+        return '<div data-video-src="$url"></div>';
+      },
+    );
+
+    // 4. Self-closing <video src="..."/> or <video src="...">
+    html = html.replaceAllMapped(
+      RegExp(r'<video[^>]*\ssrc="([^"]+)"[^>]*/?>', caseSensitive: false),
+      (match) {
+        final url = match.group(1)!;
+        return '<div data-video-src="$url"></div>';
       },
     );
 
@@ -280,8 +314,34 @@ class _HtmlContentPageState extends State<HtmlContentPage> {
                           return null;
                         },
                         customWidgetBuilder: (element) {
-                          // Catch any <a> tags pointing to video files
-                          // that weren't converted by preprocessVideoLinks
+                          // 1. Intercept placeholder <div data-video-src>
+                          //    created by preprocessVideoLinks.
+                          if (element.localName == 'div') {
+                            final videoSrc =
+                                element.attributes['data-video-src'];
+                            if (videoSrc != null && videoSrc.isNotEmpty) {
+                              return _InlineVideoPlayer(url: videoSrc);
+                            }
+                          }
+
+                          // 2. Safety fallback: intercept any <video> tags
+                          //    that slipped past preprocessing.
+                          if (element.localName == 'video') {
+                            String? src = element.attributes['src'];
+                            if (src == null || src.isEmpty) {
+                              for (final child in element.children) {
+                                if (child.localName == 'source') {
+                                  src = child.attributes['src'];
+                                  if (src != null && src.isNotEmpty) break;
+                                }
+                              }
+                            }
+                            if (src != null && src.isNotEmpty) {
+                              return _InlineVideoPlayer(url: src);
+                            }
+                          }
+
+                          // 3. Catch remaining <a> links to video files.
                           if (element.localName == 'a') {
                             final href = element.attributes['href'];
                             if (href != null &&
@@ -403,10 +463,15 @@ class _InlineVideoPlayer extends StatefulWidget {
 class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
   late final WebViewController _controller;
   bool _isLoading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
+    _initController();
+  }
+
+  Future<void> _initController() async {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -414,10 +479,39 @@ class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
           onPageFinished: (_) {
             if (mounted) setState(() => _isLoading = false);
           },
+          onWebResourceError: (error) {
+            debugPrint(
+              'Video WebView error: ${error.errorCode} ${error.description}',
+            );
+            if (mounted)
+              setState(() {
+                _isLoading = false;
+                _hasError = true;
+              });
+          },
         ),
       )
-      ..setBackgroundColor(Colors.black)
-      ..loadHtmlString(_buildVideoHtml(widget.url));
+      ..setBackgroundColor(Colors.black);
+
+    // Android-specific: allow inline media playback without user gesture
+    if (_controller.platform is AndroidWebViewController) {
+      final android = _controller.platform as AndroidWebViewController;
+      await android.setMediaPlaybackRequiresUserGesture(false);
+    }
+
+    // Set baseUrl to the Moodle server origin so resource loads
+    // are treated as same-origin (fixes ERR_CACHE_MISS / error 153).
+    final uri = Uri.tryParse(widget.url);
+    final baseUrl = (uri != null && uri.hasScheme && uri.hasAuthority)
+        ? '${uri.scheme}://${uri.authority}'
+        : null;
+
+    await _controller.loadHtmlString(
+      _buildVideoHtml(widget.url),
+      baseUrl: baseUrl,
+    );
+
+    if (mounted) setState(() {});
   }
 
   String _buildVideoHtml(String videoUrl) {
@@ -429,7 +523,7 @@ class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; background: #000; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
   video {
     width: 100%;
     height: 100%;
@@ -438,8 +532,9 @@ class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
 </style>
 </head>
 <body>
-  <video controls playsinline preload="metadata">
+  <video controls playsinline preload="auto">
     <source src="$videoUrl" />
+    Your browser does not support the video tag.
   </video>
 </body>
 </html>''';
@@ -447,6 +542,42 @@ class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    // If the WebView fails, show a tap-to-open fallback
+    if (_hasError) {
+      return GestureDetector(
+        onTap: () async {
+          final uri = Uri.parse(widget.url);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            height: 220,
+            color: Colors.black87,
+            child: const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.play_circle_outline,
+                    color: Colors.white,
+                    size: 48,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'اضغط لتشغيل الفيديو',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Container(

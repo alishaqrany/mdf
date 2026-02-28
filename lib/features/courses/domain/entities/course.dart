@@ -19,6 +19,7 @@ class Course extends Equatable {
   final bool? completed;
   final bool? isFavourite;
   final int? lastAccess;
+  final List<CourseContact> contacts;
 
   const Course({
     required this.id,
@@ -38,6 +39,7 @@ class Course extends Equatable {
     this.completed,
     this.isFavourite,
     this.lastAccess,
+    this.contacts = const [],
   });
 
   @override
@@ -64,4 +66,20 @@ class CourseCategory extends Equatable {
 
   @override
   List<Object?> get props => [id, name];
+}
+
+/// Represents a course teacher/contact.
+class CourseContact extends Equatable {
+  final int id;
+  final String fullName;
+  final String? profileImageUrl;
+
+  const CourseContact({
+    required this.id,
+    required this.fullName,
+    this.profileImageUrl,
+  });
+
+  @override
+  List<Object?> get props => [id, fullName];
 }
