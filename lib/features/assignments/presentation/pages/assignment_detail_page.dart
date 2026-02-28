@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:image_picker/image_picker.dart' as img_picker;
 
 import '../../../../app/di/injection.dart';
+import '../../../../core/api/moodle_api_client.dart';
 import '../../domain/entities/assignment.dart';
 import '../bloc/assignment_bloc.dart';
 
@@ -19,11 +24,62 @@ class AssignmentDetailPage extends StatefulWidget {
 
 class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
   final _textController = TextEditingController();
+  final List<File> _selectedFiles = [];
+  int? _draftItemId;
+  bool _isUploading = false;
 
   @override
   void dispose() {
     _textController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickFiles() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.any,
+    );
+    if (result == null) return;
+
+    _uploadFiles(result.files.map((f) => f.path).whereType<String>().toList());
+  }
+
+  Future<void> _pickImage() async {
+    final picker = img_picker.ImagePicker();
+    final image = await picker.pickImage(
+      source: img_picker.ImageSource.gallery,
+    );
+    if (image == null) return;
+
+    _uploadFiles([image.path]);
+  }
+
+  Future<void> _uploadFiles(List<String> paths) async {
+    if (paths.isEmpty) return;
+    setState(() => _isUploading = true);
+    try {
+      final apiClient = sl<MoodleApiClient>();
+      for (final path in paths) {
+        final file = File(path);
+        final uploadResult = await apiClient.uploadFile(
+          file: file,
+          fileArea: 'draft',
+          itemId: _draftItemId ?? 0,
+        );
+        if (uploadResult.isNotEmpty) {
+          _draftItemId =
+              (uploadResult.first as Map<String, dynamic>)['itemid'] as int?;
+          _selectedFiles.add(file);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      }
+    }
+    if (mounted) setState(() => _isUploading = false);
   }
 
   @override
@@ -144,6 +200,68 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                       border: const OutlineInputBorder(),
                     ),
                   ),
+                  const SizedBox(height: 12),
+
+                  // File upload buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _isUploading ? null : _pickFiles,
+                          icon: _isUploading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.attach_file),
+                          label: Text('assignments.upload_file'.tr()),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _isUploading ? null : _pickImage,
+                          icon: _isUploading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.image),
+                          label: Text('assignments.upload_image'.tr()),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Selected files list
+                  if (_selectedFiles.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    ..._selectedFiles.asMap().entries.map(
+                      (entry) => ListTile(
+                        dense: true,
+                        leading: const Icon(Icons.insert_drive_file, size: 20),
+                        title: Text(
+                          entry.value.path.split(Platform.pathSeparator).last,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          onPressed: () {
+                            setState(() {
+                              _selectedFiles.removeAt(entry.key);
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -156,6 +274,7 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                                 SaveAssignmentSubmission(
                                   assignmentId: a.id,
                                   onlineText: text.isNotEmpty ? text : null,
+                                  fileItemId: _draftItemId,
                                 ),
                               );
                             },

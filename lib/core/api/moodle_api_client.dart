@@ -67,6 +67,7 @@ class MoodleApiClient {
     AuthException? lastAuthException;
 
     final fallbackServices = <String>{service, 'moodle_mobile_app'};
+    Map<String, dynamic>? fallbackData;
 
     for (final currentService in fallbackServices) {
       try {
@@ -88,8 +89,20 @@ class MoodleApiClient {
         final token = data['token']?.toString();
 
         if (token != null && token.isNotEmpty) {
-          await _secureStorage.write(key: AppConstants.tokenKey, value: token);
           final privateToken = data['privatetoken']?.toString();
+
+          // If this service didn't return a privatetoken, save data as fallback
+          // and try the next service (moodle_mobile_app always returns privatetoken).
+          if ((privateToken == null || privateToken.isEmpty) &&
+              currentService != 'moodle_mobile_app') {
+            fallbackData = data;
+            lastAuthException = const AuthException(
+              message: 'No private token returned',
+            );
+            continue;
+          }
+
+          await _secureStorage.write(key: AppConstants.tokenKey, value: token);
           if (privateToken != null && privateToken.isNotEmpty) {
             await _secureStorage.write(
               key: AppConstants.privateTokenKey,
@@ -144,14 +157,18 @@ class MoodleApiClient {
       }
     }
 
-    if (lastAuthException != null) {
-      throw lastAuthException;
+    // If we failed to get a privatetoken but have a valid token from a custom
+    // service, use that as a last resort.
+    if (fallbackData != null) {
+      final token = fallbackData['token']?.toString();
+      if (token != null && token.isNotEmpty) {
+        await _secureStorage.write(key: AppConstants.tokenKey, value: token);
+        return fallbackData;
+      }
     }
 
-    if (lastServerException != null) {
-      throw lastServerException;
-    }
-
+    if (lastAuthException != null) throw lastAuthException;
+    if (lastServerException != null) throw lastServerException;
     throw const ServerException(message: 'Login failed');
   }
 
@@ -303,5 +320,10 @@ class MoodleApiClient {
   Future<bool> hasToken() async {
     final token = await _secureStorage.read(key: AppConstants.tokenKey);
     return token != null && token.isNotEmpty;
+  }
+
+  /// Get the private token for auto-login.
+  Future<String?> getPrivateToken() async {
+    return await _secureStorage.read(key: AppConstants.privateTokenKey);
   }
 }

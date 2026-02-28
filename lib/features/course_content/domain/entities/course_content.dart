@@ -64,6 +64,7 @@ class CourseModule extends Equatable {
   bool get isLabel => modName == 'label';
   bool get isFolder => modName == 'folder';
   bool get isBBB => modName == 'bigbluebuttonbn';
+  bool get isSubSection => modName == 'subsection';
   bool get isVideo =>
       contents.any((c) => c.mimeType?.startsWith('video/') == true);
 

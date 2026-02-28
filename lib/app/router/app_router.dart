@@ -380,7 +380,7 @@ List<RouteBase> get _featureRoutes => [
     },
   ),
   GoRoute(
-    path: '/assignment/detail',
+    path: '/assignment/detail/:assignmentId',
     name: AppRoutes.assignmentDetail,
     builder: (context, state) {
       return AssignmentDetailPage(assignment: _extra(state, 'assignment'));

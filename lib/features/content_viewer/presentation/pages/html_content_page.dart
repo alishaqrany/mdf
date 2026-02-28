@@ -1,14 +1,22 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../../../app/di/injection.dart';
 import '../../../../app/theme/colors.dart';
+import '../../../../core/api/api_endpoints.dart';
+import '../../../../core/api/moodle_api_client.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../course_content/domain/entities/course_content.dart';
 
 /// Displays HTML content, page resources, or URLs.
-/// Uses flutter_widget_from_html for inline HTML and WebView for full URLs.
+/// Uses HtmlWidget for inline HTML (images, video via Chewie, iframes via
+/// embedded WebView) and a full WebView only for URL-based navigation.
 class HtmlContentPage extends StatefulWidget {
   final String title;
   final String? url;
@@ -23,6 +31,31 @@ class HtmlContentPage extends StatefulWidget {
     this.contents,
   });
 
+  /// Video file extensions that should be rendered as inline players.
+  static final videoExtensions = RegExp(
+    r'\.(mp4|m4v|webm|ogv|mov|avi|mkv|3gp)(\?|$)',
+    caseSensitive: false,
+  );
+
+  /// Convert <a> links pointing to video files into <video> tags so that
+  /// fwfh_chewie can render them as inline players.
+  static String preprocessVideoLinks(String html) {
+    // Pattern 1: <a href="...video.mp4">...</a>  →  <video controls src="..."></video>
+    html = html.replaceAllMapped(
+      RegExp(
+        r'<a\s[^>]*href="([^"]+\.(mp4|m4v|webm|ogv|mov|3gp)(\?[^"]*)?)"[^>]*>[\s\S]*?</a>',
+        caseSensitive: false,
+      ),
+      (match) {
+        final url = match.group(1)!;
+        return '<video controls style="max-width:100%;border-radius:8px"'
+            ' src="$url"></video>';
+      },
+    );
+
+    return html;
+  }
+
   @override
   State<HtmlContentPage> createState() => _HtmlContentPageState();
 }
@@ -35,24 +68,30 @@ class _HtmlContentPageState extends State<HtmlContentPage> {
   @override
   void initState() {
     super.initState();
-    // If we have a URL and no inline description, use WebView
+
+    // 1) URL provided without inline description → WebView to load that URL.
     if (widget.url != null &&
         (widget.description == null || widget.description!.isEmpty)) {
       _useWebView = true;
       _initWebView();
+      return;
     }
-    // If we have file contents with a URL, also use WebView
-    if (!_useWebView &&
-        widget.contents != null &&
-        widget.contents!.isNotEmpty) {
+
+    // 2) File content without description → WebView.
+    if (widget.contents != null && widget.contents!.isNotEmpty) {
       final firstContent = widget.contents!.first;
       if (firstContent.fileUrl != null &&
           firstContent.type == 'file' &&
           (widget.description == null || widget.description!.isEmpty)) {
         _useWebView = true;
         _initWebView();
+        return;
       }
     }
+
+    // 3) Description (with or without media) → HtmlWidget renders natively.
+    //    flutter_widget_from_html handles <img>, <video> (Chewie),
+    //    <iframe> (WebView), <audio> (just_audio) out of the box.
   }
 
   void _initWebView() {
@@ -71,8 +110,91 @@ class _HtmlContentPageState extends State<HtmlContentPage> {
 
     final targetUrl = widget.url ?? widget.contents?.first.fileUrl ?? '';
     if (targetUrl.isNotEmpty) {
-      _webViewController.loadRequest(Uri.parse(targetUrl));
+      _loadUrlWithAuth(targetUrl);
     }
+  }
+
+  /// Load URL with Moodle auto-login if it's a Moodle URL.
+  Future<void> _loadUrlWithAuth(String targetUrl) async {
+    try {
+      final apiClient = sl<MoodleApiClient>();
+      final baseUrl = await apiClient.getBaseUrl();
+
+      // Check if this URL is on our Moodle server
+      if (baseUrl != null && targetUrl.startsWith(baseUrl)) {
+        // If it's a pluginfile URL, we can just append the token
+        if (targetUrl.contains('pluginfile.php')) {
+          final token = await sl<FlutterSecureStorage>().read(
+            key: AppConstants.tokenKey,
+          );
+          if (token != null) {
+            // Strip forcedownload so the server sends inline content
+            var cleanUrl = targetUrl.replaceAll(
+              RegExp(r'[?&]forcedownload=[^&]*'),
+              '',
+            );
+            final separator = cleanUrl.contains('?') ? '&' : '?';
+            final urlWithToken =
+                '$cleanUrl${separator}token=$token&forcedownload=0';
+            _webViewController.loadRequest(Uri.parse(urlWithToken));
+            return;
+          }
+        }
+
+        final privateToken = await apiClient.getPrivateToken();
+        if (privateToken == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'يرجى تسجيل الخروج ثم تسجيل الدخول مرة أخرى لتفعيل ميزة فتح الروابط تلقائياً',
+                ),
+                duration: Duration(seconds: 5),
+              ),
+            );
+          }
+          throw Exception('No private token available for auto-login');
+        }
+
+        // Get auto-login key from Moodle
+        final keyResponse = await apiClient.call(
+          MoodleApiEndpoints.getAutoLoginKey,
+          params: {'privatetoken': privateToken},
+        );
+
+        if (keyResponse is Map &&
+            keyResponse.containsKey('key') &&
+            keyResponse.containsKey('autologinurl')) {
+          final key = keyResponse['key'] as String;
+          final autologinUrl = keyResponse['autologinurl'] as String;
+
+          // Get userId
+          final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+          final userId = (siteInfo as Map<String, dynamic>)['userid'] ?? 0;
+
+          // Build auto-login URL — pass the FULL targetUrl to urltogo
+          // Moodle's PARAM_URL requires a full URL (http/https), otherwise
+          // it rejects it and falls back to the dashboard/login.
+          final uri = Uri.parse(autologinUrl);
+          final queryParams = Map<String, String>.from(uri.queryParameters);
+          queryParams['userid'] = userId.toString();
+          queryParams['key'] = key;
+          queryParams['urltogo'] = targetUrl;
+
+          final autoLoginFullUrl = uri
+              .replace(queryParameters: queryParams)
+              .toString();
+
+          _webViewController.loadRequest(Uri.parse(autoLoginFullUrl));
+          return;
+        }
+      }
+    } catch (_) {
+      // If auto-login fails, fall back to direct URL load
+    }
+
+    // Fallback: load URL directly
+    _webViewController.loadRequest(Uri.parse(targetUrl));
   }
 
   @override
@@ -113,22 +235,75 @@ class _HtmlContentPageState extends State<HtmlContentPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // HTML description content
+                  // HTML description content – HtmlWidget renders
+                  // images, videos (Chewie), iframes (WebView),
+                  // and audio (just_audio) natively.
                   if (widget.description != null &&
                       widget.description!.isNotEmpty)
-                    HtmlWidget(
-                      widget.description!,
-                      textStyle: theme.textTheme.bodyLarge,
-                      onTapUrl: (url) async {
-                        final uri = Uri.parse(url);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(
-                            uri,
-                            mode: LaunchMode.externalApplication,
-                          );
-                        }
-                        return true;
-                      },
+                    Directionality(
+                      textDirection: ui.TextDirection.rtl,
+                      child: HtmlWidget(
+                        HtmlContentPage.preprocessVideoLinks(
+                          widget.description!,
+                        ),
+                        textStyle: theme.textTheme.bodyLarge?.copyWith(
+                          height: 1.7,
+                        ),
+                        customStylesBuilder: (element) {
+                          final tag = element.localName;
+                          if (tag == 'img') {
+                            return {
+                              'max-width': '100%',
+                              'height': 'auto',
+                              'border-radius': '8px',
+                              'margin': '8px 0',
+                            };
+                          }
+                          if (tag == 'video' || tag == 'iframe') {
+                            return {
+                              'max-width': '100%',
+                              'border-radius': '8px',
+                            };
+                          }
+                          if (tag == 'table') {
+                            return {
+                              'border-collapse': 'collapse',
+                              'width': '100%',
+                            };
+                          }
+                          if (tag == 'td' || tag == 'th') {
+                            return {
+                              'border': '1px solid #ddd',
+                              'padding': '8px',
+                            };
+                          }
+                          return null;
+                        },
+                        customWidgetBuilder: (element) {
+                          // Catch any <a> tags pointing to video files
+                          // that weren't converted by preprocessVideoLinks
+                          if (element.localName == 'a') {
+                            final href = element.attributes['href'];
+                            if (href != null &&
+                                HtmlContentPage.videoExtensions.hasMatch(
+                                  href,
+                                )) {
+                              return _InlineVideoPlayer(url: href);
+                            }
+                          }
+                          return null;
+                        },
+                        onTapUrl: (url) async {
+                          final uri = Uri.parse(url);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                          return true;
+                        },
+                      ),
                     ),
 
                   // File attachments
@@ -209,5 +384,84 @@ class _FileAttachment extends StatelessWidget {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+}
+
+/// Inline video player rendered in a small embedded WebView.
+/// Uses the browser's native HTML5 <video> player which handles
+/// Moodle pluginfile URLs, redirects, and all codecs reliably —
+/// unlike Flutter's video_player plugin which fails with
+/// Moodle's authenticated/redirect URLs.
+class _InlineVideoPlayer extends StatefulWidget {
+  final String url;
+  const _InlineVideoPlayer({required this.url});
+
+  @override
+  State<_InlineVideoPlayer> createState() => _InlineVideoPlayerState();
+}
+
+class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
+  late final WebViewController _controller;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (_) {
+            if (mounted) setState(() => _isLoading = false);
+          },
+        ),
+      )
+      ..setBackgroundColor(Colors.black)
+      ..loadHtmlString(_buildVideoHtml(widget.url));
+  }
+
+  String _buildVideoHtml(String videoUrl) {
+    return '''
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: #000; }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+</style>
+</head>
+<body>
+  <video controls playsinline preload="metadata">
+    <source src="$videoUrl" />
+  </video>
+</body>
+</html>''';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        height: 220,
+        color: Colors.black,
+        child: Stack(
+          children: [
+            WebViewWidget(controller: _controller),
+            if (_isLoading)
+              const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
