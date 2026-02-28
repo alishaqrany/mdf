@@ -55,14 +55,16 @@ class MoodleApiEndpoints {
   static const String getLessons = 'mod_lesson_get_lessons_by_courses';
   static const String getLessonPages = 'mod_lesson_get_pages';
   static const String getScorms = 'mod_scorm_get_scorms_by_courses';
-  static const String getScormAttemptCount = 'mod_scorm_get_scorm_attempt_count';
+  static const String getScormAttemptCount =
+      'mod_scorm_get_scorm_attempt_count';
   static const String getScormScoTracks = 'mod_scorm_get_scorm_sco_tracks';
   static const String launchScorm = 'mod_scorm_launch_sco';
   static const String getScormScoes = 'mod_scorm_get_scorm_scoes';
   static const String insertScormTracks = 'mod_scorm_insert_scorm_tracks';
 
   // ─── H5P ───
-  static const String getH5PActivities = 'mod_h5pactivity_get_h5pactivities_by_courses';
+  static const String getH5PActivities =
+      'mod_h5pactivity_get_h5pactivities_by_courses';
   static const String getH5PAttempts = 'mod_h5pactivity_get_attempts';
   static const String getH5PResults = 'mod_h5pactivity_get_results';
 

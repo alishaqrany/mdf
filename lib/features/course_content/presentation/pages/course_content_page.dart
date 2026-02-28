@@ -80,7 +80,19 @@ class _CourseContentView extends StatelessWidget {
           }
 
           if (state is CourseContentLoaded) {
-            if (state.sections.isEmpty) {
+            // Filter out sections that are actually subsections
+            // (they appear as 'subsection' modules inside a parent section)
+            final subSectionNames = <String>{};
+            for (final s in state.sections) {
+              for (final m in s.modules) {
+                if (m.isSubSection) subSectionNames.add(m.name);
+              }
+            }
+            final topLevelSections = state.sections
+                .where((s) => !subSectionNames.contains(s.name))
+                .toList();
+
+            if (topLevelSections.isEmpty) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -104,12 +116,12 @@ class _CourseContentView extends StatelessWidget {
 
             return ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: state.sections.length,
+              itemCount: topLevelSections.length,
               itemBuilder: (context, index) => FadeInUp(
                 duration: const Duration(milliseconds: 400),
                 delay: Duration(milliseconds: index * 60),
                 child: _SectionWidget(
-                  section: state.sections[index],
+                  section: topLevelSections[index],
                   courseId: courseId,
                   isExpanded: index == 0,
                 ),

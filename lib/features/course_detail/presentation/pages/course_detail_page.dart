@@ -264,7 +264,18 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   }
 
                   if (state is CourseContentLoaded) {
-                    if (state.sections.isEmpty) {
+                    // Filter out sections that are subsections
+                    final subSectionNames = <String>{};
+                    for (final s in state.sections) {
+                      for (final m in s.modules) {
+                        if (m.isSubSection) subSectionNames.add(m.name);
+                      }
+                    }
+                    final topLevelSections = state.sections
+                        .where((s) => !subSectionNames.contains(s.name))
+                        .toList();
+
+                    if (topLevelSections.isEmpty) {
                       return SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.all(32),
@@ -287,7 +298,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
                     return SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
-                        final section = state.sections[index];
+                        final section = topLevelSections[index];
                         return FadeInUp(
                           duration: const Duration(milliseconds: 400),
                           delay: Duration(milliseconds: index * 60),
@@ -297,7 +308,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                             initiallyExpanded: index == 0,
                           ),
                         );
-                      }, childCount: state.sections.length),
+                      }, childCount: topLevelSections.length),
                     );
                   }
 
@@ -400,7 +411,11 @@ class _CourseInfoCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.person_rounded, size: 18, color: AppColors.primary),
+                  Icon(
+                    Icons.person_rounded,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     tr('courses.instructor'),
@@ -422,7 +437,9 @@ class _CourseInfoCard extends StatelessWidget {
                         backgroundImage: contact.profileImageUrl != null
                             ? NetworkImage(contact.profileImageUrl!)
                             : null,
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.1,
+                        ),
                         child: contact.profileImageUrl == null
                             ? Text(
                                 contact.fullName.isNotEmpty

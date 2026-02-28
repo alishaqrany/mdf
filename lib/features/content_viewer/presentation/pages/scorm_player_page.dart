@@ -54,7 +54,9 @@ class _ScormPlayerPageState extends State<ScormPlayerPage> {
             if (mounted) setState(() => _progress = progress / 100);
           },
           onWebResourceError: (error) {
-            debugPrint('SCORM WebView error: ${error.errorCode} ${error.description}');
+            debugPrint(
+              'SCORM WebView error: ${error.errorCode} ${error.description}',
+            );
             if (mounted && error.isForMainFrame == true) {
               setState(() {
                 _isLoading = false;
@@ -127,7 +129,9 @@ class _ScormPlayerPageState extends State<ScormPlayerPage> {
             final key = keyResponse['key'] as String;
             final autologinUrl = keyResponse['autologinurl'] as String;
 
-            final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+            final siteInfo = await apiClient.call(
+              MoodleApiEndpoints.getSiteInfo,
+            );
             final userId = (siteInfo as Map<String, dynamic>)['userid'] ?? 0;
 
             final uri = Uri.parse(autologinUrl);
@@ -136,8 +140,9 @@ class _ScormPlayerPageState extends State<ScormPlayerPage> {
             queryParams['key'] = key;
             queryParams['urltogo'] = targetUrl;
 
-            final autoLoginFullUrl =
-                uri.replace(queryParameters: queryParams).toString();
+            final autoLoginFullUrl = uri
+                .replace(queryParameters: queryParams)
+                .toString();
             _controller.loadRequest(Uri.parse(autoLoginFullUrl));
             return;
           }

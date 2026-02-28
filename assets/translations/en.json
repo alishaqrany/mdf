@@ -297,7 +297,9 @@
     "more": "More",
     "minutes": "Minutes",
     "coming_soon": "Coming Soon",
-    "link_copied": "Link copied"
+    "link_copied": "Link copied",
+    "messages": "Messages",
+    "notifications": "Notifications"
   },
   "onboarding": {
     "title1": "Learn Anytime, Anywhere",

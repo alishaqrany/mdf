@@ -39,11 +39,13 @@ class CourseModel extends Course {
     if (json['contacts'] is List) {
       for (final c in json['contacts'] as List) {
         if (c is Map<String, dynamic>) {
-          contactsList.add(CourseContact(
-            id: c['id'] as int? ?? 0,
-            fullName: c['fullname'] as String? ?? '',
-            profileImageUrl: c['profileimageurl'] as String?,
-          ));
+          contactsList.add(
+            CourseContact(
+              id: c['id'] as int? ?? 0,
+              fullName: c['fullname'] as String? ?? '',
+              profileImageUrl: c['profileimageurl'] as String?,
+            ),
+          );
         }
       }
     }

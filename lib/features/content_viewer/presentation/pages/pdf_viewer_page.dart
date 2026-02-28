@@ -74,8 +74,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
     try {
       final authedUrl = await _prepareAuthUrl();
       final tempDir = await getTemporaryDirectory();
-      final fileName =
-          'pdf_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final fileName = 'pdf_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${tempDir.path}/$fileName';
 
       final dio = Dio();
@@ -207,10 +206,9 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
       ),
       body: _buildBody(theme),
       // Bottom page navigation bar
-      bottomNavigationBar:
-          _localFilePath != null && _totalPages > 0
-              ? _buildPageNavigator(theme)
-              : null,
+      bottomNavigationBar: _localFilePath != null && _totalPages > 0
+          ? _buildPageNavigator(theme)
+          : null,
     );
   }
 
@@ -259,10 +257,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
             children: [
               Icon(Icons.picture_as_pdf, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
-              Text(
-                'فشل تحميل الملف',
-                style: theme.textTheme.titleMedium,
-              ),
+              Text('فشل تحميل الملف', style: theme.textTheme.titleMedium),
               if (_errorMessage.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
@@ -341,10 +336,9 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
             // Previous page
             IconButton(
               icon: const Icon(Icons.chevron_right, size: 28),
-              onPressed:
-                  _currentPage < _totalPages - 1
-                      ? () => _goToPage(_currentPage + 1)
-                      : null,
+              onPressed: _currentPage < _totalPages - 1
+                  ? () => _goToPage(_currentPage + 1)
+                  : null,
             ),
             // Page indicator
             Expanded(
@@ -380,10 +374,9 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
             // Next page
             IconButton(
               icon: const Icon(Icons.chevron_left, size: 28),
-              onPressed:
-                  _currentPage > 0
-                      ? () => _goToPage(_currentPage - 1)
-                      : null,
+              onPressed: _currentPage > 0
+                  ? () => _goToPage(_currentPage - 1)
+                  : null,
             ),
           ],
         ),

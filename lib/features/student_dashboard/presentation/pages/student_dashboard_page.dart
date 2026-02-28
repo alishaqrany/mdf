@@ -267,9 +267,16 @@ class _WelcomeHeader extends StatelessWidget {
             icon: const Icon(Icons.search_rounded, color: Colors.white),
             onPressed: () => context.push('/student/search'),
           ),
+          // Messages icon
+          IconButton(
+            icon: const Icon(Icons.mail_outline_rounded, color: Colors.white),
+            tooltip: tr('common.messages'),
+            onPressed: () => context.push('/student/messages'),
+          ),
           // Notifications icon
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+            tooltip: tr('common.notifications'),
             onPressed: () =>
                 context.push('/student/notifications?userId=$userId'),
           ),

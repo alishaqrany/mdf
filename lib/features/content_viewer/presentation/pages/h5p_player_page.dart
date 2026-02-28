@@ -50,7 +50,9 @@ class _H5pPlayerPageState extends State<H5pPlayerPage> {
             if (mounted) setState(() => _progress = progress / 100);
           },
           onWebResourceError: (error) {
-            debugPrint('H5P WebView error: ${error.errorCode} ${error.description}');
+            debugPrint(
+              'H5P WebView error: ${error.errorCode} ${error.description}',
+            );
             if (mounted && error.isForMainFrame == true) {
               setState(() {
                 _isLoading = false;
@@ -119,7 +121,9 @@ class _H5pPlayerPageState extends State<H5pPlayerPage> {
             final key = keyResponse['key'] as String;
             final autologinUrl = keyResponse['autologinurl'] as String;
 
-            final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+            final siteInfo = await apiClient.call(
+              MoodleApiEndpoints.getSiteInfo,
+            );
             final userId = (siteInfo as Map<String, dynamic>)['userid'] ?? 0;
 
             final uri = Uri.parse(autologinUrl);
@@ -128,8 +132,9 @@ class _H5pPlayerPageState extends State<H5pPlayerPage> {
             queryParams['key'] = key;
             queryParams['urltogo'] = targetUrl;
 
-            final autoLoginFullUrl =
-                uri.replace(queryParameters: queryParams).toString();
+            final autoLoginFullUrl = uri
+                .replace(queryParameters: queryParams)
+                .toString();
             _controller.loadRequest(Uri.parse(autoLoginFullUrl));
             return;
           }
