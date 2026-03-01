@@ -1,4 +1,5 @@
 /// Base exception classes for the app
+library;
 
 class ServerException implements Exception {
   final String message;

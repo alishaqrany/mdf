@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
+import '../../data/models/enrollment_stats_model.dart';
 import '../bloc/admin_dashboard_bloc.dart';
 
 class AdminDashboardPage extends StatelessWidget {
@@ -168,9 +169,16 @@ class _AdminDashboardView extends StatelessWidget {
                                   duration: const Duration(milliseconds: 500),
                                   delay: const Duration(milliseconds: 200),
                                   child: _AdminStatCard(
-                                    icon: Icons.quiz_rounded,
-                                    label: tr('admin.total_quizzes'),
-                                    value: state.totalQuizzes.toString(),
+                                    icon: state.pluginAvailable
+                                        ? Icons.circle
+                                        : Icons.quiz_rounded,
+                                    label: state.pluginAvailable
+                                        ? tr('admin.online_users')
+                                        : tr('admin.total_quizzes'),
+                                    value: state.pluginAvailable
+                                        ? (state.stats?.onlineUsers ?? 0)
+                                              .toString()
+                                        : state.totalQuizzes.toString(),
                                     color: AppColors.warning,
                                     bgGradient: const LinearGradient(
                                       colors: [
@@ -188,6 +196,49 @@ class _AdminDashboardView extends StatelessWidget {
                     ),
                   ),
 
+                  // ─── Plugin Extra Stats (Active Users, Completions) ───
+                  if (state.pluginAvailable && state.stats != null)
+                    SliverToBoxAdapter(
+                      child: FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 250),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _MiniStatTile(
+                                  icon: Icons.trending_up,
+                                  label: tr('admin.active_users_30d'),
+                                  value: state.stats!.activeUsers.toString(),
+                                  color: Colors.green,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _MiniStatTile(
+                                  icon: Icons.person_add_alt_1,
+                                  label: tr('admin.new_users_month'),
+                                  value: state.stats!.newUsersMonth.toString(),
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _MiniStatTile(
+                                  icon: Icons.check_circle_outline,
+                                  label: tr('admin.completions_month'),
+                                  value: state.stats!.completionsMonth
+                                      .toString(),
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
                   // ─── Quick Actions ───
                   SliverToBoxAdapter(
                     child: FadeInUp(
@@ -198,6 +249,7 @@ class _AdminDashboardView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const SizedBox(height: 16),
                             Text(
                               tr('admin.quick_actions'),
                               style: theme.textTheme.titleLarge,
@@ -242,40 +294,151 @@ class _AdminDashboardView extends StatelessWidget {
                     ),
                   ),
 
-                  // ─── Chart Section ───
-                  SliverToBoxAdapter(
-                    child: FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      delay: const Duration(milliseconds: 400),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  tr('admin.system_overview'),
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 24),
-                                SizedBox(
-                                  height: 200,
-                                  child: _OverviewPieChart(
-                                    users: state.totalUsers,
-                                    courses: state.totalCourses,
-                                    enrollments: state.activeEnrollments,
-                                    quizzes: state.totalQuizzes,
+                  // ─── Enrollment Trend Chart (plugin only) ───
+                  if (state.pluginAvailable &&
+                      state.enrollmentStats != null &&
+                      state.enrollmentStats!.periods.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 400),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tr('admin.enrollment_trends'),
+                                    style: theme.textTheme.titleMedium,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 24),
+                                  SizedBox(
+                                    height: 220,
+                                    child: _EnrollmentLineChart(
+                                      stats: state.enrollmentStats!,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+
+                  // ─── System Health (plugin only) ───
+                  if (state.pluginAvailable && state.systemHealth != null)
+                    SliverToBoxAdapter(
+                      child: FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 450),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tr('admin.system_health'),
+                                    style: theme.textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _HealthRow(
+                                    label: 'Moodle',
+                                    value: state.systemHealth!.moodleVersion,
+                                  ),
+                                  _HealthRow(
+                                    label: 'PHP',
+                                    value: state.systemHealth!.phpVersion,
+                                  ),
+                                  _HealthRow(
+                                    label: tr('admin.database'),
+                                    value:
+                                        '${state.systemHealth!.dbType} — ${_formatBytes(state.systemHealth!.dbSizeBytes)}',
+                                  ),
+                                  _HealthRow(
+                                    label: tr('admin.disk_usage'),
+                                    value: _formatBytes(
+                                      state.systemHealth!.datarootSizeBytes,
+                                    ),
+                                  ),
+                                  _HealthRow(
+                                    label: tr('admin.disk_free'),
+                                    value: _formatBytes(
+                                      state.systemHealth!.freeDiskBytes,
+                                    ),
+                                  ),
+                                  _HealthRow(
+                                    label: 'Cron',
+                                    value: state.systemHealth!.cronOverdue
+                                        ? tr('admin.cron_overdue')
+                                        : tr('admin.cron_ok'),
+                                    valueColor: state.systemHealth!.cronOverdue
+                                        ? AppColors.error
+                                        : Colors.green,
+                                  ),
+                                  _HealthRow(
+                                    label: tr('admin.pending_tasks'),
+                                    value: state.systemHealth!.pendingAdhocTasks
+                                        .toString(),
+                                  ),
+                                  _HealthRow(
+                                    label: tr('admin.failed_tasks'),
+                                    value: state.systemHealth!.failedTasks24h
+                                        .toString(),
+                                    valueColor:
+                                        state.systemHealth!.failedTasks24h > 0
+                                        ? AppColors.error
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  // ─── Pie Chart (fallback overview) ───
+                  if (!state.pluginAvailable)
+                    SliverToBoxAdapter(
+                      child: FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 400),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tr('admin.system_overview'),
+                                    style: theme.textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  SizedBox(
+                                    height: 200,
+                                    child: _OverviewPieChart(
+                                      users: state.totalUsers,
+                                      courses: state.totalCourses,
+                                      enrollments: state.activeEnrollments,
+                                      quizzes: state.totalQuizzes,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
                   const SliverToBoxAdapter(child: SizedBox(height: 100)),
                 ],
@@ -489,6 +652,180 @@ class _LegendItem extends StatelessWidget {
       ],
     );
   }
+}
+
+// ─── Mini Stat Tile (compact stat for plugin data) ───
+class _MiniStatTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _MiniStatTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: theme.textTheme.labelSmall,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Enrollment Line Chart ───
+class _EnrollmentLineChart extends StatelessWidget {
+  final EnrollmentStatsModel stats;
+
+  const _EnrollmentLineChart({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    if (stats.periods.isEmpty) {
+      return const Center(child: Text('No data'));
+    }
+
+    final enrollSpots = <FlSpot>[];
+    final completionSpots = <FlSpot>[];
+    for (int i = 0; i < stats.periods.length; i++) {
+      enrollSpots.add(
+        FlSpot(i.toDouble(), stats.periods[i].newEnrollments.toDouble()),
+      );
+      completionSpots.add(
+        FlSpot(i.toDouble(), stats.periods[i].completions.toDouble()),
+      );
+    }
+
+    return LineChart(
+      LineChartData(
+        gridData: const FlGridData(show: true, drawVerticalLine: false),
+        titlesData: FlTitlesData(
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: true, reservedSize: 36),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 28,
+              getTitlesWidget: (value, _) {
+                final idx = value.toInt();
+                if (idx < 0 || idx >= stats.periods.length) {
+                  return const SizedBox();
+                }
+                final label = stats.periods[idx].label;
+                // Show short label (last 5 chars, e.g. "05-25")
+                return Text(
+                  label.length > 5 ? label.substring(5) : label,
+                  style: const TextStyle(fontSize: 10),
+                );
+              },
+            ),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        lineBarsData: [
+          LineChartBarData(
+            spots: enrollSpots,
+            isCurved: true,
+            color: AppColors.primary,
+            barWidth: 3,
+            dotData: const FlDotData(show: true),
+            belowBarData: BarAreaData(
+              show: true,
+              color: AppColors.primary.withValues(alpha: 0.1),
+            ),
+          ),
+          LineChartBarData(
+            spots: completionSpots,
+            isCurved: true,
+            color: AppColors.secondary,
+            barWidth: 3,
+            dotData: const FlDotData(show: true),
+            belowBarData: BarAreaData(
+              show: true,
+              color: AppColors.secondary.withValues(alpha: 0.1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Health Row ───
+class _HealthRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  const _HealthRow({required this.label, required this.value, this.valueColor});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: theme.textTheme.bodyMedium),
+          Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: valueColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Format bytes to human-readable string.
+String _formatBytes(int bytes) {
+  if (bytes <= 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  int idx = 0;
+  double size = bytes.toDouble();
+  while (size >= 1024 && idx < units.length - 1) {
+    size /= 1024;
+    idx++;
+  }
+  return '${size.toStringAsFixed(1)} ${units[idx]}';
 }
 
 // ─── Shimmer ───

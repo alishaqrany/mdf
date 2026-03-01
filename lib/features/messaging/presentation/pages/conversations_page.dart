@@ -34,7 +34,7 @@ class _ConversationsPageState extends State<ConversationsPage> {
     return conversations.where((c) {
       final name = (c.name ?? '').toLowerCase();
       final memberNames = c.members
-          .map((m) => (m.fullName ?? '').toLowerCase())
+          .map((m) => m.fullName.toLowerCase())
           .join(' ');
       final lastMsg = c.messages.isNotEmpty
           ? (c.messages.last.text ?? '').toLowerCase()

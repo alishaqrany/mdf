@@ -483,11 +483,12 @@ class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
             debugPrint(
               'Video WebView error: ${error.errorCode} ${error.description}',
             );
-            if (mounted)
+            if (mounted) {
               setState(() {
                 _isLoading = false;
                 _hasError = true;
               });
+            }
           },
         ),
       )

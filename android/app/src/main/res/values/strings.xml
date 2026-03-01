@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MDF</string>
+
+    <!-- App Shortcuts -->
+    <string name="shortcut_courses_short">Courses</string>
+    <string name="shortcut_courses_long">My Courses</string>
+    <string name="shortcut_messages_short">Messages</string>
+    <string name="shortcut_messages_long">My Messages</string>
+    <string name="shortcut_grades_short">Grades</string>
+    <string name="shortcut_grades_long">My Grades</string>
+    <string name="shortcut_search_short">Search</string>
+    <string name="shortcut_search_long">Search Courses</string>
+
+    <!-- Home Screen Widget -->
+    <string name="widget_description">Shows your enrolled courses and upcoming events</string>
+</resources>

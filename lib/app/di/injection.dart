@@ -98,6 +98,28 @@ import '../../features/search/data/repositories/search_repository_impl.dart';
 import '../../features/search/domain/repositories/search_repository.dart';
 import '../../features/search/presentation/bloc/search_bloc.dart';
 
+// ─── Offline & Downloads ───
+import '../../core/storage/download_manager.dart';
+import '../../core/storage/offline_queue.dart';
+import '../../core/network/connectivity_cubit.dart';
+import '../../features/downloads/presentation/bloc/downloads_bloc.dart';
+
+// ─── AI Features ───
+import '../../features/ai/data/ai_engine.dart';
+import '../../features/ai/data/repositories/ai_repository_impl.dart';
+import '../../features/ai/domain/repositories/ai_repository.dart';
+import '../../features/ai/presentation/bloc/ai_insights_bloc.dart';
+import '../../features/ai/presentation/bloc/ai_chat_bloc.dart';
+
+// ─── Social Features ───
+import '../../features/social/data/datasources/social_remote_datasource.dart';
+import '../../features/social/data/repositories/social_repository_impl.dart';
+import '../../features/social/domain/repositories/social_repository.dart';
+import '../../features/social/presentation/bloc/study_groups_bloc.dart';
+import '../../features/social/presentation/bloc/study_notes_bloc.dart';
+import '../../features/social/presentation/bloc/peer_review_bloc.dart';
+import '../../features/social/presentation/bloc/collaborative_bloc.dart';
+
 final sl = GetIt.instance;
 
 /// Initialize all dependencies.
@@ -284,4 +306,48 @@ Future<void> initDependencies() async {
     () => SearchRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerFactory(() => SearchBloc(repository: sl(), prefs: sl()));
+
+  // ─── Download Manager ───
+  sl.registerLazySingleton<DownloadManager>(
+    () => DownloadManager(secureStorage: sl()),
+  );
+  await sl<DownloadManager>().init();
+
+  // ─── Offline Queue ───
+  sl.registerLazySingleton<OfflineQueue>(() => OfflineQueue());
+  await sl<OfflineQueue>().init();
+
+  // ─── Connectivity ───
+  sl.registerLazySingleton<ConnectivityCubit>(
+    () => ConnectivityCubit(networkInfo: sl(), offlineQueue: sl()),
+  );
+
+  // ─── Downloads Feature ───
+  sl.registerFactory(() => DownloadsBloc(downloadManager: sl()));
+
+  // ─── AI Feature ───
+  sl.registerLazySingleton(() => AiEngine(apiClient: sl()));
+  sl.registerLazySingleton<AiRepository>(
+    () => AiRepositoryImpl(
+      aiEngine: sl(),
+      coursesRepository: sl(),
+      courseContentRepository: sl(),
+      gradeRepository: sl(),
+      networkInfo: sl(),
+    ),
+  );
+  sl.registerFactory(() => AiInsightsBloc(repository: sl()));
+  sl.registerFactory(() => AiChatBloc(repository: sl()));
+
+  // ─── Social Feature ───
+  sl.registerLazySingleton<SocialRemoteDataSource>(
+    () => SocialRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<SocialRepository>(
+    () => SocialRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => StudyGroupsBloc(repository: sl()));
+  sl.registerFactory(() => StudyNotesBloc(repository: sl()));
+  sl.registerFactory(() => PeerReviewBloc(repository: sl()));
+  sl.registerFactory(() => CollaborativeBloc(repository: sl()));
 }

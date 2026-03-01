@@ -143,4 +143,56 @@ class MoodleApiEndpoints {
   // ─── Roles ───
   static const String assignRoles = 'core_role_assign_roles';
   static const String unassignRoles = 'core_role_unassign_roles';
+
+  // ─── MDF Academy Custom Plugin (local_mdf_api) ───
+  static const String mdfGetDashboardStats =
+      'local_mdf_api_get_dashboard_stats';
+  static const String mdfGetEnrollmentStats =
+      'local_mdf_api_get_enrollment_stats';
+  static const String mdfBulkEnrolUsers = 'local_mdf_api_bulk_enrol_users';
+  static const String mdfGetActivityLogs = 'local_mdf_api_get_activity_logs';
+  static const String mdfGetSystemHealth = 'local_mdf_api_get_system_health';
+  static const String mdfSendPushNotification =
+      'local_mdf_api_send_push_notification';
+  static const String mdfRegisterFcmToken = 'local_mdf_api_register_fcm_token';
+
+  // ─── Social / Study Groups (local_mdf_api) ───
+  static const String mdfGetStudyGroups = 'local_mdf_api_get_study_groups';
+  static const String mdfGetStudyGroupDetail =
+      'local_mdf_api_get_study_group_detail';
+  static const String mdfCreateStudyGroup = 'local_mdf_api_create_study_group';
+  static const String mdfJoinStudyGroup = 'local_mdf_api_join_study_group';
+  static const String mdfLeaveStudyGroup = 'local_mdf_api_leave_study_group';
+  static const String mdfGetGroupMembers = 'local_mdf_api_get_group_members';
+  static const String mdfUpdateGroupMemberRole =
+      'local_mdf_api_update_group_member_role';
+  static const String mdfDeleteStudyGroup = 'local_mdf_api_delete_study_group';
+
+  // ─── Social / Study Notes (local_mdf_api) ───
+  static const String mdfGetCourseNotes = 'local_mdf_api_get_course_notes';
+  static const String mdfGetGroupNotes = 'local_mdf_api_get_group_notes';
+  static const String mdfCreateNote = 'local_mdf_api_create_note';
+  static const String mdfUpdateNote = 'local_mdf_api_update_note';
+  static const String mdfDeleteNote = 'local_mdf_api_delete_note';
+  static const String mdfToggleLikeNote = 'local_mdf_api_toggle_like_note';
+  static const String mdfToggleBookmarkNote =
+      'local_mdf_api_toggle_bookmark_note';
+  static const String mdfGetNoteComments = 'local_mdf_api_get_note_comments';
+  static const String mdfAddNoteComment = 'local_mdf_api_add_note_comment';
+
+  // ─── Social / Peer Review (local_mdf_api) ───
+  static const String mdfGetPendingReviews =
+      'local_mdf_api_get_pending_reviews';
+  static const String mdfGetCompletedReviews =
+      'local_mdf_api_get_completed_reviews';
+  static const String mdfGetReviewDetail = 'local_mdf_api_get_review_detail';
+  static const String mdfSubmitReview = 'local_mdf_api_submit_review';
+
+  // ─── Social / Collaborative Sessions (local_mdf_api) ───
+  static const String mdfGetGroupSessions = 'local_mdf_api_get_group_sessions';
+  static const String mdfCreateSession = 'local_mdf_api_create_session';
+  static const String mdfJoinSession = 'local_mdf_api_join_session';
+  static const String mdfLeaveSession = 'local_mdf_api_leave_session';
+  static const String mdfEndSession = 'local_mdf_api_end_session';
+  static const String mdfAddSessionNote = 'local_mdf_api_add_session_note';
 }

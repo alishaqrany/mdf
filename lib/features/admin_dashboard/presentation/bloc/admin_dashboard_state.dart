@@ -16,11 +16,23 @@ class AdminDashboardLoaded extends AdminDashboardState {
   final int activeEnrollments;
   final int totalQuizzes;
 
+  /// Rich data from MDF custom plugin (null if plugin not installed).
+  final DashboardStatsModel? stats;
+  final EnrollmentStatsModel? enrollmentStats;
+  final SystemHealthModel? systemHealth;
+
+  /// Whether the custom MDF plugin is available on the server.
+  final bool pluginAvailable;
+
   const AdminDashboardLoaded({
     required this.totalUsers,
     required this.totalCourses,
     required this.activeEnrollments,
     required this.totalQuizzes,
+    this.stats,
+    this.enrollmentStats,
+    this.systemHealth,
+    this.pluginAvailable = false,
   });
 
   @override
@@ -29,6 +41,10 @@ class AdminDashboardLoaded extends AdminDashboardState {
     totalCourses,
     activeEnrollments,
     totalQuizzes,
+    stats,
+    enrollmentStats,
+    systemHealth,
+    pluginAvailable,
   ];
 }
 

@@ -38,4 +38,21 @@ class AppNotificationModel extends AppNotification {
       userFromPictureUrl: json['userfromprofileurl'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'useridfrom': userIdFrom,
+    'useridto': userIdTo,
+    'subject': subject,
+    'smallmessage': shortMessage,
+    'fullmessage': fullMessage,
+    'contexturl': contextUrl,
+    'contexturlname': contextUrlName,
+    'component': component,
+    'eventtype': eventType,
+    'timecreated': timeCreated,
+    'read': isRead,
+    'userfromfullname': userFromFullName,
+    'userfromprofileurl': userFromPictureUrl,
+  };
 }

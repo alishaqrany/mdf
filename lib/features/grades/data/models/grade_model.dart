@@ -32,6 +32,21 @@ class GradeItemModel extends GradeItem {
       feedback: json['feedback'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'itemname': itemName,
+    'itemtype': itemType,
+    'itemmodule': itemModule,
+    'courseid': courseId,
+    'graderaw': gradeRaw,
+    'grademin': gradeMin,
+    'grademax': gradeMax,
+    'gradedatesubmitted': gradeDateSubmitted,
+    'gradedategraded': gradeDateGraded,
+    'percentageformatted': percentageFormatted,
+    'feedback': feedback,
+  };
 }
 
 class CourseGradeModel extends CourseGrade {
@@ -51,4 +66,11 @@ class CourseGradeModel extends CourseGrade {
       rank: json['rank'] as int?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'courseid': courseId,
+    'coursename': courseName,
+    'grade': grade,
+    'rank': rank,
+  };
 }

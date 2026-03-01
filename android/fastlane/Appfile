@@ -1,0 +1,2 @@
+json_key_file("path/to/play-store-credentials.json")
+package_name("com.mdf.mdf_app")

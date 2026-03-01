@@ -23,6 +23,15 @@ class CourseSectionModel extends CourseSection {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'summary': summary,
+    'section': sectionNumber,
+    'visible': visible ? 1 : 0,
+    'modules': modules.map((m) => (m as CourseModuleModel).toJson()).toList(),
+  };
 }
 
 class CourseModuleModel extends CourseModule {
@@ -67,6 +76,21 @@ class CourseModuleModel extends CourseModule {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'instance': instance,
+    'modname': modName,
+    'modicon': modIcon,
+    'description': description,
+    'url': url,
+    'visible': visible ? 1 : 0,
+    if (completionState != null) 'completiondata': {'state': completionState},
+    'contents': contents
+        .map((c) => (c as ModuleContentModel).toJson())
+        .toList(),
+  };
 }
 
 class ModuleContentModel extends ModuleContent {
@@ -93,4 +117,15 @@ class ModuleContentModel extends ModuleContent {
       content: json['content'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'filename': fileName,
+    'filepath': filePath,
+    'filesize': fileSize,
+    'fileurl': fileUrl,
+    'mimetype': mimeType,
+    'timemodified': timeModified,
+    'content': content,
+  };
 }

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../di/injection.dart';
+import '../shell/adaptive_shell.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../../features/student_dashboard/presentation/pages/student_dashboard_page.dart';
 import '../../features/admin_dashboard/presentation/pages/admin_dashboard_page.dart';
 import '../../features/courses/presentation/pages/courses_page.dart';
@@ -38,9 +36,21 @@ import '../../features/enrollment/presentation/pages/enrollment_page.dart';
 import '../../features/video_meetings/presentation/pages/meeting_list_page.dart';
 import '../../features/video_meetings/presentation/pages/meeting_detail_page.dart';
 import '../../features/video_meetings/domain/entities/meeting.dart';
+import '../../features/downloads/presentation/pages/downloads_page.dart';
+import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/ai/presentation/pages/ai_insights_page.dart';
+import '../../features/ai/presentation/pages/ai_chat_page.dart';
+import '../../features/social/presentation/pages/study_groups_page.dart';
+import '../../features/social/presentation/pages/group_detail_page.dart';
+import '../../features/social/presentation/pages/study_notes_page.dart';
+import '../../features/social/presentation/pages/peer_review_page.dart';
+import '../../features/social/presentation/pages/collaborative_session_page.dart';
 
 /// Route name constants
 abstract class AppRoutes {
+  static const splash = 'splash';
+  static const onboarding = 'onboarding';
   static const login = 'login';
   static const studentDashboard = 'student-dashboard';
   static const adminDashboard = 'admin-dashboard';
@@ -76,6 +86,15 @@ abstract class AppRoutes {
   static const enrollment = 'enrollment';
   static const meetingList = 'meeting-list';
   static const meetingDetail = 'meeting-detail';
+  static const downloads = 'downloads';
+  static const aiInsights = 'ai-insights';
+  static const aiChat = 'ai-chat';
+  static const studyGroups = 'study-groups';
+  static const groupDetail = 'group-detail';
+  static const groupNotes = 'group-notes';
+  static const groupSessions = 'group-sessions';
+  static const studyNotes = 'study-notes';
+  static const peerReviews = 'peer-reviews';
 }
 
 /// GoRouter configuration with role-based guards
@@ -85,13 +104,18 @@ class AppRouter {
   AppRouter(this._authBloc);
 
   late final GoRouter router = GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/splash',
     debugLogDiagnostics: true,
     refreshListenable: GoRouterRefreshStream(_authBloc.stream),
     redirect: (context, state) {
       final authState = _authBloc.state;
       final isAuthenticated = authState is AuthAuthenticated;
-      final isLoginRoute = state.matchedLocation == '/login';
+      final loc = state.matchedLocation;
+
+      // Allow splash & onboarding without auth
+      if (loc == '/splash' || loc == '/onboarding') return null;
+
+      final isLoginRoute = loc == '/login';
 
       // Not authenticated → redirect to login
       if (!isAuthenticated && !isLoginRoute) {
@@ -109,6 +133,20 @@ class AppRouter {
       return null;
     },
     routes: [
+      // ─── Splash ───
+      GoRoute(
+        path: '/splash',
+        name: AppRoutes.splash,
+        builder: (context, state) => const SplashPage(),
+      ),
+
+      // ─── Onboarding ───
+      GoRoute(
+        path: '/onboarding',
+        name: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingPage(),
+      ),
+
       // ─── Login ───
       GoRoute(
         path: '/login',
@@ -118,7 +156,8 @@ class AppRouter {
 
       // ─── Student Shell ───
       ShellRoute(
-        builder: (context, state, child) => _StudentShell(child: child),
+        builder: (context, state, child) =>
+            AdaptiveShell(role: 'student', child: child),
         routes: [
           GoRoute(
             path: '/student',
@@ -187,12 +226,85 @@ class AppRouter {
               return GradesPage(userId: userId);
             },
           ),
+          GoRoute(
+            path: '/student/downloads',
+            name: '${AppRoutes.downloads}-student',
+            builder: (context, state) => const DownloadsPage(),
+          ),
+          GoRoute(
+            path: '/student/ai-insights',
+            name: '${AppRoutes.aiInsights}-student',
+            builder: (context, state) => const AiInsightsPage(),
+          ),
+          GoRoute(
+            path: '/student/ai-chat',
+            name: '${AppRoutes.aiChat}-student',
+            builder: (context, state) => const AiChatPage(),
+          ),
+
+          // ─── Social ───
+          GoRoute(
+            path: '/student/study-groups',
+            name: '${AppRoutes.studyGroups}-student',
+            builder: (context, state) {
+              final courseId = int.tryParse(
+                state.uri.queryParameters['courseId'] ?? '',
+              );
+              return StudyGroupsPage(courseId: courseId);
+            },
+          ),
+          GoRoute(
+            path: '/student/group/:groupId',
+            name: '${AppRoutes.groupDetail}-student',
+            builder: (context, state) {
+              final groupId =
+                  int.tryParse(state.pathParameters['groupId'] ?? '') ?? 0;
+              return GroupDetailPage(groupId: groupId);
+            },
+          ),
+          GoRoute(
+            path: '/student/group/:groupId/notes',
+            name: '${AppRoutes.groupNotes}-student',
+            builder: (context, state) {
+              final groupId =
+                  int.tryParse(state.pathParameters['groupId'] ?? '') ?? 0;
+              return StudyNotesPage(groupId: groupId);
+            },
+          ),
+          GoRoute(
+            path: '/student/group/:groupId/sessions',
+            name: '${AppRoutes.groupSessions}-student',
+            builder: (context, state) {
+              final groupId =
+                  int.tryParse(state.pathParameters['groupId'] ?? '') ?? 0;
+              final groupName = state.uri.queryParameters['name'] ?? '';
+              return CollaborativeSessionPage(
+                groupId: groupId,
+                groupName: groupName,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/student/study-notes/:courseId',
+            name: '${AppRoutes.studyNotes}-student',
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              return StudyNotesPage(courseId: courseId);
+            },
+          ),
+          GoRoute(
+            path: '/student/peer-reviews',
+            name: '${AppRoutes.peerReviews}-student',
+            builder: (context, state) => const PeerReviewPage(),
+          ),
         ],
       ),
 
       // ─── Admin Shell ───
       ShellRoute(
-        builder: (context, state, child) => _AdminShell(child: child),
+        builder: (context, state, child) =>
+            AdaptiveShell(role: 'admin', child: child),
         routes: [
           GoRoute(
             path: '/admin',
@@ -261,6 +373,21 @@ class AppRouter {
               return GradesPage(userId: userId);
             },
           ),
+          GoRoute(
+            path: '/admin/downloads',
+            name: '${AppRoutes.downloads}-admin',
+            builder: (context, state) => const DownloadsPage(),
+          ),
+          GoRoute(
+            path: '/admin/ai-insights',
+            name: '${AppRoutes.aiInsights}-admin',
+            builder: (context, state) => const AiInsightsPage(),
+          ),
+          GoRoute(
+            path: '/admin/ai-chat',
+            name: '${AppRoutes.aiChat}-admin',
+            builder: (context, state) => const AiChatPage(),
+          ),
           // ─── User Management Routes ───
           GoRoute(
             path: '/admin/users',
@@ -288,9 +415,6 @@ class AppRouter {
             builder: (context, state) {
               final courseId = int.tryParse(
                 state.uri.queryParameters['courseId'] ?? '',
-              );
-              final userId = int.tryParse(
-                state.uri.queryParameters['userId'] ?? '',
               );
               return EnrollmentPage(preselectedCourseId: courseId);
             },
@@ -528,264 +652,6 @@ List<RouteBase> get _featureRoutes => [
     },
   ),
 ];
-
-// ─── Student Bottom Navigation Shell ───
-class _StudentShell extends StatefulWidget {
-  final Widget child;
-
-  const _StudentShell({required this.child});
-
-  @override
-  State<_StudentShell> createState() => _StudentShellState();
-}
-
-class _StudentShellState extends State<_StudentShell> {
-  int _currentIndex = 0;
-  late final NotificationBadgeCubit _badgeCubit;
-  int? _userId;
-
-  static final _tabs = [
-    '/student',
-    '/student/courses',
-    '/student/messages',
-    '/student/calendar',
-    '/student/profile',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _badgeCubit = NotificationBadgeCubit(repository: sl());
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Load unread count from auth state
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated && _userId == null) {
-      _userId = authState.user.id;
-      _badgeCubit.loadUnreadCount(_userId!);
-    }
-  }
-
-  @override
-  void dispose() {
-    _badgeCubit.close();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Sync tab index with current route
-    final location = GoRouterState.of(context).matchedLocation;
-    if (location.startsWith('/student/courses')) {
-      _currentIndex = 1;
-    } else if (location.startsWith('/student/messages')) {
-      _currentIndex = 2;
-    } else if (location.startsWith('/student/calendar')) {
-      _currentIndex = 3;
-    } else if (location.startsWith('/student/profile')) {
-      _currentIndex = 4;
-    } else {
-      _currentIndex = 0;
-    }
-
-    return Scaffold(
-      body: widget.child,
-      floatingActionButton: _buildNotificationFab(context),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          if (index != _currentIndex) {
-            context.go(_tabs[index]);
-          }
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.dashboard_outlined),
-            selectedIcon: const Icon(Icons.dashboard_rounded),
-            label: 'Dashboard',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.school_outlined),
-            selectedIcon: const Icon(Icons.school_rounded),
-            label: 'Courses',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.chat_outlined),
-            selectedIcon: const Icon(Icons.chat_rounded),
-            label: 'Messages',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.calendar_month_outlined),
-            selectedIcon: const Icon(Icons.calendar_month_rounded),
-            label: 'Calendar',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outlined),
-            selectedIcon: const Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget? _buildNotificationFab(BuildContext context) {
-    // Only show FAB on dashboard tab
-    if (_currentIndex != 0) return null;
-    return BlocBuilder<NotificationBadgeCubit, int>(
-      bloc: _badgeCubit,
-      builder: (context, unreadCount) {
-        return FloatingActionButton.small(
-          heroTag: 'student_notifications',
-          onPressed: () {
-            context.go('/student/notifications?userId=${_userId ?? 0}');
-            // Refresh badge when coming back
-            Future.delayed(const Duration(seconds: 1), () {
-              if (mounted && _userId != null) {
-                _badgeCubit.loadUnreadCount(_userId!);
-              }
-            });
-          },
-          child: Badge(
-            isLabelVisible: unreadCount > 0,
-            label: Text('$unreadCount', style: const TextStyle(fontSize: 10)),
-            child: const Icon(Icons.notifications_outlined),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ─── Admin Bottom Navigation Shell ───
-class _AdminShell extends StatefulWidget {
-  final Widget child;
-
-  const _AdminShell({required this.child});
-
-  @override
-  State<_AdminShell> createState() => _AdminShellState();
-}
-
-class _AdminShellState extends State<_AdminShell> {
-  int _currentIndex = 0;
-  late final NotificationBadgeCubit _badgeCubit;
-  int? _userId;
-
-  static final _tabs = [
-    '/admin',
-    '/admin/courses',
-    '/admin/messages',
-    '/admin/calendar',
-    '/admin/profile',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _badgeCubit = NotificationBadgeCubit(repository: sl());
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated && _userId == null) {
-      _userId = authState.user.id;
-      _badgeCubit.loadUnreadCount(_userId!);
-    }
-  }
-
-  @override
-  void dispose() {
-    _badgeCubit.close();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).matchedLocation;
-    if (location.startsWith('/admin/courses')) {
-      _currentIndex = 1;
-    } else if (location.startsWith('/admin/messages')) {
-      _currentIndex = 2;
-    } else if (location.startsWith('/admin/calendar')) {
-      _currentIndex = 3;
-    } else if (location.startsWith('/admin/profile')) {
-      _currentIndex = 4;
-    } else {
-      _currentIndex = 0;
-    }
-
-    return Scaffold(
-      body: widget.child,
-      floatingActionButton: _buildNotificationFab(context),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          if (index != _currentIndex) {
-            context.go(_tabs[index]);
-          }
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.admin_panel_settings_outlined),
-            selectedIcon: const Icon(Icons.admin_panel_settings_rounded),
-            label: 'Dashboard',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.school_outlined),
-            selectedIcon: const Icon(Icons.school_rounded),
-            label: 'Courses',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.chat_outlined),
-            selectedIcon: const Icon(Icons.chat_rounded),
-            label: 'Messages',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.calendar_month_outlined),
-            selectedIcon: const Icon(Icons.calendar_month_rounded),
-            label: 'Calendar',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outlined),
-            selectedIcon: const Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget? _buildNotificationFab(BuildContext context) {
-    if (_currentIndex != 0) return null;
-    return BlocBuilder<NotificationBadgeCubit, int>(
-      bloc: _badgeCubit,
-      builder: (context, unreadCount) {
-        return FloatingActionButton.small(
-          heroTag: 'admin_notifications',
-          onPressed: () {
-            context.go('/admin/notifications?userId=${_userId ?? 0}');
-            Future.delayed(const Duration(seconds: 1), () {
-              if (mounted && _userId != null) {
-                _badgeCubit.loadUnreadCount(_userId!);
-              }
-            });
-          },
-          child: Badge(
-            isLabelVisible: unreadCount > 0,
-            label: Text('$unreadCount', style: const TextStyle(fontSize: 10)),
-            child: const Icon(Icons.notifications_outlined),
-          ),
-        );
-      },
-    );
-  }
-}
 
 // ─── GoRouter Refresh Stream Helper ───
 class GoRouterRefreshStream extends ChangeNotifier {

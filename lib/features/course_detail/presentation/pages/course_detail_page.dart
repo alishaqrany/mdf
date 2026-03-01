@@ -54,11 +54,12 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     try {
       final ds = sl<CourseDetailRemoteDataSource>();
       final course = await ds.getCourseDetail(widget.courseId);
-      if (mounted)
+      if (mounted) {
         setState(() {
           _course = course;
           _courseLoading = false;
         });
+      }
     } catch (_) {
       if (mounted) setState(() => _courseLoading = false);
     }

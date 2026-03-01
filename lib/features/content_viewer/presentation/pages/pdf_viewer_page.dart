@@ -42,7 +42,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
   void dispose() {
     // Clean up the temp file
     if (_localFilePath != null) {
-      File(_localFilePath!).delete().catchError((_) {});
+      File(_localFilePath!).delete().catchError((_) => File(_localFilePath!));
     }
     super.dispose();
   }

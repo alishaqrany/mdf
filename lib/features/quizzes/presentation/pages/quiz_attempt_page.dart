@@ -758,7 +758,7 @@ class _QuestionCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: DropdownButtonFormField<String>(
-                    value: answers[key],
+                    initialValue: answers[key],
                     decoration: const InputDecoration(
                       isDense: true,
                       border: OutlineInputBorder(),
@@ -853,8 +853,9 @@ class _QuestionCard extends StatelessWidget {
           r'<input[^>]*type="text"[^>]*name="([^"]*)"',
         ).firstMatch(html);
         if (textName != null) inputName = textName.group(1)!;
-        if (question.type == 'shortanswer')
+        if (question.type == 'shortanswer') {
           questionType = _QuestionType.shortanswer;
+        }
       } else if (isTrueFalse) {
         questionType = _QuestionType.truefalse;
         _parseRadioOptions(html, options, inputName);

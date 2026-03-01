@@ -1,0 +1,58 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6C63FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A42E8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00BFA6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00E5C3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded Square Background -->
+  <rect width="1024" height="1024" rx="220" ry="220" fill="url(#bg)" />
+
+  <!-- Book Body -->
+  <g transform="translate(512, 460)">
+    <!-- Left page -->
+    <path d="M-10,-120 L-10,120 L-200,100 L-200,-100 Z" fill="white" opacity="0.95"/>
+    <!-- Right page -->
+    <path d="M10,-120 L10,120 L200,100 L200,-100 Z" fill="white" opacity="0.85"/>
+    <!-- Spine -->
+    <rect x="-10" y="-120" width="20" height="240" fill="white" opacity="0.7" rx="3"/>
+
+    <!-- Text lines left -->
+    <line x1="-170" y1="-60" x2="-40" y2="-60" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+    <line x1="-170" y1="-20" x2="-60" y2="-20" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+    <line x1="-170" y1="20" x2="-50" y2="20" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+    <line x1="-170" y1="60" x2="-80" y2="60" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+
+    <!-- Text lines right -->
+    <line x1="40" y1="-60" x2="170" y2="-60" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+    <line x1="60" y1="-20" x2="170" y2="-20" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+    <line x1="50" y1="20" x2="170" y2="20" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+    <line x1="80" y1="60" x2="170" y2="60" stroke="#6C63FF" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+  </g>
+
+  <!-- Graduation Cap -->
+  <g transform="translate(512, 300)">
+    <!-- Cap top (diamond shape) -->
+    <polygon points="0,-50 150,0 0,50 -150,0" fill="url(#accent)"/>
+    <!-- Button on top -->
+    <circle cx="0" cy="-50" r="12" fill="#FFD700"/>
+    <!-- Tassel -->
+    <line x1="140" y1="0" x2="180" y2="60" stroke="#FFD700" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="180" cy="65" r="10" fill="#FFD700"/>
+  </g>
+
+  <!-- MDF Text -->
+  <text x="512" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="120" fill="white" letter-spacing="12">MDF</text>
+
+  <!-- Sparkle dots -->
+  <circle cx="200" cy="200" r="8" fill="#FFD700" opacity="0.8"/>
+  <circle cx="824" cy="180" r="6" fill="#00BFA6" opacity="0.7"/>
+  <circle cx="180" cy="780" r="5" fill="#FFD700" opacity="0.6"/>
+  <circle cx="844" cy="800" r="7" fill="#00BFA6" opacity="0.7"/>
+</svg>

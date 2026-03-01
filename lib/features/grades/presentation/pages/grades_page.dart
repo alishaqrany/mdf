@@ -211,7 +211,7 @@ class _GradeItemsList extends StatelessWidget {
                     child: Center(
                       child: hasGrade
                           ? Text(
-                              '${item.gradeRaw!.toStringAsFixed(0)}',
+                              item.gradeRaw!.toStringAsFixed(0),
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,

@@ -36,4 +36,21 @@ class CalendarEventModel extends CalendarEvent {
       visible: (json['visible'] as int?) != 0,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'description': description,
+    'courseid': courseId,
+    'coursename': courseName,
+    'groupid': groupId,
+    'userid': userId,
+    'modulename': moduleName,
+    'instance': instance,
+    'eventtype': eventType,
+    'timestart': timeStart,
+    'timeduration': timeDuration,
+    'timemodified': timeModified,
+    'visible': visible ? 1 : 0,
+  };
 }

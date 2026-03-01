@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../app/di/injection.dart';
 import '../../../../app/theme/colors.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/api/moodle_api_client.dart';
-import '../../../../core/constants/app_constants.dart';
 
 /// H5P interactive content player using WebView with Moodle auto-login.
 /// Loads the Moodle H5P activity page so xAPI tracking works natively.

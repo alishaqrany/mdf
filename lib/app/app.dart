@@ -6,14 +6,21 @@ import 'di/injection.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
+import '../core/network/connectivity_cubit.dart';
+import '../core/widgets/connectivity_wrapper.dart';
 
 class MdfApp extends StatelessWidget {
   const MdfApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AuthBloc>()..add(const AuthCheckRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => sl<AuthBloc>()..add(const AuthCheckRequested()),
+        ),
+        BlocProvider(create: (_) => sl<ConnectivityCubit>()),
+      ],
       child: const _AppView(),
     );
   }
@@ -53,6 +60,10 @@ class _AppViewState extends State<_AppView> {
 
       // ─── Router ───
       routerConfig: _appRouter.router,
+
+      // ─── Connectivity wrapper ───
+      builder: (context, child) =>
+          ConnectivityWrapper(child: child ?? const SizedBox.shrink()),
 
       // ─── Debug ───
       debugShowCheckedModeBanner: false,

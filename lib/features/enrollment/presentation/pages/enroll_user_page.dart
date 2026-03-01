@@ -113,7 +113,7 @@ class _EnrollUserPageState extends State<EnrollUserPage> {
                     children: [
                       // Role selector
                       DropdownButtonFormField<int>(
-                        value: _selectedRoleId,
+                        initialValue: _selectedRoleId,
                         decoration: InputDecoration(
                           labelText: 'enrollment.role'.tr(),
                           border: const OutlineInputBorder(),
@@ -138,8 +138,9 @@ class _EnrollUserPageState extends State<EnrollUserPage> {
                           ),
                         ],
                         onChanged: (val) {
-                          if (val != null)
+                          if (val != null) {
                             setState(() => _selectedRoleId = val);
+                          }
                         },
                       ),
                       const SizedBox(height: 12),

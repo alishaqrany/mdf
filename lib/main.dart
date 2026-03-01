@@ -4,10 +4,14 @@ import 'package:flutter/services.dart';
 
 import 'app/app.dart';
 import 'app/di/injection.dart';
+import 'core/storage/cache_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  // Initialize Hive cache system
+  await CacheManager.init();
 
   // Initialize dependency injection
   await initDependencies();

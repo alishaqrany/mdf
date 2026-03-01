@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="my_courses"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_courses"
+        android:shortcutShortLabel="@string/shortcut_courses_short"
+        android:shortcutLongLabel="@string/shortcut_courses_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.mdf.mdf_app"
+            android:targetClass="com.mdf.mdf_app.MainActivity"
+            android:data="mdf://open/course" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="messages"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_messages"
+        android:shortcutShortLabel="@string/shortcut_messages_short"
+        android:shortcutLongLabel="@string/shortcut_messages_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.mdf.mdf_app"
+            android:targetClass="com.mdf.mdf_app.MainActivity"
+            android:data="mdf://open/messages" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="grades"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_grades"
+        android:shortcutShortLabel="@string/shortcut_grades_short"
+        android:shortcutLongLabel="@string/shortcut_grades_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.mdf.mdf_app"
+            android:targetClass="com.mdf.mdf_app.MainActivity"
+            android:data="mdf://open/grades" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="search"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_search"
+        android:shortcutShortLabel="@string/shortcut_search_short"
+        android:shortcutLongLabel="@string/shortcut_search_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.mdf.mdf_app"
+            android:targetClass="com.mdf.mdf_app.MainActivity"
+            android:data="mdf://open/search" />
+    </shortcut>
+
+</shortcuts>
