@@ -161,6 +161,13 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final time = message.timeCreated != null
+        ? DateTime.fromMillisecondsSinceEpoch(message.timeCreated! * 1000)
+        : null;
+    final timeStr = time != null
+        ? '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
+        : '';
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -180,13 +187,33 @@ class _MessageBubble extends StatelessWidget {
             bottomRight: isMe ? Radius.zero : const Radius.circular(16),
           ),
         ),
-        child: Text(
-          message.text ?? '',
-          style: TextStyle(
-            color: isMe
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
-          ),
+        child: Column(
+          crossAxisAlignment: isMe
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              message.text ?? '',
+              style: TextStyle(
+                color: isMe
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface,
+              ),
+            ),
+            if (timeStr.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                timeStr,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isMe
+                      ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

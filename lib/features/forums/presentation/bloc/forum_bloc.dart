@@ -16,6 +16,8 @@ class ForumBloc extends Bloc<ForumEvent, ForumState> {
     on<LoadPosts>(_onLoadPosts);
     on<AddNewDiscussion>(_onAddDiscussion);
     on<AddReplyToPost>(_onAddReply);
+    on<TogglePinDiscussion>(_onTogglePin);
+    on<DeleteDiscussion>(_onDeleteDiscussion);
   }
 
   Future<void> _onLoadForums(LoadForums event, Emitter<ForumState> emit) async {
@@ -77,6 +79,31 @@ class ForumBloc extends Bloc<ForumEvent, ForumState> {
     result.fold((f) => emit(ForumError(message: f.message)), (_) {
       emit(ForumActionSuccess());
       add(LoadPosts(discussionId: event.discussionId));
+    });
+  }
+
+  Future<void> _onTogglePin(
+    TogglePinDiscussion event,
+    Emitter<ForumState> emit,
+  ) async {
+    final result = await repository.togglePinDiscussion(
+      event.discussionId,
+      event.pinned,
+    );
+    result.fold((f) => emit(ForumError(message: f.message)), (_) {
+      emit(ForumActionSuccess());
+      add(LoadDiscussions(forumId: event.forumId));
+    });
+  }
+
+  Future<void> _onDeleteDiscussion(
+    DeleteDiscussion event,
+    Emitter<ForumState> emit,
+  ) async {
+    final result = await repository.deletePost(event.postId);
+    result.fold((f) => emit(ForumError(message: f.message)), (_) {
+      emit(ForumActionSuccess());
+      add(LoadDiscussions(forumId: event.forumId));
     });
   }
 }

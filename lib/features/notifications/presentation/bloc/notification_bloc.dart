@@ -37,3 +37,21 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     add(LoadNotifications(userId: event.userId));
   }
 }
+
+/// Separate lightweight Cubit for notification badge count.
+class NotificationBadgeCubit extends Cubit<int> {
+  final NotificationRepository repository;
+
+  NotificationBadgeCubit({required this.repository}) : super(0);
+
+  Future<void> loadUnreadCount(int userId) async {
+    final result = await repository.getUnreadCount(userId);
+    result.fold((_) => emit(0), (count) => emit(count));
+  }
+
+  void decrement() {
+    if (state > 0) emit(state - 1);
+  }
+
+  void clear() => emit(0);
+}

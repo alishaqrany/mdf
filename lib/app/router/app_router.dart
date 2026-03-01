@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../di/injection.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../../features/student_dashboard/presentation/pages/student_dashboard_page.dart';
 import '../../features/admin_dashboard/presentation/pages/admin_dashboard_page.dart';
 import '../../features/courses/presentation/pages/courses_page.dart';
@@ -32,6 +35,9 @@ import '../../features/user_management/presentation/pages/user_list_page.dart';
 import '../../features/user_management/presentation/pages/user_detail_page.dart';
 import '../../features/user_management/presentation/pages/user_create_page.dart';
 import '../../features/enrollment/presentation/pages/enrollment_page.dart';
+import '../../features/video_meetings/presentation/pages/meeting_list_page.dart';
+import '../../features/video_meetings/presentation/pages/meeting_detail_page.dart';
+import '../../features/video_meetings/domain/entities/meeting.dart';
 
 /// Route name constants
 abstract class AppRoutes {
@@ -68,6 +74,8 @@ abstract class AppRoutes {
   static const userDetail = 'user-detail';
   static const userCreate = 'user-create';
   static const enrollment = 'enrollment';
+  static const meetingList = 'meeting-list';
+  static const meetingDetail = 'meeting-detail';
 }
 
 /// GoRouter configuration with role-based guards
@@ -467,6 +475,26 @@ List<RouteBase> get _featureRoutes => [
     },
   ),
 
+  // ─── Meetings ───
+  GoRoute(
+    path: '/meeting/list/:courseId',
+    name: AppRoutes.meetingList,
+    builder: (context, state) {
+      final courseId =
+          int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+      final courseTitle = state.uri.queryParameters['title'] ?? '';
+      return MeetingListPage(courseId: courseId, courseTitle: courseTitle);
+    },
+  ),
+  GoRoute(
+    path: '/meeting/:meetingId',
+    name: AppRoutes.meetingDetail,
+    builder: (context, state) {
+      final meeting = _extra<Meeting>(state, 'meeting');
+      return MeetingDetailPage(meeting: meeting!);
+    },
+  ),
+
   // ─── Forums ───
   GoRoute(
     path: '/forum/list/:courseId',
@@ -513,6 +541,8 @@ class _StudentShell extends StatefulWidget {
 
 class _StudentShellState extends State<_StudentShell> {
   int _currentIndex = 0;
+  late final NotificationBadgeCubit _badgeCubit;
+  int? _userId;
 
   static final _tabs = [
     '/student',
@@ -521,6 +551,29 @@ class _StudentShellState extends State<_StudentShell> {
     '/student/calendar',
     '/student/profile',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _badgeCubit = NotificationBadgeCubit(repository: sl());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Load unread count from auth state
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated && _userId == null) {
+      _userId = authState.user.id;
+      _badgeCubit.loadUnreadCount(_userId!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _badgeCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -540,6 +593,7 @@ class _StudentShellState extends State<_StudentShell> {
 
     return Scaffold(
       body: widget.child,
+      floatingActionButton: _buildNotificationFab(context),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
@@ -577,6 +631,33 @@ class _StudentShellState extends State<_StudentShell> {
       ),
     );
   }
+
+  Widget? _buildNotificationFab(BuildContext context) {
+    // Only show FAB on dashboard tab
+    if (_currentIndex != 0) return null;
+    return BlocBuilder<NotificationBadgeCubit, int>(
+      bloc: _badgeCubit,
+      builder: (context, unreadCount) {
+        return FloatingActionButton.small(
+          heroTag: 'student_notifications',
+          onPressed: () {
+            context.go('/student/notifications?userId=${_userId ?? 0}');
+            // Refresh badge when coming back
+            Future.delayed(const Duration(seconds: 1), () {
+              if (mounted && _userId != null) {
+                _badgeCubit.loadUnreadCount(_userId!);
+              }
+            });
+          },
+          child: Badge(
+            isLabelVisible: unreadCount > 0,
+            label: Text('$unreadCount', style: const TextStyle(fontSize: 10)),
+            child: const Icon(Icons.notifications_outlined),
+          ),
+        );
+      },
+    );
+  }
 }
 
 // ─── Admin Bottom Navigation Shell ───
@@ -591,6 +672,8 @@ class _AdminShell extends StatefulWidget {
 
 class _AdminShellState extends State<_AdminShell> {
   int _currentIndex = 0;
+  late final NotificationBadgeCubit _badgeCubit;
+  int? _userId;
 
   static final _tabs = [
     '/admin',
@@ -599,6 +682,28 @@ class _AdminShellState extends State<_AdminShell> {
     '/admin/calendar',
     '/admin/profile',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _badgeCubit = NotificationBadgeCubit(repository: sl());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated && _userId == null) {
+      _userId = authState.user.id;
+      _badgeCubit.loadUnreadCount(_userId!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _badgeCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -617,6 +722,7 @@ class _AdminShellState extends State<_AdminShell> {
 
     return Scaffold(
       body: widget.child,
+      floatingActionButton: _buildNotificationFab(context),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
@@ -652,6 +758,31 @@ class _AdminShellState extends State<_AdminShell> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget? _buildNotificationFab(BuildContext context) {
+    if (_currentIndex != 0) return null;
+    return BlocBuilder<NotificationBadgeCubit, int>(
+      bloc: _badgeCubit,
+      builder: (context, unreadCount) {
+        return FloatingActionButton.small(
+          heroTag: 'admin_notifications',
+          onPressed: () {
+            context.go('/admin/notifications?userId=${_userId ?? 0}');
+            Future.delayed(const Duration(seconds: 1), () {
+              if (mounted && _userId != null) {
+                _badgeCubit.loadUnreadCount(_userId!);
+              }
+            });
+          },
+          child: Badge(
+            isLabelVisible: unreadCount > 0,
+            label: Text('$unreadCount', style: const TextStyle(fontSize: 10)),
+            child: const Icon(Icons.notifications_outlined),
+          ),
+        );
+      },
     );
   }
 }

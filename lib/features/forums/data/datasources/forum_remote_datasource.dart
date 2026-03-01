@@ -8,6 +8,8 @@ abstract class ForumRemoteDataSource {
   Future<List<ForumPostModel>> getDiscussionPosts(int discussionId);
   Future<void> addDiscussion(int forumId, String subject, String message);
   Future<void> addReply(int postId, String subject, String message);
+  Future<void> togglePinDiscussion(int discussionId, bool pinned);
+  Future<void> deletePost(int postId);
 }
 
 class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
@@ -77,6 +79,22 @@ class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
     await apiClient.call(
       MoodleApiEndpoints.addDiscussionPost,
       params: {'postid': postId, 'subject': subject, 'message': message},
+    );
+  }
+
+  @override
+  Future<void> togglePinDiscussion(int discussionId, bool pinned) async {
+    await apiClient.call(
+      MoodleApiEndpoints.setPinState,
+      params: {'discussionid': discussionId, 'targetstate': pinned ? 1 : 0},
+    );
+  }
+
+  @override
+  Future<void> deletePost(int postId) async {
+    await apiClient.call(
+      MoodleApiEndpoints.deletePost,
+      params: {'postid': postId},
     );
   }
 }

@@ -54,3 +54,24 @@ class AddReplyToPost extends ForumEvent {
   @override
   List<Object?> get props => [postId, discussionId, subject, message];
 }
+
+class TogglePinDiscussion extends ForumEvent {
+  final int discussionId;
+  final int forumId;
+  final bool pinned;
+  const TogglePinDiscussion({
+    required this.discussionId,
+    required this.forumId,
+    required this.pinned,
+  });
+  @override
+  List<Object?> get props => [discussionId, forumId, pinned];
+}
+
+class DeleteDiscussion extends ForumEvent {
+  final int postId;
+  final int forumId;
+  const DeleteDiscussion({required this.postId, required this.forumId});
+  @override
+  List<Object?> get props => [postId, forumId];
+}

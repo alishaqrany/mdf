@@ -16,4 +16,9 @@ abstract class ForumRepository {
     String subject,
     String message,
   );
+  Future<Either<Failure, void>> togglePinDiscussion(
+    int discussionId,
+    bool pinned,
+  );
+  Future<Either<Failure, void>> deletePost(int postId);
 }

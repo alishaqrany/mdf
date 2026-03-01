@@ -86,6 +86,18 @@ import '../../features/enrollment/data/repositories/enrollment_repository_impl.d
 import '../../features/enrollment/domain/repositories/enrollment_repository.dart';
 import '../../features/enrollment/presentation/bloc/enrollment_bloc.dart';
 
+// ─── Video Meetings ───
+import '../../features/video_meetings/data/datasources/meeting_remote_datasource.dart';
+import '../../features/video_meetings/data/repositories/meeting_repository_impl.dart';
+import '../../features/video_meetings/domain/repositories/meeting_repository.dart';
+import '../../features/video_meetings/presentation/bloc/meeting_bloc.dart';
+
+// ─── Search ───
+import '../../features/search/data/datasources/search_remote_datasource.dart';
+import '../../features/search/data/repositories/search_repository_impl.dart';
+import '../../features/search/domain/repositories/search_repository.dart';
+import '../../features/search/presentation/bloc/search_bloc.dart';
+
 final sl = GetIt.instance;
 
 /// Initialize all dependencies.
@@ -254,4 +266,22 @@ Future<void> initDependencies() async {
     () => EnrollmentRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerFactory(() => EnrollmentBloc(repository: sl()));
+
+  // ─── Video Meetings Feature ───
+  sl.registerLazySingleton<MeetingRemoteDataSource>(
+    () => MeetingRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<MeetingRepository>(
+    () => MeetingRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => MeetingBloc(repository: sl()));
+
+  // ─── Search Feature ───
+  sl.registerLazySingleton<SearchRemoteDataSource>(
+    () => SearchRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<SearchRepository>(
+    () => SearchRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => SearchBloc(repository: sl(), prefs: sl()));
 }

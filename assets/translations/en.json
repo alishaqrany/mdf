@@ -181,25 +181,51 @@
     "type_message": "Type a message...",
     "send": "Send",
     "no_messages": "No messages yet",
-    "search_contacts": "Search contacts..."
+    "search_contacts": "Search contacts...",
+    "search": "Search conversations..."
   },
   "notifications": {
     "title": "Notifications",
     "no_notifications": "No notifications",
     "mark_read": "Mark as read",
-    "mark_all_read": "Mark all as read"
+    "mark_all_read": "Mark all as read",
+    "badge": "Notifications",
+    "swipe_to_read": "Swipe to mark as read"
   },
   "calendar": {
     "title": "Calendar",
     "today": "Today",
     "upcoming": "Upcoming",
-    "no_events": "No upcoming events",
+    "no_events": "No events for this day",
+    "events_count": "events",
+    "description": "Description",
+    "start_time": "Start",
+    "end_time": "End",
+    "event_detail": "Event Details",
     "event_types": {
       "course": "Course Event",
+      "user": "User Event",
+      "group": "Group Event",
+      "site": "Site Event",
+      "category": "Category Event",
       "assignment": "Assignment Due",
       "quiz": "Quiz",
       "meeting": "Live Meeting"
     }
+  },
+  "search": {
+    "title": "Search",
+    "hint": "Search courses, users...",
+    "all": "All",
+    "courses": "Courses",
+    "users": "Users",
+    "activities": "Activities",
+    "recent": "Recent Searches",
+    "no_results": "No results found",
+    "min_chars": "Enter at least 2 characters to search",
+    "course": "Course",
+    "user": "User",
+    "activity": "Activity"
   },
   "forums": {
     "title": "Forums",
@@ -208,7 +234,10 @@
     "replies": "Replies",
     "reply": "Reply",
     "no_discussions": "No discussions yet",
-    "post_reply": "Post Reply"
+    "post_reply": "Post Reply",
+    "pin": "Pin Discussion",
+    "unpin": "Unpin Discussion",
+    "confirm_delete": "Are you sure you want to delete this discussion?"
   },
   "profile": {
     "title": "Profile",
@@ -348,6 +377,7 @@
     "add": "Add",
     "search": "Search",
     "no_data": "No data available",
+    "no_results": "No results found",
     "success": "Success",
     "offline": "You are offline",
     "back_online": "Back online",
@@ -394,9 +424,14 @@
     "upcoming": "Upcoming Meetings",
     "past": "Past Meetings",
     "recordings": "Recordings",
+    "recording": "Recording",
     "starts_at": "Starts at",
+    "ends_at": "Ends at",
+    "duration": "Duration",
+    "details": "Details",
     "in_progress": "In Progress",
     "ended": "Ended",
+    "cannot_join": "Cannot join this meeting right now",
     "no_meetings": "No meetings scheduled"
   }
 }

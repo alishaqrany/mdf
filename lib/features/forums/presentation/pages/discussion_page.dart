@@ -5,9 +5,10 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/di/injection.dart';
+import '../../domain/entities/forum.dart';
 import '../bloc/forum_bloc.dart';
 
-/// Shows discussions in a forum, with new discussion FAB.
+/// Shows discussions in a forum, with new discussion FAB and admin actions.
 class DiscussionsPage extends StatelessWidget {
   final int forumId;
   final String forumName;
@@ -31,7 +32,14 @@ class DiscussionsPage extends StatelessWidget {
             child: const Icon(Icons.add),
           ),
         ),
-        body: BlocBuilder<ForumBloc, ForumState>(
+        body: BlocConsumer<ForumBloc, ForumState>(
+          listener: (context, state) {
+            if (state is ForumActionSuccess) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('common.success'.tr())));
+            }
+          },
           builder: (context, state) {
             if (state is ForumLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -43,43 +51,28 @@ class DiscussionsPage extends StatelessWidget {
               if (state.discussions.isEmpty) {
                 return Center(child: Text('forums.no_discussions'.tr()));
               }
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: state.discussions.length,
-                itemBuilder: (context, index) {
-                  final d = state.discussions[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: d.userPictureUrl != null
-                            ? NetworkImage(d.userPictureUrl!)
-                            : null,
-                        child: d.userPictureUrl == null
-                            ? Text(
-                                d.userFullName?.isNotEmpty == true
-                                    ? d.userFullName![0]
-                                    : '?',
-                              )
-                            : null,
-                      ),
-                      title: Text(d.name),
-                      subtitle: Text(d.userFullName ?? ''),
-                      trailing: d.numReplies != null
-                          ? Chip(
-                              label: Text('${d.numReplies}'),
-                              avatar: const Icon(Icons.reply, size: 16),
-                            )
-                          : null,
-                      onTap: () {
-                        context.push(
-                          '/forum/posts/${d.id}',
-                          extra: {'discussionName': d.name},
-                        );
-                      },
-                    ),
+              // Sort: pinned first, then by timeModified desc
+              final sorted = List<ForumDiscussion>.from(state.discussions)
+                ..sort((a, b) {
+                  if (a.pinned == true && b.pinned != true) return -1;
+                  if (b.pinned == true && a.pinned != true) return 1;
+                  return (b.timeModified ?? 0).compareTo(a.timeModified ?? 0);
+                });
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<ForumBloc>().add(
+                    LoadDiscussions(forumId: forumId),
                   );
+                  await Future.delayed(const Duration(milliseconds: 500));
                 },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: sorted.length,
+                  itemBuilder: (context, index) {
+                    final d = sorted[index];
+                    return _DiscussionCard(discussion: d, forumId: forumId);
+                  },
+                ),
               );
             }
             return const SizedBox.shrink();
@@ -138,6 +131,168 @@ class DiscussionsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _DiscussionCard extends StatelessWidget {
+  final ForumDiscussion discussion;
+  final int forumId;
+
+  const _DiscussionCard({required this.discussion, required this.forumId});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          context.push(
+            '/forum/posts/${discussion.id}',
+            extra: {'discussionName': discussion.name},
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: discussion.userPictureUrl != null
+                    ? NetworkImage(discussion.userPictureUrl!)
+                    : null,
+                child: discussion.userPictureUrl == null
+                    ? Text(
+                        discussion.userFullName?.isNotEmpty == true
+                            ? discussion.userFullName![0]
+                            : '?',
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (discussion.pinned == true) ...[
+                          Icon(
+                            Icons.push_pin,
+                            size: 16,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        Expanded(
+                          child: Text(
+                            discussion.name,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      discussion.userFullName ?? '',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (discussion.numReplies != null)
+                Chip(
+                  label: Text('${discussion.numReplies}'),
+                  avatar: const Icon(Icons.reply, size: 16),
+                ),
+              PopupMenuButton<String>(
+                onSelected: (value) => _handleAction(context, value),
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'pin',
+                    child: Row(
+                      children: [
+                        Icon(
+                          discussion.pinned == true
+                              ? Icons.push_pin_outlined
+                              : Icons.push_pin,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          discussion.pinned == true
+                              ? 'forums.unpin'.tr()
+                              : 'forums.pin'.tr(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete_outline,
+                          size: 20,
+                          color: theme.colorScheme.error,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'common.delete'.tr(),
+                          style: TextStyle(color: theme.colorScheme.error),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleAction(BuildContext context, String action) {
+    if (action == 'pin') {
+      context.read<ForumBloc>().add(
+        TogglePinDiscussion(
+          discussionId: discussion.id,
+          forumId: forumId,
+          pinned: discussion.pinned != true,
+        ),
+      );
+    } else if (action == 'delete') {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('common.confirm'.tr()),
+          content: Text('forums.confirm_delete'.tr()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('common.cancel'.tr()),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.read<ForumBloc>().add(
+                  DeleteDiscussion(postId: discussion.id, forumId: forumId),
+                );
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text('common.delete'.tr()),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }
 

@@ -116,6 +116,10 @@ class MoodleApiEndpoints {
       'core_calendar_get_calendar_monthly_view';
   static const String getCalendarUpcomingView =
       'core_calendar_get_calendar_upcoming_view';
+  static const String createCalendarEvents =
+      'core_calendar_create_calendar_events';
+  static const String deleteCalendarEvents =
+      'core_calendar_delete_calendar_events';
 
   // ─── Forums ───
   static const String getForums = 'mod_forum_get_forums_by_courses';
@@ -123,6 +127,8 @@ class MoodleApiEndpoints {
   static const String getDiscussionPosts = 'mod_forum_get_discussion_posts';
   static const String addDiscussion = 'mod_forum_add_discussion';
   static const String addDiscussionPost = 'mod_forum_add_discussion_post';
+  static const String setPinState = 'mod_forum_set_pin_state';
+  static const String deletePost = 'mod_forum_delete_post';
 
   // ─── Files ───
   static const String getFiles = 'core_files_get_files';
@@ -132,6 +138,7 @@ class MoodleApiEndpoints {
   static const String getBBBInstances =
       'mod_bigbluebuttonbn_get_bigbluebuttonbns_by_courses';
   static const String getBBBMeetingInfo = 'mod_bigbluebuttonbn_meeting_info';
+  static const String viewBBB = 'mod_bigbluebuttonbn_view_bigbluebuttonbn';
 
   // ─── Roles ───
   static const String assignRoles = 'core_role_assign_roles';
