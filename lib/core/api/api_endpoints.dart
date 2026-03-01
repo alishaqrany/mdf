@@ -195,4 +195,26 @@ class MoodleApiEndpoints {
   static const String mdfLeaveSession = 'local_mdf_api_leave_session';
   static const String mdfEndSession = 'local_mdf_api_end_session';
   static const String mdfAddSessionNote = 'local_mdf_api_add_session_note';
+
+  // ─── Gamification / Points (local_mdf_api) ───
+  static const String mdfGetUserPoints = 'local_mdf_api_get_user_points';
+  static const String mdfGetPointHistory = 'local_mdf_api_get_point_history';
+  static const String mdfAwardPoints = 'local_mdf_api_award_points';
+  static const String mdfRecordDailyLogin = 'local_mdf_api_record_daily_login';
+
+  // ─── Gamification / Badges (local_mdf_api) ───
+  static const String mdfGetAllBadges = 'local_mdf_api_get_all_badges';
+  static const String mdfGetEarnedBadges = 'local_mdf_api_get_earned_badges';
+  static const String mdfGetBadgeDetail = 'local_mdf_api_get_badge_detail';
+
+  // ─── Gamification / Leaderboard (local_mdf_api) ───
+  static const String mdfGetLeaderboard = 'local_mdf_api_get_leaderboard';
+
+  // ─── Gamification / Challenges (local_mdf_api) ───
+  static const String mdfGetActiveChallenges =
+      'local_mdf_api_get_active_challenges';
+  static const String mdfGetCompletedChallenges =
+      'local_mdf_api_get_completed_challenges';
+  static const String mdfClaimChallengeReward =
+      'local_mdf_api_claim_challenge_reward';
 }

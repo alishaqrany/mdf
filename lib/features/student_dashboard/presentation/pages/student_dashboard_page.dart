@@ -163,6 +163,15 @@ class _StudentDashboardView extends StatelessWidget {
                         ),
                       ),
 
+                      // ─── Gamification Preview ───
+                      SliverToBoxAdapter(
+                        child: FadeInUp(
+                          duration: const Duration(milliseconds: 500),
+                          delay: const Duration(milliseconds: 190),
+                          child: const _GamificationPreview(),
+                        ),
+                      ),
+
                       // ─── Continue Learning Section ───
                       if (state.recentCourses.isNotEmpty) ...[
                         SliverToBoxAdapter(
@@ -1276,6 +1285,133 @@ class _SocialQuickAction extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: AppColors.secondary,
+                fontSize: 9,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Gamification Preview Card ───
+class _GamificationPreview extends StatelessWidget {
+  const _GamificationPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 0,
+        color: AppColors.primary.withValues(alpha: 0.08),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => context.push('/student/gamification'),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryLight],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.emoji_events_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tr('gamification.gamification_hub'),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        tr('gamification.gamification_desc'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _GamificationQuickAction(
+                      icon: Icons.leaderboard_rounded,
+                      label: tr('gamification.leaderboard'),
+                      color: AppColors.primary,
+                      onTap: () => context.push('/student/leaderboard'),
+                    ),
+                    const SizedBox(width: 8),
+                    _GamificationQuickAction(
+                      icon: Icons.military_tech_rounded,
+                      label: tr('gamification.badges'),
+                      color: AppColors.primary,
+                      onTap: () => context.push('/student/badges'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GamificationQuickAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _GamificationQuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color,
                 fontSize: 9,
               ),
             ),

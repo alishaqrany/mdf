@@ -120,6 +120,15 @@ import '../../features/social/presentation/bloc/study_notes_bloc.dart';
 import '../../features/social/presentation/bloc/peer_review_bloc.dart';
 import '../../features/social/presentation/bloc/collaborative_bloc.dart';
 
+// ─── Gamification ───
+import '../../features/gamification/data/datasources/gamification_remote_datasource.dart';
+import '../../features/gamification/data/repositories/gamification_repository_impl.dart';
+import '../../features/gamification/domain/repositories/gamification_repository.dart';
+import '../../features/gamification/presentation/bloc/points_bloc.dart';
+import '../../features/gamification/presentation/bloc/badges_bloc.dart';
+import '../../features/gamification/presentation/bloc/leaderboard_bloc.dart';
+import '../../features/gamification/presentation/bloc/challenges_bloc.dart';
+
 final sl = GetIt.instance;
 
 /// Initialize all dependencies.
@@ -350,4 +359,16 @@ Future<void> initDependencies() async {
   sl.registerFactory(() => StudyNotesBloc(repository: sl()));
   sl.registerFactory(() => PeerReviewBloc(repository: sl()));
   sl.registerFactory(() => CollaborativeBloc(repository: sl()));
+
+  // ─── Gamification Feature ───
+  sl.registerLazySingleton<GamificationRemoteDataSource>(
+    () => GamificationRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<GamificationRepository>(
+    () => GamificationRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerFactory(() => PointsBloc(repository: sl()));
+  sl.registerFactory(() => BadgesBloc(repository: sl()));
+  sl.registerFactory(() => LeaderboardBloc(repository: sl()));
+  sl.registerFactory(() => ChallengesBloc(repository: sl()));
 }

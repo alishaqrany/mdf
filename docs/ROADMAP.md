@@ -532,12 +532,15 @@ moodle/local/mdf_api/
 - [x] 25 endpoint API جديد — Study Groups (8) + Notes (9) + Peer Review (4) + Collaborative (6)
 - [x] لوحة تحكم مدمجة — `_SocialLearningPreview` في dashboard + quick access shortcuts
 
-#### 10.4 Version 2.3 — تلعيب
-- [ ] نقاط ومكافآت
-- [ ] شارات إنجاز
-- [ ] لوحة متصدرين
-- [ ] تحديات يومية/أسبوعية
-- [ ] سلاسل يومية (Streaks)
+#### 10.4 Version 2.3 — تلعيب ✅
+- [x] نقاط ومكافآت — `UserPoints` + `PointTransaction` + `PointsBloc` + XP/Level system + Arabic level titles
+- [x] شارات إنجاز — `Badge` entity (5 rarities × 7 categories) + `BadgesBloc` + `BadgesPage` with category filter + detail sheet
+- [x] لوحة متصدرين — `LeaderboardEntry` + `LeaderboardBloc` + `LeaderboardPage` with Top-3 podium + period tabs (daily/weekly/monthly/allTime)
+- [x] تحديات يومية/أسبوعية — `Challenge` (7 types × 2 periods) + `ChallengesBloc` + `ChallengesPage` with active/completed tabs + reward claiming
+- [x] سلاسل يومية (Streaks) — `StreakWidget` with 7-day visualization + daily login recording
+- [x] لوحة تحكم مدمجة — `GamificationDashboardPage` hub + `_GamificationPreview` في dashboard + quick access shortcuts
+- [x] 12 endpoint API جديد — Points (4) + Badges (3) + Leaderboard (1) + Challenges (3) + Streaks (1)
+- [x] 5 ويدجت مشتركة — `PointsBanner` + `StreakWidget` + `BadgeCard` + `LeaderboardTile` + `ChallengeCard`
 
 #### 10.5 Version 3.0 — منصة متكاملة
 - [ ] إصدار ويب (Flutter Web)
@@ -560,7 +563,7 @@ moodle/local/mdf_api/
 الأسبوع  20-23  [المرحلة 7  ] ████████████████████ ✅ تم
 الأسبوع  24-26  [المرحلة 8  ] ████████████████████ ✅ تم
 الأسبوع  27-29  [المرحلة 9  ] ████████████████████ ✅ تم
-الأسبوع  30+    [المرحلة 10 ] ████████░░░░░░░░░░ 🔄 V2.0 UX ✅ + V2.1 AI ✅
+الأسبوع  30+    [المرحلة 10 ] ██████████░░░░░░░░ 🔄 V2.0 UX ✅ + V2.1 AI ✅ + V2.2 Social ✅ + V2.3 Gamification ✅
 
 المدة الإجمالية المقدّرة: ~7 أشهر حتى الإصدار الأول
 ```
@@ -599,7 +602,8 @@ moodle/local/mdf_api/
 
 ⚪ مستقبلي (FUTURE)
 ├── AI Features ✅
-├── Gamification
+├── Social Learning ✅
+├── Gamification ✅
 ├── Flutter Web/Desktop
 └── White-label
 ```

@@ -46,6 +46,10 @@ import '../../features/social/presentation/pages/group_detail_page.dart';
 import '../../features/social/presentation/pages/study_notes_page.dart';
 import '../../features/social/presentation/pages/peer_review_page.dart';
 import '../../features/social/presentation/pages/collaborative_session_page.dart';
+import '../../features/gamification/presentation/pages/gamification_dashboard_page.dart';
+import '../../features/gamification/presentation/pages/leaderboard_page.dart';
+import '../../features/gamification/presentation/pages/badges_page.dart';
+import '../../features/gamification/presentation/pages/challenges_page.dart';
 
 /// Route name constants
 abstract class AppRoutes {
@@ -95,6 +99,10 @@ abstract class AppRoutes {
   static const groupSessions = 'group-sessions';
   static const studyNotes = 'study-notes';
   static const peerReviews = 'peer-reviews';
+  static const gamificationDashboard = 'gamification';
+  static const leaderboard = 'leaderboard';
+  static const badges = 'badges';
+  static const challenges = 'challenges';
 }
 
 /// GoRouter configuration with role-based guards
@@ -297,6 +305,28 @@ class AppRouter {
             path: '/student/peer-reviews',
             name: '${AppRoutes.peerReviews}-student',
             builder: (context, state) => const PeerReviewPage(),
+          ),
+
+          // ─── Gamification ───
+          GoRoute(
+            path: '/student/gamification',
+            name: '${AppRoutes.gamificationDashboard}-student',
+            builder: (context, state) => const GamificationDashboardPage(),
+          ),
+          GoRoute(
+            path: '/student/leaderboard',
+            name: '${AppRoutes.leaderboard}-student',
+            builder: (context, state) => const LeaderboardPage(),
+          ),
+          GoRoute(
+            path: '/student/badges',
+            name: '${AppRoutes.badges}-student',
+            builder: (context, state) => const BadgesPage(),
+          ),
+          GoRoute(
+            path: '/student/challenges',
+            name: '${AppRoutes.challenges}-student',
+            builder: (context, state) => const ChallengesPage(),
           ),
         ],
       ),
