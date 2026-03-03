@@ -5,6 +5,7 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../core/storage/cache_config.dart';
 import '../../../../core/storage/cache_manager.dart';
+import '../../../course_visibility/data/datasources/course_visibility_remote_datasource.dart';
 import '../../domain/entities/course.dart';
 import '../../domain/repositories/courses_repository.dart';
 import '../datasources/courses_remote_datasource.dart';
@@ -13,11 +14,38 @@ import '../models/course_model.dart';
 class CoursesRepositoryImpl implements CoursesRepository {
   final CoursesRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
+  final CourseVisibilityRemoteDataSource? visibilityDataSource;
+
+  /// Cached set of hidden course IDs for current session.
+  Set<int>? _hiddenCourseIds;
 
   CoursesRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
+    this.visibilityDataSource,
   });
+
+  /// Fetch hidden course IDs from MDF plugin (silently fails if plugin unavailable).
+  Future<Set<int>> _getHiddenCourseIds() async {
+    if (_hiddenCourseIds != null) return _hiddenCourseIds!;
+    try {
+      if (visibilityDataSource != null) {
+        final ids = await visibilityDataSource!.getHiddenCourses();
+        _hiddenCourseIds = ids.toSet();
+        return _hiddenCourseIds!;
+      }
+    } catch (_) {
+      // Plugin not available — no filtering.
+    }
+    _hiddenCourseIds = {};
+    return _hiddenCourseIds!;
+  }
+
+  /// Filter out hidden courses.
+  List<Course> _filterHidden(List<Course> courses, Set<int> hidden) {
+    if (hidden.isEmpty) return courses;
+    return courses.where((c) => !hidden.contains(c.id)).toList();
+  }
 
   @override
   Future<Either<Failure, List<Course>>> getEnrolledCourses(int userId) async {
@@ -30,7 +58,9 @@ class CoursesRepositoryImpl implements CoursesRepository {
           key: 'enrolled_$userId',
           data: courses.map((c) => c.toJson()).toList(),
         );
-        return Right(courses);
+        // Filter hidden courses
+        final hidden = await _getHiddenCourseIds();
+        return Right(_filterHidden(courses, hidden));
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } catch (e) {
@@ -58,7 +88,9 @@ class CoursesRepositoryImpl implements CoursesRepository {
           key: 'recent_$userId',
           data: courses.map((c) => c.toJson()).toList(),
         );
-        return Right(courses);
+        // Filter hidden courses
+        final hidden = await _getHiddenCourseIds();
+        return Right(_filterHidden(courses, hidden));
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } catch (e) {

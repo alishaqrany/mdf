@@ -73,7 +73,7 @@ class _StudentDashboardView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
@@ -224,7 +224,7 @@ class _StudentDashboardView extends StatelessWidget {
                             padding: const EdgeInsets.all(32),
                             child: Column(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.school_outlined,
                                   size: 80,
                                   color: AppColors.textTertiaryLight,
@@ -655,13 +655,13 @@ class _ContinueLearningCard extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: course.imageUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
+                        placeholder: (_, _) => Container(
                           color: AppColors.primarySurface,
                           child: const Center(
                             child: Icon(Icons.image, color: AppColors.primary),
                           ),
                         ),
-                        errorWidget: (_, __, ___) => Container(
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.primarySurface,
                           child: const Center(
                             child: Icon(Icons.school, color: AppColors.primary),
@@ -758,9 +758,9 @@ class _CourseListItem extends StatelessWidget {
                       ? CachedNetworkImage(
                           imageUrl: course.imageUrl!,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) =>
+                          placeholder: (_, _) =>
                               Container(color: AppColors.primarySurface),
-                          errorWidget: (_, __, ___) => Container(
+                          errorWidget: (_, _, _) => Container(
                             color: AppColors.primarySurface,
                             child: const Icon(
                               Icons.school,
@@ -915,7 +915,7 @@ class _AiInsightsPreview extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            Icon(
+                            const Icon(
                               Icons.arrow_forward_ios_rounded,
                               size: 16,
                               color: AppColors.textTertiaryLight,
@@ -1124,9 +1124,9 @@ class _DashboardShimmer extends StatelessWidget {
             // Header shimmer
             Container(
               height: 160,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(28),
                   bottomRight: Radius.circular(28),
                 ),
@@ -1197,7 +1197,7 @@ class _SocialLearningPreview extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [AppColors.secondary, AppColors.secondaryLight],
                     ),
                     borderRadius: BorderRadius.circular(14),
@@ -1320,7 +1320,7 @@ class _GamificationPreview extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryLight],
                     ),
                     borderRadius: BorderRadius.circular(14),

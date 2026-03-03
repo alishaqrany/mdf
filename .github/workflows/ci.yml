@@ -7,8 +7,9 @@ on:
     branches: [main]
 
 env:
-  FLUTTER_VERSION: "3.32.0"
+  FLUTTER_VERSION: "3.41.2"
   JAVA_VERSION: "17"
+  MIN_COVERAGE: 40
 
 jobs:
   # ─────────────────────────────────────────────
@@ -35,8 +36,23 @@ jobs:
       - name: Flutter analyze
         run: flutter analyze --no-fatal-infos
 
-      - name: Run tests
-        run: flutter test --coverage
+      - name: Run tests with coverage
+        run: flutter test --coverage --concurrency=4
+
+      - name: Check coverage threshold
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            TOTAL_LINES=$(grep -c "DA:" coverage/lcov.info || echo "0")
+            COVERED=$(grep "DA:" coverage/lcov.info | grep -cv ",0$" || echo "0")
+            if [ "$TOTAL_LINES" -gt 0 ]; then
+              PERCENT=$((COVERED * 100 / TOTAL_LINES))
+              echo "Coverage: $PERCENT% ($COVERED/$TOTAL_LINES lines)"
+              if [ "$PERCENT" -lt "${{ env.MIN_COVERAGE }}" ]; then
+                echo "::error::Coverage $PERCENT% is below minimum ${{ env.MIN_COVERAGE }}%"
+                exit 1
+              fi
+            fi
+          fi
 
       - name: Upload coverage
         if: success()
@@ -44,6 +60,39 @@ jobs:
         with:
           file: coverage/lcov.info
           fail_ci_if_error: false
+
+  # ─────────────────────────────────────────────
+  # 2. Security & Dependency Audit
+  # ─────────────────────────────────────────────
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check outdated dependencies
+        run: flutter pub outdated || true
+
+      - name: Verify no hard-coded secrets
+        run: |
+          echo "Scanning for potential secrets..."
+          PATTERNS='(api[_-]?key|secret|password|token|credential)\s*[:=]\s*["\x27][^\s"'\'']+["\x27]'
+          MATCHES=$(grep -rnE "$PATTERNS" lib/ --include="*.dart" || true)
+          if [ -n "$MATCHES" ]; then
+            echo "::warning::Potential hard-coded secrets found:"
+            echo "$MATCHES"
+          else
+            echo "No hard-coded secrets detected."
+          fi
 
   # ─────────────────────────────────────────────
   # 2. Build Android APK (Debug)
@@ -146,3 +195,60 @@ jobs:
         with:
           name: mdf-ios-build
           path: build/ios/iphoneos/
+
+  # ─────────────────────────────────────────────
+  # 5. Build Web
+  # ─────────────────────────────────────────────
+  build-web:
+    name: Build Web
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web (release)
+        run: flutter build web --release --web-renderer canvaskit --base-href /
+
+      - name: Upload Web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdf-web-build
+          path: build/web/
+
+  # ─────────────────────────────────────────────
+  # 6. Build Windows (for desktop support)
+  # ─────────────────────────────────────────────
+  build-windows:
+    name: Build Windows
+    needs: test
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdf-windows-build
+          path: build/windows/x64/runner/Release/

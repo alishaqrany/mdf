@@ -90,7 +90,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
         'points': points,
         'action': action,
         'description': description,
-        if (referenceId != null) 'referenceid': referenceId,
+        'referenceid': ?referenceId,
       },
     );
     return UserPointsModel.fromJson(response as Map<String, dynamic>);
@@ -163,7 +163,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
       MoodleApiEndpoints.mdfGetLeaderboard,
       params: {
         'period': period,
-        if (courseId != null) 'courseid': courseId,
+        'courseid': ?courseId,
         'limit': limit,
       },
     );

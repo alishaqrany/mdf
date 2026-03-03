@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 import '../../../../core/api/moodle_api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
@@ -33,7 +34,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     await apiClient.login(username: username, password: password);
 
     // Get user info
-    return getSiteInfo();
+    final user = await getSiteInfo();
+
+    // Log which service was used for diagnostics
+    final activeService = await apiClient.getActiveService();
+    debugPrint('[MDF Auth] Token service: $activeService');
+    if (activeService != 'mdf_mobile') {
+      debugPrint(
+        '[MDF Auth] WARNING: Token is from "$activeService" not "mdf_mobile". '
+        'MDF features (gamification, social, user mgmt, cohorts, visibility) will fail with accessexception.',
+      );
+    }
+
+    return user;
   }
 
   @override

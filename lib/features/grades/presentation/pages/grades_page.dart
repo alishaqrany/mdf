@@ -109,7 +109,7 @@ class _CourseGradesList extends StatelessWidget {
                         },
                       ),
                     ),
-                    leftTitles: AxisTitles(
+                    leftTitles: const AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 30,
@@ -253,7 +253,7 @@ class _GradeItemsList extends StatelessWidget {
                             if (item.gradeDateGraded != null) ...[
                               if (item.itemModule != null)
                                 const SizedBox(width: 8),
-                              Icon(
+                              const Icon(
                                 Icons.event,
                                 size: 12,
                                 color: AppColors.textSecondaryLight,

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/gamification_entities.dart';
 import '../../domain/repositories/gamification_repository.dart';
@@ -25,7 +26,9 @@ class GamificationRepositoryImpl implements GamificationRepository {
       final result = await call();
       return Right(result);
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'التلعيب (Gamification)'),
+      );
     }
   }
 

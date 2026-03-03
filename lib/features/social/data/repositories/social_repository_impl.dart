@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/social_entities.dart';
 import '../../domain/repositories/social_repository.dart';
@@ -23,7 +24,9 @@ class SocialRepositoryImpl implements SocialRepository {
       final result = await call();
       return Right(result);
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'التعلم الاجتماعي (Social Learning)'),
+      );
     }
   }
 

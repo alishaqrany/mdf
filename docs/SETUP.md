@@ -24,7 +24,7 @@
 | المتطلب | التفاصيل |
 |---------|----------|
 | نظام التشغيل | Windows 10/11, macOS, Linux |
-| Flutter SDK | 3.38.0 أو أحدث |
+| Flutter SDK | 3.41.0 أو أحدث |
 | Android Studio | أحدث إصدار مستقر |
 | Android SDK | API Level 21+ (الهدف: 34) |
 | Java JDK | 17 |
@@ -486,6 +486,30 @@ cd ..
 flutter clean
 flutter pub get
 ```
+
+#### خطأ JVM Out of Memory (Gradle Daemon Crash)
+```
+There is insufficient memory for the Java Runtime Environment
+Gradle build daemon disappeared unexpectedly
+```
+**الحل:**
+- تحقق من إعدادات الذاكرة في `android/gradle.properties`
+- لأجهزة 8GB RAM أو أقل، استخدم:
+```properties
+org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=1G -XX:ReservedCodeCacheSize=256m
+```
+- أوقف جميع العمليات الأخرى التي تستهلك الذاكرة
+- أعد تشغيل Gradle daemon: `cd android && gradlew --stop`
+
+#### خطأ Developer Mode (Windows)
+```
+Building with plugins requires symlink support.
+Please enable Developer Mode in your system settings.
+```
+**الحل:**
+- افتح إعدادات Windows → Developer Settings → Developer Mode → تشغيل
+- أو شغّل: `start ms-settings:developers`
+- **ملاحظة:** البناء يعمل بدون Developer Mode لكن مع تحذيرات
 
 ### أدوات التشخيص
 

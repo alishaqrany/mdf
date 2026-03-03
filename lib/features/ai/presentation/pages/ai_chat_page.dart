@@ -178,7 +178,7 @@ class _EmptyChat extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.primarySurface,
                 shape: BoxShape.circle,
               ),
@@ -200,7 +200,7 @@ class _EmptyChat extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Wrap(
+            const Wrap(
               spacing: 8,
               runSpacing: 8,
               alignment: WrapAlignment.center,
@@ -281,8 +281,8 @@ class _MessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (!isUser && message.type == AiMessageType.error)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
                   child: Icon(Icons.error_outline,
                       color: AppColors.error, size: 18),
                 ),

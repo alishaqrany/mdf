@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
+import '../../../../core/api/moodle_api_client.dart';
 import '../../data/models/enrollment_stats_model.dart';
 import '../bloc/admin_dashboard_bloc.dart';
 
@@ -23,8 +24,23 @@ class AdminDashboardPage extends StatelessWidget {
   }
 }
 
-class _AdminDashboardView extends StatelessWidget {
+class _AdminDashboardView extends StatefulWidget {
   const _AdminDashboardView();
+
+  @override
+  State<_AdminDashboardView> createState() => _AdminDashboardViewState();
+}
+
+class _AdminDashboardViewState extends State<_AdminDashboardView> {
+  bool _hasMdfService = true;
+
+  @override
+  void initState() {
+    super.initState();
+    sl<MoodleApiClient>().hasMdfService().then((value) {
+      if (mounted && !value) setState(() => _hasMdfService = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +58,11 @@ class _AdminDashboardView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
@@ -85,6 +105,39 @@ class _AdminDashboardView extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  // ─── Service Mode Warning ───
+                  if (!_hasMdfService)
+                    SliverToBoxAdapter(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          border: Border.all(color: Colors.orange.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded,
+                                color: Colors.orange.shade700),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'خدمة mdf_mobile غير متاحة. بعض الميزات قد لا تعمل.\n'
+                                'اذهب إلى الملف الشخصي → إعادة مصادقة الخدمة.\n'
+                                'mdf_mobile service unavailable. Some features may not work.\n'
+                                'Go to Profile → Re-authenticate Service.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.orange.shade900,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
                   // ─── Overview Stats ───
                   SliverToBoxAdapter(
@@ -285,6 +338,17 @@ class _AdminDashboardView extends StatelessWidget {
                                   icon: Icons.bar_chart_rounded,
                                   label: tr('admin.view_reports'),
                                   onTap: () {},
+                                ),
+                                _QuickActionChip(
+                                  icon: Icons.visibility_off_rounded,
+                                  label: tr('admin.course_visibility'),
+                                  onTap: () =>
+                                      context.push('/admin/course-visibility'),
+                                ),
+                                _QuickActionChip(
+                                  icon: Icons.groups_rounded,
+                                  label: tr('admin.manage_cohorts'),
+                                  onTap: () => context.push('/admin/cohorts'),
                                 ),
                               ],
                             ),

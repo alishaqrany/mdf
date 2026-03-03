@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/mdf_api/db" VERSION="2026030202" COMMENT="local_mdf_api tables"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+  <TABLES>
+    <!-- ─── Push Notifications ─── -->
+    <TABLE NAME="local_mdf_fcm_tokens" COMMENT="Stores FCM tokens for push notifications">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Moodle user ID"/>
+        <FIELD NAME="token" TYPE="text" NOTNULL="true" COMMENT="FCM registration token"/>
+        <FIELD NAME="tokenhash" TYPE="char" LENGTH="64" NOTNULL="true" COMMENT="SHA-256 hash of token for unique index"/>
+        <FIELD NAME="platform" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="android" COMMENT="android or ios"/>
+        <FIELD NAME="devicename" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Optional device name"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="tokenhash_unique" UNIQUE="true" FIELDS="tokenhash"/>
+        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_mdf_push_log" COMMENT="Log of sent push notifications">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Target user"/>
+        <FIELD NAME="senderid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Who sent it"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="body" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="data" TYPE="text" NOTNULL="false" COMMENT="JSON payload"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="sent"/>
+        <FIELD NAME="fcm_response" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="senderid_fk" TYPE="foreign" FIELDS="senderid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Gamification: User Points ─── -->
+    <TABLE NAME="local_mdf_user_points" COMMENT="XP/level profile per user">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="totalpoints" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="level" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="currentlevelpoints" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="nextlevelpoints" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100"/>
+        <FIELD NAME="currentstreak" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="longeststreak" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lastactivitydate" TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Gamification: Point Transactions ─── -->
+    <TABLE NAME="local_mdf_point_transactions" COMMENT="Point history ledger">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="points" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="50" NOTNULL="true"/>
+        <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="referenceid" TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_time_idx" UNIQUE="false" FIELDS="userid, timecreated"/>
+        <INDEX NAME="action_idx" UNIQUE="false" FIELDS="action"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Gamification: Badges ─── -->
+    <TABLE NAME="local_mdf_badges" COMMENT="Badge definitions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="iconname" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT="star"/>
+        <FIELD NAME="category" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="general"/>
+        <FIELD NAME="rarity" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="common"/>
+        <FIELD NAME="requiredpoints" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="criteria" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="category_idx" UNIQUE="false" FIELDS="category"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Gamification: User Badges ─── -->
+    <TABLE NAME="local_mdf_user_badges" COMMENT="Earned badges per user">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="badgeid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="earnedat" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="badgeid_fk" TYPE="foreign" FIELDS="badgeid" REFTABLE="local_mdf_badges" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="user_badge_unique" UNIQUE="true" FIELDS="userid, badgeid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Gamification: Challenges ─── -->
+    <TABLE NAME="local_mdf_challenges" COMMENT="Challenge definitions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="50" NOTNULL="true"/>
+        <FIELD NAME="period" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="daily"/>
+        <FIELD NAME="targetvalue" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="rewardpoints" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="10"/>
+        <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="type_idx" UNIQUE="false" FIELDS="type"/>
+        <INDEX NAME="period_idx" UNIQUE="false" FIELDS="period"/>
+        <INDEX NAME="dates_idx" UNIQUE="false" FIELDS="startdate, enddate"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Gamification: User Challenges ─── -->
+    <TABLE NAME="local_mdf_user_challenges" COMMENT="User challenge progress">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="challengeid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="currentvalue" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active"/>
+        <FIELD NAME="claimedat" TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="challengeid_fk" TYPE="foreign" FIELDS="challengeid" REFTABLE="local_mdf_challenges" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="user_challenge_unique" UNIQUE="true" FIELDS="userid, challengeid"/>
+        <INDEX NAME="status_idx" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Study Groups ─── -->
+    <TABLE NAME="local_mdf_study_groups" COMMENT="Study groups">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="imageurl" TYPE="char" LENGTH="512" NOTNULL="false"/>
+        <FIELD NAME="ispublic" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="maxmembers" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="30"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="createdby_fk" TYPE="foreign" FIELDS="createdby" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_idx" UNIQUE="false" FIELDS="courseid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Group Members ─── -->
+    <TABLE NAME="local_mdf_group_members" COMMENT="Group membership and roles">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="member"/>
+        <FIELD NAME="timejoined" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="groupid_fk" TYPE="foreign" FIELDS="groupid" REFTABLE="local_mdf_study_groups" REFFIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="group_user_unique" UNIQUE="true" FIELDS="groupid, userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Study Notes ─── -->
+    <TABLE NAME="local_mdf_study_notes" COMMENT="Shared study notes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="visibility" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="public"/>
+        <FIELD NAME="tags" TYPE="text" NOTNULL="false" COMMENT="JSON array of tags"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_idx" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="groupid_idx" UNIQUE="false" FIELDS="groupid"/>
+        <INDEX NAME="visibility_idx" UNIQUE="false" FIELDS="visibility"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Note Likes ─── -->
+    <TABLE NAME="local_mdf_note_likes" COMMENT="Note like tracking">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="noteid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="noteid_fk" TYPE="foreign" FIELDS="noteid" REFTABLE="local_mdf_study_notes" REFFIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="note_user_unique" UNIQUE="true" FIELDS="noteid, userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Note Bookmarks ─── -->
+    <TABLE NAME="local_mdf_note_bookmarks" COMMENT="Note bookmark tracking">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="noteid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="noteid_fk" TYPE="foreign" FIELDS="noteid" REFTABLE="local_mdf_study_notes" REFFIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="note_user_unique" UNIQUE="true" FIELDS="noteid, userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Note Comments ─── -->
+    <TABLE NAME="local_mdf_note_comments" COMMENT="Note comments">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="noteid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="noteid_fk" TYPE="foreign" FIELDS="noteid" REFTABLE="local_mdf_study_notes" REFFIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="noteid_idx" UNIQUE="false" FIELDS="noteid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Collaborative Sessions ─── -->
+    <TABLE NAME="local_mdf_collab_sessions" COMMENT="Collaborative study sessions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="starttime" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="endtime" TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="scheduled"/>
+        <FIELD NAME="maxparticipants" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="20"/>
+        <FIELD NAME="topic" TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="groupid_fk" TYPE="foreign" FIELDS="groupid" REFTABLE="local_mdf_study_groups" REFFIELDS="id"/>
+        <KEY NAME="createdby_fk" TYPE="foreign" FIELDS="createdby" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="status_idx" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="starttime_idx" UNIQUE="false" FIELDS="starttime"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Session Participants ─── -->
+    <TABLE NAME="local_mdf_session_participants" COMMENT="Session participation">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timejoined" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="isactive" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="sessionid_fk" TYPE="foreign" FIELDS="sessionid" REFTABLE="local_mdf_collab_sessions" REFFIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="session_user_unique" UNIQUE="true" FIELDS="sessionid, userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Social: Session Notes ─── -->
+    <TABLE NAME="local_mdf_session_notes" COMMENT="Session shared notes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="sessionid_fk" TYPE="foreign" FIELDS="sessionid" REFTABLE="local_mdf_collab_sessions" REFFIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="sessionid_idx" UNIQUE="false" FIELDS="sessionid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Course Visibility Overrides ─── -->
+    <TABLE NAME="local_mdf_course_visibility" COMMENT="Stores course visibility overrides for users, cohorts, or all">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Moodle course ID"/>
+        <FIELD NAME="targettype" TYPE="char" LENGTH="10" NOTNULL="true" COMMENT="all, user, or cohort"/>
+        <FIELD NAME="targetid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="User ID or cohort ID (0 for all)"/>
+        <FIELD NAME="hidden" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" COMMENT="1 = hidden, 0 = visible"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_idx" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="target_idx" UNIQUE="false" FIELDS="targettype,targetid"/>
+        <INDEX NAME="course_target_unique" UNIQUE="true" FIELDS="courseid,targettype,targetid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

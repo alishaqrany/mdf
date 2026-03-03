@@ -106,7 +106,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         CachedNetworkImage(
                           imageUrl: widget.imageUrl!,
                           fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) => Container(
+                          errorWidget: (_, _, _) => Container(
                             decoration: const BoxDecoration(
                               gradient: AppColors.primaryGradient,
                             ),
@@ -239,7 +239,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         child: Center(
                           child: Column(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.error_outline,
                                 size: 48,
                                 color: AppColors.error,
@@ -283,7 +283,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                           child: Center(
                             child: Column(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.folder_open,
                                   size: 64,
                                   color: AppColors.textTertiaryLight,
@@ -412,7 +412,7 @@ class _CourseInfoCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.person_rounded,
                     size: 18,
                     color: AppColors.primary,
@@ -436,7 +436,7 @@ class _CourseInfoCard extends StatelessWidget {
                       CircleAvatar(
                         radius: 16,
                         backgroundImage: contact.profileImageUrl != null
-                            ? NetworkImage(contact.profileImageUrl!)
+                            ? CachedNetworkImageProvider(contact.profileImageUrl!)
                             : null,
                         backgroundColor: AppColors.primary.withValues(
                           alpha: 0.1,
@@ -446,7 +446,7 @@ class _CourseInfoCard extends StatelessWidget {
                                 contact.fullName.isNotEmpty
                                     ? contact.fullName[0].toUpperCase()
                                     : '?',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -615,7 +615,7 @@ class _DetailSectionCardState extends State<_DetailSectionCard> {
                   AnimatedRotation(
                     turns: _expanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 200),
-                    child: Icon(
+                    child: const Icon(
                       Icons.keyboard_arrow_down,
                       color: AppColors.textSecondaryLight,
                     ),
@@ -748,7 +748,7 @@ class _DetailModuleItem extends StatelessWidget {
                 size: 22,
               ),
             const SizedBox(width: 4),
-            Icon(
+            const Icon(
               Icons.chevron_right,
               color: AppColors.textTertiaryLight,
               size: 20,
@@ -1132,7 +1132,7 @@ class _DetailSubSectionExpanderState extends State<_DetailSubSectionExpander> {
                     color: AppColors.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.folder_special_rounded,
                     color: AppColors.info,
                     size: 20,
@@ -1162,7 +1162,7 @@ class _DetailSubSectionExpanderState extends State<_DetailSubSectionExpander> {
                 AnimatedRotation(
                   turns: _expanded ? 0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(
+                  child: const Icon(
                     Icons.chevron_right,
                     color: AppColors.textSecondaryLight,
                   ),

@@ -55,6 +55,8 @@
     "create_course": "إنشاء مقرر",
     "manage_enrollments": "إدارة التسجيلات",
     "view_reports": "عرض التقارير",
+    "course_visibility": "إدارة ظهور الدورات",
+    "manage_cohorts": "إدارة الدفعات",
     "online_users": "متصل الآن",
     "active_users_30d": "نشط (30 يوم)",
     "new_users_month": "جدد هذا الشهر",
@@ -277,7 +279,11 @@
     "about": "نبذة",
     "save": "حفظ التغييرات",
     "logout": "تسجيل الخروج",
-    "logout_confirm": "هل أنت متأكد من تسجيل الخروج؟"
+    "logout_confirm": "هل أنت متأكد من تسجيل الخروج؟",
+    "refresh_token": "إعادة مصادقة الخدمة",
+    "refresh_token_desc": "أدخل كلمة المرور لتحديث التوكن والحصول على صلاحيات الخدمة الجديدة دون الحاجة لتسجيل الخروج",
+    "refresh_token_btn": "تحديث",
+    "refresh_token_success": "تم تحديث التوكن بنجاح"
   },
   "settings": {
     "title": "الإعدادات",
@@ -410,7 +416,38 @@
     "coming_soon": "قريباً",
     "link_copied": "تم نسخ الرابط",
     "messages": "الرسائل",
-    "notifications": "الإشعارات"
+    "notifications": "الإشعارات",
+    "remove": "إزالة",
+    "required": "هذا الحقل مطلوب"
+  },
+  "course_visibility": {
+    "title": "إدارة ظهور الدورات",
+    "add_override": "إضافة إعداد ظهور",
+    "no_overrides": "لا توجد إعدادات ظهور مكونة",
+    "target_all": "جميع المستخدمين",
+    "target_user": "مستخدم محدد",
+    "target_cohort": "دفعة",
+    "target_type": "تطبيق على",
+    "select_course": "اختر دورة",
+    "select_user": "اختر مستخدم",
+    "select_cohort": "اختر دفعة",
+    "hide_course": "إخفاء الدورة",
+    "show": "إظهار",
+    "hide": "إخفاء",
+    "delete_title": "إزالة إعداد الظهور",
+    "delete_confirm": "هل أنت متأكد من إزالة إعداد الظهور هذا؟"
+  },
+  "cohorts": {
+    "title": "الدفعات",
+    "search_hint": "بحث عن دفعة...",
+    "no_cohorts": "لا توجد دفعات",
+    "no_description": "بدون وصف",
+    "members": "الأعضاء",
+    "no_members": "لا يوجد أعضاء في هذه الدفعة",
+    "add_member": "إضافة عضو",
+    "remove_member": "إزالة عضو",
+    "remove_confirm": "هل أنت متأكد من إزالة {} من هذه الدفعة؟",
+    "add_selected": "إضافة المحددين"
   },
   "onboarding": {
     "title1": "تعلَّم في أي وقت ومكان",
@@ -578,6 +615,9 @@
     "period_weekly": "هذا الأسبوع",
     "period_monthly": "هذا الشهر",
     "period_all": "كل الأوقات",
+    "recent_activity": "النشاط الأخير",
+    "plugin_required": "الإضافة مطلوبة",
+    "error_title": "خطأ",
     "gamification_hub": "التلعيب",
     "gamification_desc": "نقاط وشارات ولوحة متصدرين"
   }

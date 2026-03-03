@@ -10,7 +10,7 @@ class AppConstants {
   static const String moodleLoginPath = '/login/token.php';
   static const String moodleUploadPath = '/webservice/upload.php';
   static const String moodlePluginFilePath = '/webservice/pluginfile.php';
-  static const String moodleService = 'mdf_mobile_service';
+  static const String moodleService = 'mdf_mobile';
   static const String moodleRestFormat = 'json';
 
   // Storage keys
@@ -18,6 +18,7 @@ class AppConstants {
   static const String privateTokenKey = 'private_token';
   static const String serverUrlKey = 'server_url';
   static const String userDataKey = 'user_data';
+  static const String serviceNameKey = 'service_shortname';
   static const String themeKey = 'theme_mode';
   static const String localeKey = 'locale';
   static const String onboardingKey = 'onboarding_completed';

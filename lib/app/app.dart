@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'di/injection.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import '../core/config/tenant_resolver.dart';
+import '../core/config/tenant_theme.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../core/network/connectivity_cubit.dart';
 import '../core/widgets/connectivity_wrapper.dart';
@@ -44,19 +46,29 @@ class _AppViewState extends State<_AppView> {
 
   @override
   Widget build(BuildContext context) {
+    final tenant = TenantManager.current;
+    final isCustomTenant = TenantManager.isCustomTenant;
+    final locale = context.locale.languageCode;
+
     return MaterialApp.router(
       // ─── Title ───
-      title: 'MDF Education',
+      title: tenant.appName,
 
       // ─── Localization ───
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
 
-      // ─── Theme ───
-      theme: AppTheme.light(locale: context.locale.languageCode),
-      darkTheme: AppTheme.dark(locale: context.locale.languageCode),
-      themeMode: ThemeMode.system,
+      // ─── Theme (white-label aware) ───
+      theme: isCustomTenant
+          ? TenantTheme.light(tenant, locale: locale)
+          : AppTheme.light(locale: locale),
+      darkTheme: isCustomTenant
+          ? TenantTheme.dark(tenant, locale: locale)
+          : AppTheme.dark(locale: locale),
+      themeMode: tenant.features.enableDarkMode
+          ? ThemeMode.system
+          : ThemeMode.light,
 
       // ─── Router ───
       routerConfig: _appRouter.router,

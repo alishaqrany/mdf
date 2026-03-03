@@ -133,7 +133,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     'assets/animations/splash_logo.json',
                     controller: _lottieController,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.school_rounded,
                       size: 100,
                       color: Colors.white,

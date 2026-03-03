@@ -78,21 +78,71 @@ class _StudyGroupsView extends StatelessWidget {
           }
 
           if (state is StudyGroupsError) {
+            final isPluginError =
+                state.message.contains('MDF') || state.message.contains('mdf');
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
-                  const SizedBox(height: 16),
-                  Text(state.message, style: theme.textTheme.bodyLarge),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => context.read<StudyGroupsBloc>().add(
-                      LoadStudyGroups(courseId: courseId),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isPluginError
+                          ? Icons.extension_off_rounded
+                          : Icons.error_outline,
+                      size: 72,
+                      color:
+                          isPluginError ? AppColors.warning : AppColors.error,
                     ),
-                    child: Text(tr('common.retry')),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      isPluginError
+                          ? tr('social.plugin_required')
+                          : tr('common.error'),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: (isPluginError
+                                ? AppColors.warning
+                                : AppColors.error)
+                            .withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        state.message,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondaryLight,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    if (isPluginError) ...[
+                      Text(
+                        'قم بتثبيت إضافة local_mdf_api على سيرفر Moodle\n'
+                        'Install the local_mdf_api plugin on your Moodle server',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.textTertiaryLight,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    OutlinedButton.icon(
+                      onPressed: () => context.read<StudyGroupsBloc>().add(
+                            LoadStudyGroups(courseId: courseId),
+                          ),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text(tr('common.retry')),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -141,7 +191,7 @@ class _StudyGroupsView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.groups_outlined,
             size: 80,
             color: AppColors.textTertiaryLight,

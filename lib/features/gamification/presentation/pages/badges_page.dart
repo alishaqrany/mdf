@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
@@ -76,7 +75,7 @@ class _BadgesViewState extends State<_BadgesView>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                  const Icon(Icons.error_outline, size: 48, color: AppColors.error),
                   const SizedBox(height: 12),
                   Text(state.message),
                   const SizedBox(height: 12),
@@ -210,7 +209,7 @@ class _BadgesGrid extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.military_tech_rounded,
               size: 64,
               color: AppColors.textTertiaryLight,
@@ -298,7 +297,7 @@ class _BadgesGrid extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle, size: 16, color: AppColors.success),
+                  const Icon(Icons.check_circle, size: 16, color: AppColors.success),
                   const SizedBox(width: 6),
                   Text(
                     '${tr('gamification.earned_on')} ${DateFormat('yyyy/MM/dd').format(badge.earnedAt!)}',

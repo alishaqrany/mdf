@@ -55,7 +55,7 @@ class ErrorInterceptor extends Interceptor {
             DioException(
               requestOptions: response.requestOptions,
               response: response,
-              error: AuthException(
+              error: const AuthException(
                 message: 'Session expired. Please login again.',
               ),
               type: DioExceptionType.badResponse,

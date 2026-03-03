@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'app/app.dart';
 import 'app/di/injection.dart';
+import 'core/platform/platform_window.dart';
 import 'core/storage/cache_manager.dart';
 
 void main() async {
@@ -16,19 +16,9 @@ void main() async {
   // Initialize dependency injection
   await initDependencies();
 
-  // Set preferred orientations
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-
-  // Set system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ),
-  );
+  // Platform-aware window configuration
+  // (portrait-only on mobile, all orientations on desktop/web)
+  await PlatformWindow.configure();
 
   runApp(
     EasyLocalization(

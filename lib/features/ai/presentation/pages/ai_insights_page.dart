@@ -59,7 +59,7 @@ class _AiInsightsView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                 ],
@@ -485,7 +485,7 @@ class _PredictionTile extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.lightbulb_outline,
                             size: 14,
                             color: AppColors.warning,
@@ -570,7 +570,7 @@ class _RecommendationCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.auto_awesome,
                       color: AppColors.primary,
                       size: 20,

@@ -134,7 +134,7 @@ class _AssignmentCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                    const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(
                       '${'assignments.due_date'.tr()}: ${dueDate.day}/${dueDate.month}/${dueDate.year}',

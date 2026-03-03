@@ -143,7 +143,7 @@ class _QuizCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.timer_outlined, size: 16, color: Colors.grey),
+                    const Icon(Icons.timer_outlined, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(
                       '${(quiz.timeLimit! / 60).round()} ${'common.minutes'.tr()}',

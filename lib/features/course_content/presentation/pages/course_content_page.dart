@@ -63,7 +63,7 @@ class _CourseContentView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
@@ -97,7 +97,7 @@ class _CourseContentView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.folder_open,
                       size: 80,
                       color: AppColors.textTertiaryLight,
@@ -229,7 +229,7 @@ class _SectionWidgetState extends State<_SectionWidget> {
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 200),
-                    child: Icon(
+                    child: const Icon(
                       Icons.keyboard_arrow_down,
                       color: AppColors.textSecondaryLight,
                     ),
@@ -723,7 +723,7 @@ class _SubSectionExpanderState extends State<_SubSectionExpander> {
                     color: AppColors.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.folder_special_rounded,
                     color: AppColors.info,
                     size: 20,
@@ -753,7 +753,7 @@ class _SubSectionExpanderState extends State<_SubSectionExpander> {
                 AnimatedRotation(
                   turns: _expanded ? 0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(
+                  child: const Icon(
                     Icons.chevron_right,
                     color: AppColors.textSecondaryLight,
                   ),
@@ -802,7 +802,7 @@ class _ContentShimmer extends StatelessWidget {
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 5,
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           height: 100,
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(

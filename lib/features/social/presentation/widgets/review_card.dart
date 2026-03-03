@@ -86,7 +86,7 @@ class ReviewCard extends StatelessWidget {
                         ),
                         if (review.submittedAt != null) ...[
                           const SizedBox(width: 8),
-                          Icon(
+                          const Icon(
                             Icons.access_time,
                             size: 12,
                             color: AppColors.textTertiaryLight,
@@ -138,7 +138,7 @@ class ReviewCard extends StatelessWidget {
                   ),
                 ),
               ] else ...[
-                Icon(
+                const Icon(
                   Icons.chevron_right_rounded,
                   color: AppColors.textTertiaryLight,
                 ),

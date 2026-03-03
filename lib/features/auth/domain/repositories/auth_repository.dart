@@ -19,4 +19,11 @@ abstract class AuthRepository {
 
   /// Get current user from cache.
   Future<User?> getCachedUser();
+
+  /// Refresh token using password (re-authenticate without full logout).
+  /// This keeps the same server URL and username but gets a new token.
+  Future<Either<Failure, User>> refreshToken({required String password});
+
+  /// Get saved server URL.
+  Future<String?> getServerUrl();
 }

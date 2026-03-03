@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/managed_user.dart';
 import '../../domain/repositories/user_management_repository.dart';
@@ -25,10 +25,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
     try {
       final users = await remoteDataSource.getUsers(search: search, role: role);
       return Right(users);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+      );
     }
   }
 
@@ -38,10 +38,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
     try {
       final user = await remoteDataSource.getUserById(userId);
       return Right(user);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+      );
     }
   }
 
@@ -73,10 +73,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
         lang: lang,
       );
       return Right(user);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+      );
     }
   }
 
@@ -108,10 +108,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
 
       await remoteDataSource.updateUser(params);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+      );
     }
   }
 
@@ -121,10 +121,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
     try {
       await remoteDataSource.deleteUser(userId);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+      );
     }
   }
 
@@ -140,10 +140,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
         'users[0][password]': newPassword,
       });
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+      );
     }
   }
 

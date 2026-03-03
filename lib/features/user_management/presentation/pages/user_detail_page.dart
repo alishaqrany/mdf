@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -217,7 +218,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   CircleAvatar(
                     radius: 44,
                     backgroundImage: user.profileImageUrl != null
-                        ? NetworkImage(user.profileImageUrl!)
+                        ? CachedNetworkImageProvider(user.profileImageUrl!)
                         : null,
                     backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     child: user.profileImageUrl == null

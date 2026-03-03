@@ -187,7 +187,7 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
                               ),
                             ),
                             if (flagged)
-                              Positioned(
+                              const Positioned(
                                 top: 2,
                                 right: 2,
                                 child: Icon(
@@ -222,7 +222,7 @@ class _QuizAttemptPageState extends State<QuizAttemptPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.flag, size: 14, color: Colors.orange),
+                    const Icon(Icons.flag, size: 14, color: Colors.orange),
                     const SizedBox(width: 4),
                     Text(
                       'quiz.flagged'.tr(),

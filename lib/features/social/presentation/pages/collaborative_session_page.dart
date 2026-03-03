@@ -74,7 +74,7 @@ class _SessionsView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
@@ -96,7 +96,7 @@ class _SessionsView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.groups_3_outlined,
                       size: 80,
                       color: AppColors.textTertiaryLight,
@@ -250,7 +250,7 @@ class _SessionsView extends StatelessWidget {
                 leading: const Icon(Icons.access_time_rounded),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: AppColors.divider),
+                  side: const BorderSide(color: AppColors.divider),
                 ),
                 onTap: () async {
                   final date = await showDatePicker(
@@ -574,7 +574,7 @@ class _SessionCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.access_time,
                           size: 14,
                           color: AppColors.textSecondaryLight,

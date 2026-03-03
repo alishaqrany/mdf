@@ -192,7 +192,7 @@ class _ScormPlayerPageState extends State<ScormPlayerPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.smart_display,
                     size: 64,
                     color: AppColors.textTertiaryLight,

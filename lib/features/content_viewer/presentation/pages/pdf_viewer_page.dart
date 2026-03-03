@@ -255,7 +255,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.picture_as_pdf, size: 64, color: AppColors.error),
+              const Icon(Icons.picture_as_pdf, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
               Text('فشل تحميل الملف', style: theme.textTheme.titleMedium),
               if (_errorMessage.isNotEmpty) ...[

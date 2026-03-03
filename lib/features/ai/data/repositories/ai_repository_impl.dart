@@ -41,28 +41,40 @@ class AiRepositoryImpl implements AiRepository {
     final coursesResult = await coursesRepository.getEnrolledCourses(userId);
     _cachedCourses = coursesResult.fold((_) => <Course>[], (c) => c);
 
-    // Fetch course grades
-    final gradesResult = await gradeRepository.getCourseGrades(userId);
-    _cachedGrades = gradesResult.fold((_) => <CourseGrade>[], (g) => g);
+    // Fetch course grades (may fail if no grades exist yet)
+    try {
+      final gradesResult = await gradeRepository.getCourseGrades(userId);
+      _cachedGrades = gradesResult.fold((_) => <CourseGrade>[], (g) => g);
+    } catch (_) {
+      _cachedGrades = <CourseGrade>[];
+    }
 
     // Fetch per-course grade items
     _cachedGradeItems = {};
     for (final course in _cachedCourses!.take(10)) {
-      final itemsResult = await gradeRepository.getGradeItems(
-        course.id,
-        userId,
-      );
-      itemsResult.fold((_) {}, (items) {
-        _cachedGradeItems![course.id] = items;
-      });
+      try {
+        final itemsResult = await gradeRepository.getGradeItems(
+          course.id,
+          userId,
+        );
+        itemsResult.fold((_) {}, (items) {
+          _cachedGradeItems![course.id] = items;
+        });
+      } catch (_) {
+        // Skip courses whose grade items can't be fetched
+      }
     }
 
-    // Build predictions
-    _cachedPredictions = aiEngine.predictPerformance(
-      enrolledCourses: _cachedCourses!,
-      courseGrades: _cachedGrades!,
-      gradeItems: _cachedGradeItems!,
-    );
+    // Build predictions (safe even with empty data)
+    try {
+      _cachedPredictions = aiEngine.predictPerformance(
+        enrolledCourses: _cachedCourses!,
+        courseGrades: _cachedGrades!,
+        gradeItems: _cachedGradeItems!,
+      );
+    } catch (_) {
+      _cachedPredictions = <PerformancePrediction>[];
+    }
   }
 
   @override
@@ -71,10 +83,12 @@ class AiRepositoryImpl implements AiRepository {
   ) async {
     try {
       await _ensureData(userId);
+      final courses = _cachedCourses ?? <Course>[];
+      final grades = _cachedGrades ?? <CourseGrade>[];
       final recommendations = await aiEngine.generateRecommendations(
         userId: userId,
-        enrolledCourses: _cachedCourses!,
-        courseGrades: _cachedGrades!,
+        enrolledCourses: courses,
+        courseGrades: grades,
       );
       return Right(recommendations);
     } catch (e) {
@@ -89,7 +103,7 @@ class AiRepositoryImpl implements AiRepository {
   getPerformancePredictions(int userId) async {
     try {
       await _ensureData(userId);
-      return Right(_cachedPredictions!);
+      return Right(_cachedPredictions ?? <PerformancePrediction>[]);
     } catch (e) {
       return Left(ServerFailure(message: 'Failed to generate predictions: $e'));
     }
@@ -102,17 +116,21 @@ class AiRepositoryImpl implements AiRepository {
     try {
       await _ensureData(userId);
 
+      final courses = _cachedCourses ?? <Course>[];
+      final grades = _cachedGrades ?? <CourseGrade>[];
+      final predictions = _cachedPredictions ?? <PerformancePrediction>[];
+
       final recommendations = await aiEngine.generateRecommendations(
         userId: userId,
-        enrolledCourses: _cachedCourses!,
-        courseGrades: _cachedGrades!,
+        enrolledCourses: courses,
+        courseGrades: grades,
       );
 
       final insights = aiEngine.buildInsights(
         userId: userId,
-        enrolledCourses: _cachedCourses!,
-        courseGrades: _cachedGrades!,
-        predictions: _cachedPredictions!,
+        enrolledCourses: courses,
+        courseGrades: grades,
+        predictions: predictions,
         recommendations: recommendations,
       );
 
@@ -133,9 +151,9 @@ class AiRepositoryImpl implements AiRepository {
 
       final response = aiEngine.generateResponse(
         userMessage: message,
-        enrolledCourses: _cachedCourses!,
-        courseGrades: _cachedGrades!,
-        predictions: _cachedPredictions!,
+        enrolledCourses: _cachedCourses ?? <Course>[],
+        courseGrades: _cachedGrades ?? <CourseGrade>[],
+        predictions: _cachedPredictions ?? <PerformancePrediction>[],
       );
 
       return Right(response);

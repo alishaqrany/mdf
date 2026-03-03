@@ -179,7 +179,6 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
     // ─── Phones: BottomNavigationBar ───
     return Scaffold(
       body: widget.child,
-      floatingActionButton: _buildNotificationFab(context),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
@@ -257,32 +256,6 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
           ),
         ),
       ),
-    );
-  }
-
-  // ─── Notification FAB (mobile only) ───
-  Widget? _buildNotificationFab(BuildContext context) {
-    if (_currentIndex != 0) return null;
-    return BlocBuilder<NotificationBadgeCubit, int>(
-      bloc: _badgeCubit,
-      builder: (context, unreadCount) {
-        return FloatingActionButton.small(
-          heroTag: '${widget.role}_notifications',
-          onPressed: () {
-            context.go('/${widget.role}/notifications?userId=${_userId ?? 0}');
-            Future.delayed(const Duration(seconds: 1), () {
-              if (mounted && _userId != null) {
-                _badgeCubit.loadUnreadCount(_userId!);
-              }
-            });
-          },
-          child: Badge(
-            isLabelVisible: unreadCount > 0,
-            label: Text('$unreadCount', style: const TextStyle(fontSize: 10)),
-            child: const Icon(Icons.notifications_outlined),
-          ),
-        );
-      },
     );
   }
 }

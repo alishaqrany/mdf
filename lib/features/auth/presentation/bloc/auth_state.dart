@@ -35,3 +35,16 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+/// Token is being refreshed.
+class AuthRefreshing extends AuthState {}
+
+/// Token refresh failed.
+class AuthRefreshError extends AuthState {
+  final String message;
+
+  const AuthRefreshError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}

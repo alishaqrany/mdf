@@ -56,7 +56,7 @@ class GroupCard extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                       )
-                    : Icon(
+                    : const Icon(
                         Icons.groups_rounded,
                         color: AppColors.primary,
                         size: 28,
@@ -82,8 +82,8 @@ class GroupCard extends StatelessWidget {
                           ),
                         ),
                         if (!group.isPublic)
-                          Padding(
-                            padding: const EdgeInsetsDirectional.only(start: 4),
+                          const Padding(
+                            padding: EdgeInsetsDirectional.only(start: 4),
                             child: Icon(
                               Icons.lock_rounded,
                               size: 14,
@@ -107,7 +107,7 @@ class GroupCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.people_outline,
                           size: 14,
                           color: AppColors.textTertiaryLight,
@@ -121,7 +121,7 @@ class GroupCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         if (group.courseName != null) ...[
-                          Icon(
+                          const Icon(
                             Icons.school_outlined,
                             size: 14,
                             color: AppColors.textTertiaryLight,
@@ -159,7 +159,7 @@ class GroupCard extends StatelessWidget {
                 ),
               ] else ...[
                 const SizedBox(width: 4),
-                Icon(
+                const Icon(
                   Icons.chevron_right_rounded,
                   color: AppColors.textTertiaryLight,
                 ),

@@ -50,6 +50,9 @@ import '../../features/gamification/presentation/pages/gamification_dashboard_pa
 import '../../features/gamification/presentation/pages/leaderboard_page.dart';
 import '../../features/gamification/presentation/pages/badges_page.dart';
 import '../../features/gamification/presentation/pages/challenges_page.dart';
+import '../../features/course_visibility/presentation/pages/course_visibility_page.dart';
+import '../../features/cohorts/presentation/pages/cohorts_page.dart';
+import '../../features/cohorts/presentation/pages/cohort_detail_page.dart';
 
 /// Route name constants
 abstract class AppRoutes {
@@ -103,6 +106,9 @@ abstract class AppRoutes {
   static const leaderboard = 'leaderboard';
   static const badges = 'badges';
   static const challenges = 'challenges';
+  static const courseVisibility = 'course-visibility';
+  static const cohorts = 'cohorts';
+  static const cohortDetail = 'cohort-detail';
 }
 
 /// GoRouter configuration with role-based guards
@@ -447,6 +453,32 @@ class AppRouter {
                 state.uri.queryParameters['courseId'] ?? '',
               );
               return EnrollmentPage(preselectedCourseId: courseId);
+            },
+          ),
+          // ─── Course Visibility Route ───
+          GoRoute(
+            path: '/admin/course-visibility',
+            name: AppRoutes.courseVisibility,
+            builder: (context, state) => const CourseVisibilityPage(),
+          ),
+          // ─── Cohort Routes ───
+          GoRoute(
+            path: '/admin/cohorts',
+            name: AppRoutes.cohorts,
+            builder: (context, state) => const CohortsPage(),
+          ),
+          GoRoute(
+            path: '/admin/cohorts/:cohortId',
+            name: AppRoutes.cohortDetail,
+            builder: (context, state) {
+              final cohortId =
+                  int.tryParse(state.pathParameters['cohortId'] ?? '') ?? 0;
+              final extra = state.extra as Map<String, dynamic>?;
+              final cohortName = extra?['cohortName'] as String? ?? '';
+              return CohortDetailPage(
+                cohortId: cohortId,
+                cohortName: cohortName,
+              );
             },
           ),
         ],

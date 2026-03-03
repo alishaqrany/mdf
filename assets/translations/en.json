@@ -55,6 +55,8 @@
     "create_course": "Create Course",
     "manage_enrollments": "Manage Enrollments",
     "view_reports": "View Reports",
+    "course_visibility": "Course Visibility",
+    "manage_cohorts": "Manage Cohorts",
     "online_users": "Online Now",
     "active_users_30d": "Active (30d)",
     "new_users_month": "New This Month",
@@ -277,7 +279,11 @@
     "about": "About",
     "save": "Save Changes",
     "logout": "Logout",
-    "logout_confirm": "Are you sure you want to logout?"
+    "logout_confirm": "Are you sure you want to logout?",
+    "refresh_token": "Re-authenticate Service",
+    "refresh_token_desc": "Enter your password to refresh the token and get new service permissions without logging out",
+    "refresh_token_btn": "Refresh",
+    "refresh_token_success": "Token refreshed successfully"
   },
   "settings": {
     "title": "Settings",
@@ -410,7 +416,38 @@
     "coming_soon": "Coming Soon",
     "link_copied": "Link copied",
     "messages": "Messages",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "remove": "Remove",
+    "required": "This field is required"
+  },
+  "course_visibility": {
+    "title": "Course Visibility",
+    "add_override": "Add Visibility Override",
+    "no_overrides": "No visibility overrides configured",
+    "target_all": "All Users",
+    "target_user": "Specific User",
+    "target_cohort": "Cohort",
+    "target_type": "Apply to",
+    "select_course": "Select Course",
+    "select_user": "Select User",
+    "select_cohort": "Select Cohort",
+    "hide_course": "Hide Course",
+    "show": "Make Visible",
+    "hide": "Hide",
+    "delete_title": "Remove Override",
+    "delete_confirm": "Are you sure you want to remove this visibility override?"
+  },
+  "cohorts": {
+    "title": "Cohorts",
+    "search_hint": "Search cohorts...",
+    "no_cohorts": "No cohorts found",
+    "no_description": "No description",
+    "members": "Members",
+    "no_members": "No members in this cohort",
+    "add_member": "Add Member",
+    "remove_member": "Remove Member",
+    "remove_confirm": "Are you sure you want to remove {} from this cohort?",
+    "add_selected": "Add Selected"
   },
   "onboarding": {
     "title1": "Learn Anytime, Anywhere",
@@ -578,6 +615,9 @@
     "period_weekly": "This Week",
     "period_monthly": "This Month",
     "period_all": "All Time",
+    "recent_activity": "Recent Activity",
+    "plugin_required": "Plugin Required",
+    "error_title": "Error",
     "gamification_hub": "Gamification",
     "gamification_desc": "Points, badges & leaderboard"
   }

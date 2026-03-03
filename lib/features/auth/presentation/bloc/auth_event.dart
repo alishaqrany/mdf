@@ -32,3 +32,13 @@ class AuthLoginRequested extends AuthEvent {
 class AuthLogoutRequested extends AuthEvent {
   const AuthLogoutRequested();
 }
+
+/// Refresh token (re-authenticate without logout).
+class AuthRefreshTokenRequested extends AuthEvent {
+  final String password;
+
+  const AuthRefreshTokenRequested({required this.password});
+
+  @override
+  List<Object?> get props => [password];
+}

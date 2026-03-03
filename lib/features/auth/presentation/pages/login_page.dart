@@ -33,9 +33,11 @@ class _LoginPageState extends State<LoginPage> {
   void _onLogin() {
     if (_formKey.currentState?.validate() ?? false) {
       String serverUrl = _serverUrlController.text.trim();
-      // Ensure proper URL format
-      if (!serverUrl.startsWith('http://') &&
-          !serverUrl.startsWith('https://')) {
+      // Ensure proper URL format — always enforce HTTPS for security
+      if (serverUrl.startsWith('http://')) {
+        // Upgrade insecure HTTP to HTTPS to prevent credential leakage
+        serverUrl = serverUrl.replaceFirst('http://', 'https://');
+      } else if (!serverUrl.startsWith('https://')) {
         serverUrl = 'https://$serverUrl';
       }
       if (serverUrl.endsWith('/')) {

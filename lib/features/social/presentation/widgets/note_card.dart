@@ -96,7 +96,7 @@ class NoteCard extends StatelessWidget {
               // Bottom row — author, date, actions
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.person_outline,
                     size: 14,
                     color: AppColors.textTertiaryLight,
@@ -109,7 +109,7 @@ class NoteCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Icon(
+                  const Icon(
                     Icons.access_time,
                     size: 14,
                     color: AppColors.textTertiaryLight,
@@ -183,7 +183,7 @@ class NoteCard extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.chat_bubble_outline_rounded,
                         size: 14,
                         color: AppColors.textTertiaryLight,

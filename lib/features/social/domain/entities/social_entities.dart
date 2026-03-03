@@ -238,7 +238,7 @@ class CollaborativeSession extends Equatable {
   });
 
   Duration? get duration =>
-      endTime != null ? endTime!.difference(startTime) : null;
+      endTime?.difference(startTime);
 
   bool get isActive => status == SessionStatus.active;
 

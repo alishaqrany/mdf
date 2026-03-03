@@ -59,6 +59,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearAuth() async {
     await secureStorage.delete(key: AppConstants.tokenKey);
     await secureStorage.delete(key: AppConstants.privateTokenKey);
+    await secureStorage.delete(key: AppConstants.serviceNameKey);
     await sharedPreferences.remove(AppConstants.userDataKey);
   }
 

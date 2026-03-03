@@ -1,0 +1,30 @@
+{
+  "tenant_id": "mdf_default",
+  "app_name": "MDF Academy",
+  "tagline": "Modern Educational Platform",
+  "moodle_base_url": "",
+  "moodle_service": "mdf_mobile",
+  "primary_color": "#6C63FF",
+  "secondary_color": "#03DAC5",
+  "accent_color": "#FFC107",
+  "default_locale": "ar",
+  "supported_locales": ["ar", "en"],
+  "features": {
+    "enable_ai": true,
+    "enable_social": true,
+    "enable_gamification": true,
+    "enable_forums": true,
+    "enable_video_meetings": true,
+    "enable_downloads": true,
+    "enable_search": true,
+    "enable_calendar": true,
+    "enable_notifications": true,
+    "enable_messaging": true,
+    "enable_grades": true,
+    "enable_quizzes": true,
+    "enable_assignments": true,
+    "enable_enrollment": true,
+    "enable_user_management": true,
+    "enable_dark_mode": true
+  }
+}

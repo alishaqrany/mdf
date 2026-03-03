@@ -5,6 +5,7 @@ import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/check_auth_usecase.dart';
+import '../../domain/usecases/refresh_token_usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -13,15 +14,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
   final LogoutUseCase logoutUseCase;
   final CheckAuthUseCase checkAuthUseCase;
+  final RefreshTokenUseCase refreshTokenUseCase;
 
   AuthBloc({
     required this.loginUseCase,
     required this.logoutUseCase,
     required this.checkAuthUseCase,
+    required this.refreshTokenUseCase,
   }) : super(AuthInitial()) {
     on<AuthCheckRequested>(_onCheckAuth);
     on<AuthLoginRequested>(_onLogin);
     on<AuthLogoutRequested>(_onLogout);
+    on<AuthRefreshTokenRequested>(_onRefreshToken);
   }
 
   Future<void> _onCheckAuth(
@@ -62,5 +66,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     await logoutUseCase();
     emit(AuthUnauthenticated());
+  }
+
+  Future<void> _onRefreshToken(
+    AuthRefreshTokenRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    // Emit a special refreshing state to show progress
+    emit(AuthRefreshing());
+
+    final result = await refreshTokenUseCase(password: event.password);
+
+    result.fold(
+      (failure) => emit(AuthRefreshError(message: failure.message)),
+      (user) => emit(AuthAuthenticated(user: user)),
+    );
   }
 }

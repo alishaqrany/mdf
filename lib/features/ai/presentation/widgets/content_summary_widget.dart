@@ -70,7 +70,7 @@ class _ContentSummaryWidgetState extends State<ContentSummaryWidget> {
           children: [
             Row(
               children: [
-                Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
+                const Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -131,7 +131,7 @@ class _SummaryCard extends StatelessWidget {
             // Header
             Row(
               children: [
-                Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
+                const Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -153,7 +153,7 @@ class _SummaryCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.schedule, size: 12, color: AppColors.info),
+                      const Icon(Icons.schedule, size: 12, color: AppColors.info),
                       const SizedBox(width: 4),
                       Text(
                         '${summary.estimatedReadTime} min read',

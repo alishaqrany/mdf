@@ -84,7 +84,7 @@ class SocialRemoteDataSourceImpl implements SocialRemoteDataSource {
   Future<List<StudyGroupModel>> getStudyGroups({int? courseId}) async {
     final response = await apiClient.call(
       MoodleApiEndpoints.mdfGetStudyGroups,
-      params: {if (courseId != null) 'courseid': courseId},
+      params: {'courseid': ?courseId},
     );
 
     if (response is List) {
@@ -122,7 +122,7 @@ class SocialRemoteDataSourceImpl implements SocialRemoteDataSource {
       params: {
         'name': name,
         'courseid': courseId,
-        if (description != null) 'description': description,
+        'description': ?description,
         'ispublic': isPublic ? 1 : 0,
         'maxmembers': maxMembers,
       },
@@ -240,7 +240,7 @@ class SocialRemoteDataSourceImpl implements SocialRemoteDataSource {
         'title': title,
         'content': content,
         'courseid': courseId,
-        if (groupId != null) 'groupid': groupId,
+        'groupid': ?groupId,
         'visibility': visibility,
         if (tags.isNotEmpty) 'tags': tags.join(','),
       },
@@ -426,8 +426,8 @@ class SocialRemoteDataSourceImpl implements SocialRemoteDataSource {
         'groupid': groupId,
         'starttime': startTime.millisecondsSinceEpoch ~/ 1000,
         if (endTime != null) 'endtime': endTime.millisecondsSinceEpoch ~/ 1000,
-        if (description != null) 'description': description,
-        if (topic != null) 'topic': topic,
+        'description': ?description,
+        'topic': ?topic,
       },
     );
     return CollaborativeSessionModel.fromJson(response as Map<String, dynamic>);

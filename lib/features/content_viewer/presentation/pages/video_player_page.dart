@@ -56,7 +56,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                const Icon(Icons.error_outline, size: 48, color: AppColors.error),
                 const SizedBox(height: 12),
                 Text(
                   errorMessage,
@@ -107,7 +107,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   const SizedBox(height: 16),
                   Text(
                     _errorMessage ?? 'Failed to load video',

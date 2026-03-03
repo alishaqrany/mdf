@@ -155,7 +155,7 @@ class _CoursesViewState extends State<_CoursesView>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
@@ -244,7 +244,7 @@ class _CoursesList extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.school_outlined,
                     size: 80,
                     color: AppColors.textTertiaryLight,
@@ -327,13 +327,13 @@ class _CourseGridCard extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: course.imageUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
+                        placeholder: (_, _) => Container(
                           color: AppColors.primarySurface,
                           child: const Center(
                             child: Icon(Icons.image, color: AppColors.primary),
                           ),
                         ),
-                        errorWidget: (_, __, ___) => Container(
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.primarySurface,
                           child: const Center(
                             child: Icon(Icons.school, color: AppColors.primary),
@@ -448,9 +448,9 @@ class _CourseListCard extends StatelessWidget {
                       ? CachedNetworkImage(
                           imageUrl: course.imageUrl!,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) =>
+                          placeholder: (_, _) =>
                               Container(color: AppColors.primarySurface),
-                          errorWidget: (_, __, ___) => Container(
+                          errorWidget: (_, _, _) => Container(
                             color: AppColors.primarySurface,
                             child: const Icon(
                               Icons.school,
@@ -518,7 +518,7 @@ class _CourseListCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.chevron_right, color: AppColors.textTertiaryLight),
+              const Icon(Icons.chevron_right, color: AppColors.textTertiaryLight),
             ],
           ),
         ),
@@ -545,7 +545,7 @@ class _CoursesShimmer extends StatelessWidget {
           mainAxisSpacing: 12,
         ),
         itemCount: 6,
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),

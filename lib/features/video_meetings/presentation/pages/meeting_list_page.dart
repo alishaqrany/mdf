@@ -39,7 +39,7 @@ class MeetingListPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.error_outline,
                       size: 48,
                       color: AppColors.textSecondaryLight,
@@ -63,7 +63,7 @@ class MeetingListPage extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.videocam_off_outlined,
                         size: 64,
                         color: AppColors.textSecondaryLight,
@@ -212,7 +212,7 @@ class _MeetingCard extends StatelessWidget {
                 Row(
                   children: [
                     if (meeting.openingDateTime != null) ...[
-                      Icon(
+                      const Icon(
                         Icons.play_circle_outline,
                         size: 16,
                         color: AppColors.textSecondaryLight,
@@ -227,7 +227,7 @@ class _MeetingCard extends StatelessWidget {
                         meeting.closingDateTime != null)
                       const SizedBox(width: 16),
                     if (meeting.closingDateTime != null) ...[
-                      Icon(
+                      const Icon(
                         Icons.stop_circle_outlined,
                         size: 16,
                         color: AppColors.textSecondaryLight,

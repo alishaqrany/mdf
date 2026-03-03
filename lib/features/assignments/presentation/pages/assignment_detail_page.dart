@@ -1,12 +1,9 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:image_picker/image_picker.dart' as img_picker;
-
 import '../../../../app/di/injection.dart';
 import '../../../../core/api/moodle_api_client.dart';
 import '../../domain/entities/assignment.dart';
@@ -24,7 +21,7 @@ class AssignmentDetailPage extends StatefulWidget {
 
 class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
   final _textController = TextEditingController();
-  final List<File> _selectedFiles = [];
+  final List<String> _selectedFiles = []; // file paths / names
   int? _draftItemId;
   bool _isUploading = false;
   List<AssignmentSubmission> _submissions = [];
@@ -62,16 +59,17 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
     try {
       final apiClient = sl<MoodleApiClient>();
       for (final path in paths) {
-        final file = File(path);
+        final fileName = path.split(RegExp(r'[/\\]')).last;
         final uploadResult = await apiClient.uploadFile(
-          file: file,
+          filePath: path,
+          fileName: fileName,
           fileArea: 'draft',
           itemId: _draftItemId ?? 0,
         );
         if (uploadResult.isNotEmpty) {
           _draftItemId =
               (uploadResult.first as Map<String, dynamic>)['itemid'] as int?;
-          _selectedFiles.add(file);
+          _selectedFiles.add(fileName);
         }
       }
     } catch (e) {
@@ -317,7 +315,7 @@ class _AssignmentDetailPageState extends State<AssignmentDetailPage> {
                         dense: true,
                         leading: const Icon(Icons.insert_drive_file, size: 20),
                         title: Text(
-                          entry.value.path.split(Platform.pathSeparator).last,
+                          entry.value,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(

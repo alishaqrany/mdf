@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -279,7 +280,7 @@ class _SearchResultCard extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundImage: result.imageUrl != null
-              ? NetworkImage(result.imageUrl!)
+              ? CachedNetworkImageProvider(result.imageUrl!)
               : null,
           child: result.imageUrl == null
               ? Icon(_iconForType(result.type), size: 20)

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,7 +40,7 @@ class _LeaderboardView extends StatelessWidget {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             onTap: (index) {
-              final periods = LeaderboardPeriod.values;
+              const periods = LeaderboardPeriod.values;
               context.read<LeaderboardBloc>().add(ChangePeriod(periods[index]));
             },
             tabs: [
@@ -61,7 +62,7 @@ class _LeaderboardView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                    const Icon(Icons.error_outline, size: 48, color: AppColors.error),
                     const SizedBox(height: 12),
                     Text(state.message),
                     const SizedBox(height: 12),
@@ -84,7 +85,7 @@ class _LeaderboardView extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.leaderboard_rounded,
                         size: 64,
                         color: AppColors.textTertiaryLight,
@@ -194,8 +195,6 @@ class _TopThreePodium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
@@ -257,7 +256,7 @@ class _PodiumItem extends StatelessWidget {
           radius: entry.rank == 1 ? 32 : 26,
           backgroundColor: _medalColor.withValues(alpha: 0.2),
           backgroundImage: entry.profileImageUrl != null
-              ? NetworkImage(entry.profileImageUrl!)
+              ? CachedNetworkImageProvider(entry.profileImageUrl!)
               : null,
           child: entry.profileImageUrl == null
               ? Text(

@@ -4,7 +4,12 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api/moodle_api_client.dart';
+import '../../core/api/graphql_client.dart';
 import '../../core/network/network_info.dart';
+import '../../core/platform/platform_info.dart';
+import '../../core/platform/platform_storage.dart';
+import '../../core/config/tenant_resolver.dart';
+
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -12,6 +17,7 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/check_auth_usecase.dart';
+import '../../features/auth/domain/usecases/refresh_token_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/courses/data/datasources/courses_remote_datasource.dart';
 import '../../features/courses/data/repositories/courses_repository_impl.dart';
@@ -129,6 +135,13 @@ import '../../features/gamification/presentation/bloc/badges_bloc.dart';
 import '../../features/gamification/presentation/bloc/leaderboard_bloc.dart';
 import '../../features/gamification/presentation/bloc/challenges_bloc.dart';
 
+// ─── Course Visibility ───
+import '../../features/course_visibility/presentation/bloc/course_visibility_bloc.dart';
+import '../../features/course_visibility/data/datasources/course_visibility_remote_datasource.dart';
+
+// ─── Cohorts ───
+import '../../features/cohorts/presentation/bloc/cohort_bloc.dart';
+
 final sl = GetIt.instance;
 
 /// Initialize all dependencies.
@@ -139,11 +152,24 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => const FlutterSecureStorage());
   sl.registerLazySingleton(() => Connectivity());
 
+  // ─── Platform Storage (web-safe secure storage) ───
+  sl.registerLazySingleton<PlatformStorage>(
+    () => PlatformStorage(secureStorage: sl(), prefs: sl()),
+  );
+
+  // ─── Multi-Tenant ───
+  sl.registerLazySingleton<TenantResolver>(() => TenantResolver(prefs: sl()));
+  final tenantConfig = await sl<TenantResolver>().resolve();
+  TenantManager.init(tenantConfig);
+
   // ─── Core ───
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton<MoodleApiClient>(
     () => MoodleApiClient(secureStorage: sl()),
   );
+
+  // ─── GraphQL API Gateway ───
+  sl.registerLazySingleton<GraphQLClient>(() => GraphQLClient(storage: sl()));
 
   // ─── Auth Feature ───
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -162,20 +188,29 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => CheckAuthUseCase(sl()));
+  sl.registerLazySingleton(() => RefreshTokenUseCase(sl()));
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
       logoutUseCase: sl(),
       checkAuthUseCase: sl(),
+      refreshTokenUseCase: sl(),
     ),
   );
 
   // ─── Courses Feature ───
+  sl.registerLazySingleton<CourseVisibilityRemoteDataSource>(
+    () => CourseVisibilityRemoteDataSourceImpl(apiClient: sl()),
+  );
   sl.registerLazySingleton<CoursesRemoteDataSource>(
     () => CoursesRemoteDataSourceImpl(apiClient: sl()),
   );
   sl.registerLazySingleton<CoursesRepository>(
-    () => CoursesRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+    () => CoursesRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+      visibilityDataSource: sl<CourseVisibilityRemoteDataSource>(),
+    ),
   );
   sl.registerLazySingleton(() => GetEnrolledCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseContentsUseCase(sl()));
@@ -316,11 +351,13 @@ Future<void> initDependencies() async {
   );
   sl.registerFactory(() => SearchBloc(repository: sl(), prefs: sl()));
 
-  // ─── Download Manager ───
-  sl.registerLazySingleton<DownloadManager>(
-    () => DownloadManager(secureStorage: sl()),
-  );
-  await sl<DownloadManager>().init();
+  // ─── Download Manager (mobile/desktop only — requires file system) ───
+  if (PlatformInfo.supportsFileSystem) {
+    sl.registerLazySingleton<DownloadManager>(
+      () => DownloadManager(secureStorage: sl()),
+    );
+    await sl<DownloadManager>().init();
+  }
 
   // ─── Offline Queue ───
   sl.registerLazySingleton<OfflineQueue>(() => OfflineQueue());
@@ -331,8 +368,10 @@ Future<void> initDependencies() async {
     () => ConnectivityCubit(networkInfo: sl(), offlineQueue: sl()),
   );
 
-  // ─── Downloads Feature ───
-  sl.registerFactory(() => DownloadsBloc(downloadManager: sl()));
+  // ─── Downloads Feature (mobile/desktop only) ───
+  if (PlatformInfo.supportsFileSystem) {
+    sl.registerFactory(() => DownloadsBloc(downloadManager: sl()));
+  }
 
   // ─── AI Feature ───
   sl.registerLazySingleton(() => AiEngine(apiClient: sl()));
@@ -371,4 +410,10 @@ Future<void> initDependencies() async {
   sl.registerFactory(() => BadgesBloc(repository: sl()));
   sl.registerFactory(() => LeaderboardBloc(repository: sl()));
   sl.registerFactory(() => ChallengesBloc(repository: sl()));
+
+  // ─── Course Visibility Feature ───
+  sl.registerFactory(() => CourseVisibilityBloc(apiClient: sl()));
+
+  // ─── Cohort Feature ───
+  sl.registerFactory(() => CohortBloc(apiClient: sl()));
 }

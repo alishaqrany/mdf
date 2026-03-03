@@ -181,7 +181,7 @@ class _H5pPlayerPageState extends State<H5pPlayerPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.extension,
                     size: 64,
                     color: AppColors.textTertiaryLight,

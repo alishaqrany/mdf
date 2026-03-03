@@ -22,8 +22,8 @@ void main() {
 
   // Draw a simple centered "M" letter representation
   // Draw open book shape (two rectangles)
-  final cx = size ~/ 2;
-  final cy = size ~/ 2 - 30;
+  const cx = size ~/ 2;
+  const cy = size ~/ 2 - 30;
 
   // Left page
   img.fillRect(

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -281,13 +282,13 @@ class _UserCard extends StatelessWidget {
               CircleAvatar(
                 radius: 24,
                 backgroundImage: user.profileImageUrl != null
-                    ? NetworkImage(user.profileImageUrl!)
+                    ? CachedNetworkImageProvider(user.profileImageUrl!)
                     : null,
                 backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 child: user.profileImageUrl == null
                     ? Text(
                         user.initials,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                         ),
@@ -345,7 +346,7 @@ class _UserCard extends StatelessWidget {
                         _RoleChip(role: user.primaryRole),
                         if (user.lastAccessDate != null) ...[
                           const SizedBox(width: 8),
-                          Icon(
+                          const Icon(
                             Icons.access_time,
                             size: 12,
                             color: AppColors.textSecondaryLight,

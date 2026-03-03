@@ -217,4 +217,20 @@ class MoodleApiEndpoints {
       'local_mdf_api_get_completed_challenges';
   static const String mdfClaimChallengeReward =
       'local_mdf_api_claim_challenge_reward';
+
+  // ─── Course Visibility Management (local_mdf_api) ───
+  static const String mdfGetCourseVisibility =
+      'local_mdf_api_get_course_visibility';
+  static const String mdfSetCourseVisibility =
+      'local_mdf_api_set_course_visibility';
+  static const String mdfRemoveCourseVisibility =
+      'local_mdf_api_remove_course_visibility';
+  static const String mdfGetHiddenCourses = 'local_mdf_api_get_hidden_courses';
+
+  // ─── Cohort Management (local_mdf_api) ───
+  static const String mdfGetCohorts = 'local_mdf_api_get_cohorts';
+  static const String mdfGetCohortMembers = 'local_mdf_api_get_cohort_members';
+  static const String mdfAddCohortMembers = 'local_mdf_api_add_cohort_members';
+  static const String mdfRemoveCohortMembers =
+      'local_mdf_api_remove_cohort_members';
 }

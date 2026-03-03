@@ -8,6 +8,7 @@ import 'package:mdf_app/features/auth/domain/entities/user.dart';
 import 'package:mdf_app/features/auth/domain/usecases/login_usecase.dart';
 import 'package:mdf_app/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:mdf_app/features/auth/domain/usecases/check_auth_usecase.dart';
+import 'package:mdf_app/features/auth/domain/usecases/refresh_token_usecase.dart';
 import 'package:mdf_app/features/auth/presentation/bloc/auth_bloc.dart';
 
 // ─── Mocks ───
@@ -17,10 +18,13 @@ class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
 class MockCheckAuthUseCase extends Mock implements CheckAuthUseCase {}
 
+class MockRefreshTokenUseCase extends Mock implements RefreshTokenUseCase {}
+
 void main() {
   late MockLoginUseCase mockLogin;
   late MockLogoutUseCase mockLogout;
   late MockCheckAuthUseCase mockCheckAuth;
+  late MockRefreshTokenUseCase mockRefreshToken;
   late AuthBloc authBloc;
 
   const tUser = User(
@@ -47,10 +51,12 @@ void main() {
     mockLogin = MockLoginUseCase();
     mockLogout = MockLogoutUseCase();
     mockCheckAuth = MockCheckAuthUseCase();
+    mockRefreshToken = MockRefreshTokenUseCase();
     authBloc = AuthBloc(
       loginUseCase: mockLogin,
       logoutUseCase: mockLogout,
       checkAuthUseCase: mockCheckAuth,
+      refreshTokenUseCase: mockRefreshToken,
     );
   });
 

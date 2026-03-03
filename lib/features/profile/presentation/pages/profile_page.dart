@@ -417,6 +417,13 @@ class _SettingsSection extends StatelessWidget {
                 );
               },
             ),
+            _SettingsTile(
+              icon: Icons.refresh_rounded,
+              title: tr('profile.refresh_token'),
+              onTap: () {
+                _showRefreshTokenDialog(context);
+              },
+            ),
           ],
         ),
       ),
@@ -447,6 +454,93 @@ class _SettingsSection extends StatelessWidget {
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showRefreshTokenDialog(BuildContext context) {
+    final passwordController = TextEditingController();
+    bool isLoading = false;
+    String? errorMessage;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) => BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthAuthenticated) {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(tr('profile.refresh_token_success')),
+                  backgroundColor: AppColors.success,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            } else if (state is AuthRefreshError) {
+              setState(() {
+                isLoading = false;
+                errorMessage = state.message;
+              });
+            } else if (state is AuthRefreshing) {
+              setState(() {
+                isLoading = true;
+                errorMessage = null;
+              });
+            }
+          },
+          child: AlertDialog(
+            title: Text(tr('profile.refresh_token')),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(tr('profile.refresh_token_desc')),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  enabled: !isLoading,
+                  decoration: InputDecoration(
+                    labelText: tr('login.password'),
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: const OutlineInputBorder(),
+                    errorText: errorMessage,
+                  ),
+                ),
+                if (isLoading) ...[
+                  const SizedBox(height: 16),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(ctx),
+                child: Text(tr('common.cancel')),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        if (passwordController.text.isEmpty) {
+                          setState(() {
+                            errorMessage = tr('login.invalid_password');
+                          });
+                          return;
+                        }
+                        context.read<AuthBloc>().add(
+                              AuthRefreshTokenRequested(
+                                password: passwordController.text,
+                              ),
+                            );
+                      },
+                child: Text(tr('profile.refresh_token_btn')),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -491,9 +585,9 @@ class _ProfileShimmer extends StatelessWidget {
           children: [
             Container(
               height: 260,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(32),
                   bottomRight: Radius.circular(32),
                 ),

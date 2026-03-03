@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../constants/app_constants.dart';
@@ -34,7 +33,8 @@ class MoodleApiClient {
     _dio.interceptors.addAll([
       AuthInterceptor(_secureStorage),
       ErrorInterceptor(),
-      LoggingInterceptor(),
+      // Only log API calls in debug mode to prevent data leakage
+      if (kDebugMode) LoggingInterceptor(),
     ]);
   }
 
@@ -67,7 +67,6 @@ class MoodleApiClient {
     AuthException? lastAuthException;
 
     final fallbackServices = <String>{service, 'moodle_mobile_app'};
-    Map<String, dynamic>? fallbackData;
 
     for (final currentService in fallbackServices) {
       try {
@@ -91,18 +90,14 @@ class MoodleApiClient {
         if (token != null && token.isNotEmpty) {
           final privateToken = data['privatetoken']?.toString();
 
-          // If this service didn't return a privatetoken, save data as fallback
-          // and try the next service (moodle_mobile_app always returns privatetoken).
-          if ((privateToken == null || privateToken.isEmpty) &&
-              currentService != 'moodle_mobile_app') {
-            fallbackData = data;
-            lastAuthException = const AuthException(
-              message: 'No private token returned',
-            );
-            continue;
-          }
-
+          // Always prefer the token from the currently requested service.
+          // Custom services (like mdf_mobile) may not return a private token,
+          // but their regular token is still valid for web service calls.
           await _secureStorage.write(key: AppConstants.tokenKey, value: token);
+          await _secureStorage.write(
+            key: AppConstants.serviceNameKey,
+            value: currentService,
+          );
           if (privateToken != null && privateToken.isNotEmpty) {
             await _secureStorage.write(
               key: AppConstants.privateTokenKey,
@@ -123,7 +118,7 @@ class MoodleApiClient {
         if (shouldTryFallback) {
           lastServerException = ServerException(
             message:
-                'لا يمكن إنشاء رمز خدمة الويب للخدمة الحالية. فعّل خدمة mdf_mobile_service أو moodle_mobile_app وتأكد من صلاحيات المستخدم في Moodle.',
+                'لا يمكن إنشاء رمز خدمة الويب للخدمة الحالية. فعّل خدمة mdf_mobile أو moodle_mobile_app وتأكد من صلاحيات المستخدم في Moodle.',
             errorCode: errorCode,
           );
           continue;
@@ -145,7 +140,7 @@ class MoodleApiClient {
           if (shouldTryFallback) {
             lastServerException = ServerException(
               message:
-                  'لا يمكن إنشاء رمز خدمة الويب للخدمة الحالية. فعّل خدمة mdf_mobile_service أو moodle_mobile_app وتأكد من صلاحيات المستخدم في Moodle.',
+                  'لا يمكن إنشاء رمز خدمة الويب للخدمة الحالية. فعّل خدمة mdf_mobile أو moodle_mobile_app وتأكد من صلاحيات المستخدم في Moodle.',
               errorCode: serverException.errorCode,
               statusCode: serverException.statusCode,
             );
@@ -154,16 +149,6 @@ class MoodleApiClient {
           throw serverException;
         }
         throw ServerException(message: e.message ?? 'Login failed');
-      }
-    }
-
-    // If we failed to get a privatetoken but have a valid token from a custom
-    // service, use that as a last resort.
-    if (fallbackData != null) {
-      final token = fallbackData['token']?.toString();
-      if (token != null && token.isNotEmpty) {
-        await _secureStorage.write(key: AppConstants.tokenKey, value: token);
-        return fallbackData;
       }
     }
 
@@ -216,9 +201,12 @@ class MoodleApiClient {
 
   /// Upload a file to Moodle.
   ///
-  /// Returns the draft item ID for the uploaded file.
+  /// Accepts [filePath] + [fileName] for mobile/desktop,
+  /// or [fileBytes] + [fileName] for web uploads.
   Future<List<dynamic>> uploadFile({
-    required File file,
+    String? filePath,
+    List<int>? fileBytes,
+    required String fileName,
     required String fileArea,
     int itemId = 0,
   }) async {
@@ -232,12 +220,25 @@ class MoodleApiClient {
       throw const AuthException(message: 'Not authenticated');
     }
 
-    final fileName = file.path.split(Platform.pathSeparator).last;
+    final MultipartFile multipartFile;
+    if (fileBytes != null) {
+      multipartFile = MultipartFile.fromBytes(fileBytes, filename: fileName);
+    } else if (filePath != null) {
+      multipartFile = await MultipartFile.fromFile(
+        filePath,
+        filename: fileName,
+      );
+    } else {
+      throw const ServerException(
+        message: 'Either filePath or fileBytes must be provided',
+      );
+    }
+
     final formData = FormData.fromMap({
       'token': token,
       'filearea': fileArea,
       'itemid': itemId,
-      'file': await MultipartFile.fromFile(file.path, filename: fileName),
+      'file': multipartFile,
     });
 
     try {
@@ -314,12 +315,24 @@ class MoodleApiClient {
   Future<void> logout() async {
     await _secureStorage.delete(key: AppConstants.tokenKey);
     await _secureStorage.delete(key: AppConstants.privateTokenKey);
+    await _secureStorage.delete(key: AppConstants.serviceNameKey);
   }
 
   /// Check if user has a stored token.
   Future<bool> hasToken() async {
     final token = await _secureStorage.read(key: AppConstants.tokenKey);
     return token != null && token.isNotEmpty;
+  }
+
+  /// Get the service shortname the current token belongs to.
+  Future<String?> getActiveService() async {
+    return _secureStorage.read(key: AppConstants.serviceNameKey);
+  }
+
+  /// Check if the current token is from the MDF custom service.
+  Future<bool> hasMdfService() async {
+    final service = await getActiveService();
+    return service == AppConstants.moodleService;
   }
 
   /// Get the private token for auto-login.

@@ -154,7 +154,11 @@ class AiEngine {
       double avgPercent = 0;
       if (gradedItems.isNotEmpty) {
         avgPercent = gradedItems
-                .map((i) => (i.gradeRaw! / (i.gradeMax == 0 ? 1 : i.gradeMax!)) * 100)
+                .map((i) {
+                  final raw = i.gradeRaw ?? 0;
+                  final maxVal = (i.gradeMax ?? 0) == 0 ? 1.0 : i.gradeMax!;
+                  return (raw / maxVal) * 100;
+                })
                 .reduce((a, b) => a + b) /
             gradedItems.length;
       } else if (courseGrade.grade != null) {
@@ -172,8 +176,9 @@ class AiEngine {
 
       // Analyze individual items
       for (final item in gradedItems) {
-        final pct =
-            (item.gradeRaw! / (item.gradeMax == 0 ? 1 : item.gradeMax!)) * 100;
+        final raw = item.gradeRaw ?? 0;
+        final maxVal = (item.gradeMax ?? 0) == 0 ? 1.0 : item.gradeMax!;
+        final pct = (raw / maxVal) * 100;
         if (pct >= 80) {
           strengths.add(item.itemName);
         } else if (pct < 50) {

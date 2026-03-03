@@ -109,4 +109,48 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<User?> getCachedUser() async {
     return localDataSource.getCachedUser();
   }
+
+  @override
+  Future<Either<Failure, User>> refreshToken({required String password}) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+
+    try {
+      // Get saved server URL and username from cache
+      final serverUrl = await localDataSource.getServerUrl();
+      final cachedUser = await localDataSource.getCachedUser();
+
+      if (serverUrl == null || cachedUser == null) {
+        return const Left(AuthFailure(message: 'No saved credentials'));
+      }
+
+      // Re-authenticate with same server and username
+      final user = await remoteDataSource.login(
+        serverUrl: serverUrl,
+        username: cachedUser.username,
+        password: password,
+      );
+
+      // Update cached user data
+      await localDataSource.saveUser(user);
+
+      return Right(user);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
+    } on MoodleException catch (e) {
+      return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<String?> getServerUrl() async {
+    return localDataSource.getServerUrl();
+  }
 }

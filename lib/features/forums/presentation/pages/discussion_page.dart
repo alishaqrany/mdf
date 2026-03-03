@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -159,7 +160,7 @@ class _DiscussionCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 backgroundImage: discussion.userPictureUrl != null
-                    ? NetworkImage(discussion.userPictureUrl!)
+                    ? CachedNetworkImageProvider(discussion.userPictureUrl!)
                     : null,
                 child: discussion.userPictureUrl == null
                     ? Text(
@@ -338,7 +339,7 @@ class PostsPage extends StatelessWidget {
                               CircleAvatar(
                                 radius: 16,
                                 backgroundImage: p.userPictureUrl != null
-                                    ? NetworkImage(p.userPictureUrl!)
+                                    ? CachedNetworkImageProvider(p.userPictureUrl!)
                                     : null,
                                 child: p.userPictureUrl == null
                                     ? Text(
