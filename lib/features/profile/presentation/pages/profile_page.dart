@@ -532,10 +532,10 @@ class _SettingsSection extends StatelessWidget {
                           return;
                         }
                         context.read<AuthBloc>().add(
-                              AuthRefreshTokenRequested(
-                                password: passwordController.text,
-                              ),
-                            );
+                          AuthRefreshTokenRequested(
+                            password: passwordController.text,
+                          ),
+                        );
                       },
                 child: Text(tr('profile.refresh_token_btn')),
               ),

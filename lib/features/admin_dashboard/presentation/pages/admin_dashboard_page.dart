@@ -119,8 +119,10 @@ class _AdminDashboardViewState extends State<_AdminDashboardView> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.warning_amber_rounded,
-                                color: Colors.orange.shade700),
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.orange.shade700,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(

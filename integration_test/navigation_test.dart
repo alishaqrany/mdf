@@ -89,9 +89,7 @@ void main() {
       await tester.pumpWidget(
         BlocProvider<AuthBloc>.value(
           value: authBloc,
-          child: MaterialApp.router(
-            routerConfig: appRouter.router,
-          ),
+          child: MaterialApp.router(routerConfig: appRouter.router),
         ),
       );
       await tester.pumpAndSettle();

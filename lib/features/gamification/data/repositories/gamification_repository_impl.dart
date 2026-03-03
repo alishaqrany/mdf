@@ -16,9 +16,7 @@ class GamificationRepositoryImpl implements GamificationRepository {
     required this.networkInfo,
   });
 
-  Future<Either<Failure, T>> _guardedCall<T>(
-    Future<T> Function() call,
-  ) async {
+  Future<Either<Failure, T>> _guardedCall<T>(Future<T> Function() call) async {
     if (!await networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -27,7 +25,10 @@ class GamificationRepositoryImpl implements GamificationRepository {
       return Right(result);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'التلعيب (Gamification)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'التلعيب (Gamification)',
+        ),
       );
     }
   }
@@ -43,11 +44,9 @@ class GamificationRepositoryImpl implements GamificationRepository {
     int userId, {
     int page = 0,
     int limit = 20,
-  }) =>
-      _guardedCall(
-        () => remoteDataSource.getPointHistory(userId,
-            page: page, limit: limit),
-      );
+  }) => _guardedCall(
+    () => remoteDataSource.getPointHistory(userId, page: page, limit: limit),
+  );
 
   @override
   Future<Either<Failure, UserPoints>> awardPoints({
@@ -56,16 +55,15 @@ class GamificationRepositoryImpl implements GamificationRepository {
     required PointAction action,
     required String description,
     int? referenceId,
-  }) =>
-      _guardedCall(
-        () => remoteDataSource.awardPoints(
-          userId: userId,
-          points: points,
-          action: action.name,
-          description: description,
-          referenceId: referenceId,
-        ),
-      );
+  }) => _guardedCall(
+    () => remoteDataSource.awardPoints(
+      userId: userId,
+      points: points,
+      action: action.name,
+      description: description,
+      referenceId: referenceId,
+    ),
+  );
 
   // ─── Badges ───
 
@@ -88,14 +86,13 @@ class GamificationRepositoryImpl implements GamificationRepository {
     required LeaderboardPeriod period,
     int? courseId,
     int limit = 50,
-  }) =>
-      _guardedCall(
-        () => remoteDataSource.getLeaderboard(
-          period: period.name,
-          courseId: courseId,
-          limit: limit,
-        ),
-      );
+  }) => _guardedCall(
+    () => remoteDataSource.getLeaderboard(
+      period: period.name,
+      courseId: courseId,
+      limit: limit,
+    ),
+  );
 
   // ─── Challenges ───
 
@@ -104,19 +101,16 @@ class GamificationRepositoryImpl implements GamificationRepository {
       _guardedCall(() => remoteDataSource.getActiveChallenges(userId));
 
   @override
-  Future<Either<Failure, List<Challenge>>> getCompletedChallenges(
-    int userId,
-  ) =>
+  Future<Either<Failure, List<Challenge>>> getCompletedChallenges(int userId) =>
       _guardedCall(() => remoteDataSource.getCompletedChallenges(userId));
 
   @override
   Future<Either<Failure, Challenge>> claimChallengeReward(
     int challengeId,
     int userId,
-  ) =>
-      _guardedCall(
-        () => remoteDataSource.claimChallengeReward(challengeId, userId),
-      );
+  ) => _guardedCall(
+    () => remoteDataSource.claimChallengeReward(challengeId, userId),
+  );
 
   // ─── Streaks ───
 

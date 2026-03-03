@@ -75,7 +75,11 @@ class _BadgesViewState extends State<_BadgesView>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                  const Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(height: 12),
                   Text(state.message),
                   const SizedBox(height: 12),
@@ -297,7 +301,11 @@ class _BadgesGrid extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_circle, size: 16, color: AppColors.success),
+                  const Icon(
+                    Icons.check_circle,
+                    size: 16,
+                    color: AppColors.success,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     '${tr('gamification.earned_on')} ${DateFormat('yyyy/MM/dd').format(badge.earnedAt!)}',

@@ -57,16 +57,16 @@ class _StudyGroupsView extends StatelessWidget {
       body: BlocConsumer<StudyGroupsBloc, StudyGroupsState>(
         listener: (context, state) {
           if (state is StudyGroupCreated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(tr('social.group_created'))),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(tr('social.group_created'))));
             context.read<StudyGroupsBloc>().add(
               LoadStudyGroups(courseId: courseId),
             );
           } else if (state is StudyGroupActionSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
             context.read<StudyGroupsBloc>().add(
               LoadStudyGroups(courseId: courseId),
             );
@@ -91,8 +91,9 @@ class _StudyGroupsView extends StatelessWidget {
                           ? Icons.extension_off_rounded
                           : Icons.error_outline,
                       size: 72,
-                      color:
-                          isPluginError ? AppColors.warning : AppColors.error,
+                      color: isPluginError
+                          ? AppColors.warning
+                          : AppColors.error,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -108,10 +109,11 @@ class _StudyGroupsView extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: (isPluginError
-                                ? AppColors.warning
-                                : AppColors.error)
-                            .withValues(alpha: 0.08),
+                        color:
+                            (isPluginError
+                                    ? AppColors.warning
+                                    : AppColors.error)
+                                .withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -136,8 +138,8 @@ class _StudyGroupsView extends StatelessWidget {
                     ],
                     OutlinedButton.icon(
                       onPressed: () => context.read<StudyGroupsBloc>().add(
-                            LoadStudyGroups(courseId: courseId),
-                          ),
+                        LoadStudyGroups(courseId: courseId),
+                      ),
                       icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr('common.retry')),
                     ),
@@ -267,8 +269,8 @@ class _StudyGroupsView extends StatelessWidget {
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
                     final authState = context.read<AuthBloc>().state;
-                    final cId = courseId ??
-                        (authState is AuthAuthenticated ? 1 : 0);
+                    final cId =
+                        courseId ?? (authState is AuthAuthenticated ? 1 : 0);
                     context.read<StudyGroupsBloc>().add(
                       CreateStudyGroup(
                         name: nameController.text.trim(),

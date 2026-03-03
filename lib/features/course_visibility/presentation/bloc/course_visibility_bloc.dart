@@ -33,7 +33,10 @@ class CourseVisibilityBloc
       );
       emit(CourseVisibilityLoaded(overrides: overrides));
     } catch (e) {
-      final failure = MdfErrorHandler.handleException(e, featureName: 'إخفاء المقررات (Course Visibility)');
+      final failure = MdfErrorHandler.handleException(
+        e,
+        featureName: 'إخفاء المقررات (Course Visibility)',
+      );
       emit(CourseVisibilityError(message: failure.message));
     }
   }
@@ -52,7 +55,10 @@ class CourseVisibilityBloc
       // Reload after change
       add(const LoadCourseVisibility());
     } catch (e) {
-      final failure = MdfErrorHandler.handleException(e, featureName: 'إخفاء المقررات (Course Visibility)');
+      final failure = MdfErrorHandler.handleException(
+        e,
+        featureName: 'إخفاء المقررات (Course Visibility)',
+      );
       emit(CourseVisibilityError(message: failure.message));
     }
   }
@@ -66,7 +72,10 @@ class CourseVisibilityBloc
       // Reload after removal
       add(const LoadCourseVisibility());
     } catch (e) {
-      final failure = MdfErrorHandler.handleException(e, featureName: 'إخفاء المقررات (Course Visibility)');
+      final failure = MdfErrorHandler.handleException(
+        e,
+        featureName: 'إخفاء المقررات (Course Visibility)',
+      );
       emit(CourseVisibilityError(message: failure.message));
     }
   }

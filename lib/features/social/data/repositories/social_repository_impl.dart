@@ -25,7 +25,10 @@ class SocialRepositoryImpl implements SocialRepository {
       return Right(result);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'التعلم الاجتماعي (Social Learning)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'التعلم الاجتماعي (Social Learning)',
+        ),
       );
     }
   }

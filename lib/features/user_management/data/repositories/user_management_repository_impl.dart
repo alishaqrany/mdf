@@ -27,7 +27,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
       return Right(users);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'إدارة المستخدمين (User Management)',
+        ),
       );
     }
   }
@@ -40,7 +43,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
       return Right(user);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'إدارة المستخدمين (User Management)',
+        ),
       );
     }
   }
@@ -75,7 +81,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
       return Right(user);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'إدارة المستخدمين (User Management)',
+        ),
       );
     }
   }
@@ -110,7 +119,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
       return const Right(null);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'إدارة المستخدمين (User Management)',
+        ),
       );
     }
   }
@@ -123,7 +135,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
       return const Right(null);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'إدارة المستخدمين (User Management)',
+        ),
       );
     }
   }
@@ -142,7 +157,10 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
       return const Right(null);
     } catch (e) {
       return Left(
-        MdfErrorHandler.handleException(e, featureName: 'إدارة المستخدمين (User Management)'),
+        MdfErrorHandler.handleException(
+          e,
+          featureName: 'إدارة المستخدمين (User Management)',
+        ),
       );
     }
   }

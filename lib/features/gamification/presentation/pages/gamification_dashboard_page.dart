@@ -170,10 +170,7 @@ class _DashboardView extends StatelessWidget {
             fontSize: 18,
             color: Colors.white,
             shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 4,
-              ),
+              Shadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4),
             ],
           ),
         ),
@@ -222,8 +219,10 @@ class _DashboardView extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Icon(Icons.timeline_rounded,
-                          color: AppColors.primary),
+                      const Icon(
+                        Icons.timeline_rounded,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         tr('gamification.history'),
@@ -317,9 +316,7 @@ class _HeroProfile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.amber.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.amber.withValues(alpha: 0.4),
-                ),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
               ),
               child: Text(
                 userPoints.levelTitle,
@@ -536,11 +533,11 @@ class _ChallengesSection extends StatelessWidget {
                         challenge: c,
                         onClaim: c.status == ChallengeStatus.completed
                             ? () => context.read<ChallengesBloc>().add(
-                                  ClaimChallengeReward(
-                                    challengeId: c.id,
-                                    userId: userId,
-                                  ),
-                                )
+                                ClaimChallengeReward(
+                                  challengeId: c.id,
+                                  userId: userId,
+                                ),
+                              )
                             : null,
                       );
                     }).toList(),
@@ -748,8 +745,11 @@ class _SectionCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 2),
-                        const Icon(Icons.arrow_forward_ios_rounded,
-                            size: 11, color: AppColors.primary),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 11,
+                          color: AppColors.primary,
+                        ),
                       ],
                     ),
                   ),
@@ -784,8 +784,8 @@ class _EmptyHint extends StatelessWidget {
             Text(
               message,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textTertiaryLight,
-                  ),
+                color: AppColors.textTertiaryLight,
+              ),
             ),
           ],
         ),

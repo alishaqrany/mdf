@@ -37,18 +37,21 @@ class AiEngine {
       );
       final coursesData = response['courses'] as List? ?? [];
       allCourses = coursesData
-          .map((c) => Course(
-                id: c['id'] ?? 0,
-                shortName: c['shortname'] ?? '',
-                fullName: c['fullname'] ?? '',
-                categoryId: c['categoryid'],
-                categoryName: c['categoryname'],
-                imageUrl: c['overviewfiles'] != null &&
-                        (c['overviewfiles'] as List).isNotEmpty
-                    ? c['overviewfiles'][0]['fileurl']
-                    : null,
-                summary: c['summary'],
-              ))
+          .map(
+            (c) => Course(
+              id: c['id'] ?? 0,
+              shortName: c['shortname'] ?? '',
+              fullName: c['fullname'] ?? '',
+              categoryId: c['categoryid'],
+              categoryName: c['categoryname'],
+              imageUrl:
+                  c['overviewfiles'] != null &&
+                      (c['overviewfiles'] as List).isNotEmpty
+                  ? c['overviewfiles'][0]['fileurl']
+                  : null,
+              summary: c['summary'],
+            ),
+          )
           .toList();
     } catch (_) {
       allCourses = [];
@@ -57,52 +60,61 @@ class AiEngine {
     final enrolledIds = enrolledCourses.map((c) => c.id).toSet();
 
     // Filter not-enrolled courses
-    final candidates =
-        allCourses.where((c) => !enrolledIds.contains(c.id)).toList();
+    final candidates = allCourses
+        .where((c) => !enrolledIds.contains(c.id))
+        .toList();
 
     // 2. Same-category recommendations
-    final enrolledCategories =
-        enrolledCourses.map((c) => c.categoryId).whereType<int>().toSet();
+    final enrolledCategories = enrolledCourses
+        .map((c) => c.categoryId)
+        .whereType<int>()
+        .toSet();
     for (final course in candidates) {
       if (course.categoryId != null &&
           enrolledCategories.contains(course.categoryId)) {
-        recommendations.add(CourseRecommendation(
-          courseId: course.id,
-          courseName: course.fullName,
-          courseImage: course.imageUrl,
-          categoryName: course.categoryName,
-          confidenceScore: 0.85,
-          reason: RecommendationReason.sameCategory,
-          reasonText:
-              'Based on your interest in ${course.categoryName ?? "this subject"}',
-        ));
+        recommendations.add(
+          CourseRecommendation(
+            courseId: course.id,
+            courseName: course.fullName,
+            courseImage: course.imageUrl,
+            categoryName: course.categoryName,
+            confidenceScore: 0.85,
+            reason: RecommendationReason.sameCategory,
+            reasonText:
+                'Based on your interest in ${course.categoryName ?? "this subject"}',
+          ),
+        );
       }
     }
 
     // 3. Popular courses (by enrollment count)
     final popular = List.of(candidates)
-      ..sort((a, b) =>
-          (b.enrolledUserCount ?? 0).compareTo(a.enrolledUserCount ?? 0));
+      ..sort(
+        (a, b) =>
+            (b.enrolledUserCount ?? 0).compareTo(a.enrolledUserCount ?? 0),
+      );
     for (final course in popular.take(3)) {
       if (!recommendations.any((r) => r.courseId == course.id)) {
-        recommendations.add(CourseRecommendation(
-          courseId: course.id,
-          courseName: course.fullName,
-          courseImage: course.imageUrl,
-          categoryName: course.categoryName,
-          confidenceScore: 0.70,
-          reason: RecommendationReason.popularAmongPeers,
-          reasonText:
-              '${course.enrolledUserCount ?? 0} students enrolled',
-        ));
+        recommendations.add(
+          CourseRecommendation(
+            courseId: course.id,
+            courseName: course.fullName,
+            courseImage: course.imageUrl,
+            categoryName: course.categoryName,
+            confidenceScore: 0.70,
+            reason: RecommendationReason.popularAmongPeers,
+            reasonText: '${course.enrolledUserCount ?? 0} students enrolled',
+          ),
+        );
       }
     }
 
     // 4. Completion-path: if user completed courses, suggest next-level ones
     final completedCategories = enrolledCourses
-        .where((c) =>
-            c.completed == true ||
-            (c.progress != null && c.progress! >= 100))
+        .where(
+          (c) =>
+              c.completed == true || (c.progress != null && c.progress! >= 100),
+        )
         .map((c) => c.categoryId)
         .whereType<int>()
         .toSet();
@@ -111,20 +123,24 @@ class AiEngine {
       if (course.categoryId != null &&
           completedCategories.contains(course.categoryId) &&
           !recommendations.any((r) => r.courseId == course.id)) {
-        recommendations.add(CourseRecommendation(
-          courseId: course.id,
-          courseName: course.fullName,
-          courseImage: course.imageUrl,
-          categoryName: course.categoryName,
-          confidenceScore: 0.90,
-          reason: RecommendationReason.completionPath,
-          reasonText: 'Next step after completing courses in this subject',
-        ));
+        recommendations.add(
+          CourseRecommendation(
+            courseId: course.id,
+            courseName: course.fullName,
+            courseImage: course.imageUrl,
+            categoryName: course.categoryName,
+            confidenceScore: 0.90,
+            reason: RecommendationReason.completionPath,
+            reasonText: 'Next step after completing courses in this subject',
+          ),
+        );
       }
     }
 
     // Sort by confidence descending
-    recommendations.sort((a, b) => b.confidenceScore.compareTo(a.confidenceScore));
+    recommendations.sort(
+      (a, b) => b.confidenceScore.compareTo(a.confidenceScore),
+    );
 
     return recommendations.take(10).toList();
   }
@@ -144,16 +160,19 @@ class AiEngine {
     for (final course in enrolledCourses) {
       final courseGrade = courseGrades.firstWhere(
         (g) => g.courseId == course.id,
-        orElse: () => CourseGrade(courseId: course.id, courseName: course.fullName),
+        orElse: () =>
+            CourseGrade(courseId: course.id, courseName: course.fullName),
       );
 
       final items = gradeItems[course.id] ?? [];
-      final gradedItems =
-          items.where((i) => i.gradeRaw != null && i.gradeMax != null);
+      final gradedItems = items.where(
+        (i) => i.gradeRaw != null && i.gradeMax != null,
+      );
 
       double avgPercent = 0;
       if (gradedItems.isNotEmpty) {
-        avgPercent = gradedItems
+        avgPercent =
+            gradedItems
                 .map((i) {
                   final raw = i.gradeRaw ?? 0;
                   final maxVal = (i.gradeMax ?? 0) == 0 ? 1.0 : i.gradeMax!;
@@ -196,19 +215,22 @@ class AiEngine {
       }
       if (weaknesses.isNotEmpty) {
         suggestions.add(
-            'Review material for: ${weaknesses.take(3).join(", ")}');
+          'Review material for: ${weaknesses.take(3).join(", ")}',
+        );
       }
 
-      predictions.add(PerformancePrediction(
-        courseId: course.id,
-        courseName: course.fullName,
-        predictedGrade: predicted.clamp(0, 100),
-        riskLevel: risk,
-        strengths: strengths.take(5).toList(),
-        weaknesses: weaknesses.take(5).toList(),
-        suggestions: suggestions.take(5).toList(),
-        completionLikelihood: _completionLikelihood(progress, predicted),
-      ));
+      predictions.add(
+        PerformancePrediction(
+          courseId: course.id,
+          courseName: course.fullName,
+          predictedGrade: predicted.clamp(0, 100),
+          riskLevel: risk,
+          strengths: strengths.take(5).toList(),
+          weaknesses: weaknesses.take(5).toList(),
+          suggestions: suggestions.take(5).toList(),
+          completionLikelihood: _completionLikelihood(progress, predicted),
+        ),
+      );
     }
 
     return predictions;
@@ -249,12 +271,13 @@ class AiEngine {
     final gradedCourses = courseGrades.where((g) => g.grade != null);
     final avgPerformance = gradedCourses.isNotEmpty
         ? gradedCourses.map((g) => g.grade!).reduce((a, b) => a + b) /
-            gradedCourses.length
+              gradedCourses.length
         : 0.0;
 
     // Determine trend from predictions
     final atRisk = predictions.where(
-        (p) => p.riskLevel == RiskLevel.high || p.riskLevel == RiskLevel.critical);
+      (p) => p.riskLevel == RiskLevel.high || p.riskLevel == RiskLevel.critical,
+    );
     final strong = predictions.where((p) => p.riskLevel == RiskLevel.low);
     String trend = 'stable';
     if (strong.length > atRisk.length) trend = 'improving';
@@ -275,10 +298,14 @@ class AiEngine {
     final now = DateTime.now();
     for (int i = 0; i < 30; i++) {
       final day = now.subtract(Duration(days: i));
-      final dayStart = DateTime(day.year, day.month, day.day).millisecondsSinceEpoch ~/ 1000;
+      final dayStart =
+          DateTime(day.year, day.month, day.day).millisecondsSinceEpoch ~/ 1000;
       final dayEnd = dayStart + 86400;
       final hasActivity = enrolledCourses.any(
-        (c) => c.lastAccess != null && c.lastAccess! >= dayStart && c.lastAccess! < dayEnd,
+        (c) =>
+            c.lastAccess != null &&
+            c.lastAccess! >= dayStart &&
+            c.lastAccess! < dayEnd,
       );
       if (hasActivity) {
         streak++;
@@ -327,22 +354,47 @@ class AiEngine {
     if (_matchesAny(msg, ['courses', 'مقررات', 'كورسات', 'enrolled', 'مسجل'])) {
       reply = _coursesResponse(enrolledCourses);
       type = AiMessageType.courseCard;
-    } else if (_matchesAny(msg, ['grade', 'درجات', 'درجة', 'marks', 'score', 'نتائج'])) {
+    } else if (_matchesAny(msg, [
+      'grade',
+      'درجات',
+      'درجة',
+      'marks',
+      'score',
+      'نتائج',
+    ])) {
       reply = _gradesResponse(courseGrades);
       type = AiMessageType.gradeChart;
-    } else if (_matchesAny(msg, ['help', 'مساعدة', 'suggest', 'اقتراح', 'advice', 'نصيحة', 'improve', 'تحسين'])) {
+    } else if (_matchesAny(msg, [
+      'help',
+      'مساعدة',
+      'suggest',
+      'اقتراح',
+      'advice',
+      'نصيحة',
+      'improve',
+      'تحسين',
+    ])) {
       reply = _suggestionsResponse(predictions);
       type = AiMessageType.suggestion;
     } else if (_matchesAny(msg, ['progress', 'تقدم', 'performance', 'أداء'])) {
       reply = _performanceResponse(predictions);
-    } else if (_matchesAny(msg, ['deadline', 'موعد', 'due', 'تسليم', 'calendar'])) {
-      reply = 'Check the Calendar tab for upcoming deadlines and events. '
+    } else if (_matchesAny(msg, [
+      'deadline',
+      'موعد',
+      'due',
+      'تسليم',
+      'calendar',
+    ])) {
+      reply =
+          'Check the Calendar tab for upcoming deadlines and events. '
           'You can also enable notifications to stay updated.';
     } else if (_matchesAny(msg, ['hi', 'hello', 'مرحبا', 'اهلا', 'السلام'])) {
-      reply = 'Hello! 👋 I\'m your AI study assistant. Ask me about your '
+      reply =
+          'Hello! 👋 I\'m your AI study assistant. Ask me about your '
           'courses, grades, performance, or study suggestions!';
     } else {
-      reply = 'I can help you with:\n'
+      reply =
+          'I can help you with:\n'
           '• **My courses** — View enrolled courses\n'
           '• **My grades** — Check your grades\n'
           '• **How can I improve?** — Get study suggestions\n'
@@ -365,7 +417,9 @@ class AiEngine {
 
   String _coursesResponse(List<Course> courses) {
     if (courses.isEmpty) return 'You have no enrolled courses yet.';
-    final buffer = StringBuffer('You are enrolled in ${courses.length} courses:\n\n');
+    final buffer = StringBuffer(
+      'You are enrolled in ${courses.length} courses:\n\n',
+    );
     for (final c in courses.take(8)) {
       final pct = c.progress?.toInt() ?? 0;
       buffer.writeln('• **${c.fullName}** — $pct% complete');
@@ -386,9 +440,11 @@ class AiEngine {
 
   String _suggestionsResponse(List<PerformancePrediction> predictions) {
     final atRisk = predictions
-        .where((p) =>
-            p.riskLevel == RiskLevel.high ||
-            p.riskLevel == RiskLevel.critical)
+        .where(
+          (p) =>
+              p.riskLevel == RiskLevel.high ||
+              p.riskLevel == RiskLevel.critical,
+        )
         .toList();
 
     if (atRisk.isEmpty) {
@@ -398,7 +454,9 @@ class AiEngine {
 
     final buffer = StringBuffer('Here are my study suggestions:\n\n');
     for (final p in atRisk) {
-      buffer.writeln('📚 **${p.courseName}** (Predicted: ${p.predictedGrade.toStringAsFixed(0)}%)');
+      buffer.writeln(
+        '📚 **${p.courseName}** (Predicted: ${p.predictedGrade.toStringAsFixed(0)}%)',
+      );
       for (final s in p.suggestions.take(2)) {
         buffer.writeln('   → $s');
       }
@@ -414,10 +472,11 @@ class AiEngine {
       final icon = p.riskLevel == RiskLevel.low
           ? '🟢'
           : p.riskLevel == RiskLevel.medium
-              ? '🟡'
-              : '🔴';
+          ? '🟡'
+          : '🔴';
       buffer.writeln(
-          '$icon **${p.courseName}** — Predicted: ${p.predictedGrade.toStringAsFixed(0)}%');
+        '$icon **${p.courseName}** — Predicted: ${p.predictedGrade.toStringAsFixed(0)}%',
+      );
     }
     return buffer.toString();
   }
@@ -450,7 +509,9 @@ class AiEngine {
       moduleId: moduleId,
       moduleTitle: moduleTitle,
       originalType: moduleType,
-      summary: summary.isNotEmpty ? summary : 'No summary available for this content.',
+      summary: summary.isNotEmpty
+          ? summary
+          : 'No summary available for this content.',
       keyPoints: keyPoints,
       estimatedReadTime: readTime,
       generatedAt: DateTime.now(),
@@ -491,10 +552,7 @@ class AiEngine {
 
     final topIndices = scored.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final selected = topIndices
-        .take(maxSentences)
-        .map((e) => e.key)
-        .toList()
+    final selected = topIndices.take(maxSentences).map((e) => e.key).toList()
       ..sort();
 
     return '${selected.map((i) => sentences[i]).join('. ')}.';

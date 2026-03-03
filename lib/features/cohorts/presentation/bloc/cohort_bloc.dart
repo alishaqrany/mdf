@@ -37,7 +37,10 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       );
       emit(CohortsLoaded(cohorts: result.cohorts, total: result.total));
     } catch (e) {
-      final failure = MdfErrorHandler.handleException(e, featureName: 'الدفعات (Cohorts)');
+      final failure = MdfErrorHandler.handleException(
+        e,
+        featureName: 'الدفعات (Cohorts)',
+      );
       emit(CohortError(message: failure.message));
     }
   }
@@ -59,7 +62,10 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
         ),
       );
     } catch (e) {
-      final failure = MdfErrorHandler.handleException(e, featureName: 'الدفعات (Cohorts)');
+      final failure = MdfErrorHandler.handleException(
+        e,
+        featureName: 'الدفعات (Cohorts)',
+      );
       emit(CohortError(message: failure.message));
     }
   }
@@ -76,7 +82,10 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       // Reload members
       add(LoadCohortMembers(cohortid: event.cohortid));
     } catch (e) {
-      final failure = MdfErrorHandler.handleException(e, featureName: 'الدفعات (Cohorts)');
+      final failure = MdfErrorHandler.handleException(
+        e,
+        featureName: 'الدفعات (Cohorts)',
+      );
       emit(CohortError(message: failure.message));
     }
   }
@@ -93,7 +102,10 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       // Reload members
       add(LoadCohortMembers(cohortid: event.cohortid));
     } catch (e) {
-      final failure = MdfErrorHandler.handleException(e, featureName: 'الدفعات (Cohorts)');
+      final failure = MdfErrorHandler.handleException(
+        e,
+        featureName: 'الدفعات (Cohorts)',
+      );
       emit(CohortError(message: failure.message));
     }
   }

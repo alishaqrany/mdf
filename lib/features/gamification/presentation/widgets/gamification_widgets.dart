@@ -279,8 +279,8 @@ class BadgeCard extends StatelessWidget {
           color: badge.isEarned
               ? _rarityColor.withValues(alpha: isDark ? 0.12 : 0.06)
               : isDark
-                  ? Colors.grey.withValues(alpha: 0.08)
-                  : Colors.grey.withValues(alpha: 0.04),
+              ? Colors.grey.withValues(alpha: 0.08)
+              : Colors.grey.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: badge.isEarned
@@ -325,8 +325,7 @@ class BadgeCard extends StatelessWidget {
               const SizedBox(height: 3),
               // Rarity chip
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
                   color: _rarityColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
@@ -391,13 +390,11 @@ class LeaderboardTile extends StatelessWidget {
         color: isCurrentUser
             ? AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.06)
             : isTop3
-                ? rankColor?.withValues(alpha: isDark ? 0.1 : 0.04)
-                : null,
+            ? rankColor?.withValues(alpha: isDark ? 0.1 : 0.04)
+            : null,
         borderRadius: BorderRadius.circular(12),
         border: isCurrentUser
-            ? Border.all(
-                color: AppColors.primary.withValues(alpha: 0.3),
-              )
+            ? Border.all(color: AppColors.primary.withValues(alpha: 0.3))
             : null,
       ),
       child: Row(
@@ -406,11 +403,7 @@ class LeaderboardTile extends StatelessWidget {
           SizedBox(
             width: 30,
             child: isTop3
-                ? Icon(
-                    Icons.emoji_events_rounded,
-                    color: rankColor,
-                    size: 22,
-                  )
+                ? Icon(Icons.emoji_events_rounded, color: rankColor, size: 22)
                 : Text(
                     '#${entry.rank}',
                     style: theme.textTheme.labelMedium?.copyWith(
@@ -450,8 +443,9 @@ class LeaderboardTile extends StatelessWidget {
                 Text(
                   entry.fullName,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight:
-                        isCurrentUser ? FontWeight.bold : FontWeight.w500,
+                    fontWeight: isCurrentUser
+                        ? FontWeight.bold
+                        : FontWeight.w500,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -553,15 +547,15 @@ class ChallengeCard extends StatelessWidget {
         color: canClaim
             ? AppColors.success.withValues(alpha: isDark ? 0.12 : 0.05)
             : isDark
-                ? AppColors.surfaceDark
-                : Colors.white,
+            ? AppColors.surfaceDark
+            : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: canClaim
               ? AppColors.success.withValues(alpha: 0.35)
               : isDark
-                  ? AppColors.dividerDark
-                  : AppColors.divider,
+              ? AppColors.dividerDark
+              : AppColors.divider,
         ),
       ),
       child: Column(
@@ -598,7 +592,9 @@ class ChallengeCard extends StatelessWidget {
                         // Period badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 2),
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: _periodColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(5),
@@ -664,7 +660,11 @@ class ChallengeCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.stars_rounded, size: 15, color: Colors.amber.shade600),
+                  Icon(
+                    Icons.stars_rounded,
+                    size: 15,
+                    color: Colors.amber.shade600,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '+${challenge.rewardPoints} ${tr('gamification.pts')}',
@@ -698,8 +698,11 @@ class ChallengeCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.timer_outlined,
-                        size: 13, color: AppColors.textTertiaryLight),
+                    const Icon(
+                      Icons.timer_outlined,
+                      size: 13,
+                      color: AppColors.textTertiaryLight,
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       _formatRemaining(challenge.remainingTime),

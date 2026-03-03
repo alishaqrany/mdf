@@ -57,11 +57,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
 
-    registerFallbackValue(const AuthLoginRequested(
-      serverUrl: '',
-      username: '',
-      password: '',
-    ));
+    registerFallbackValue(
+      const AuthLoginRequested(serverUrl: '', username: '', password: ''),
+    );
   });
 
   setUp(() {
@@ -100,11 +98,13 @@ void main() {
     });
 
     testWidgets('successful login flow', (tester) async {
-      when(() => mockLogin(
-            serverUrl: any(named: 'serverUrl'),
-            username: any(named: 'username'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => const Right(testUser));
+      when(
+        () => mockLogin(
+          serverUrl: any(named: 'serverUrl'),
+          username: any(named: 'username'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => const Right(testUser));
 
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle();
@@ -127,20 +127,25 @@ void main() {
       }
 
       // The bloc should have received a login event
-      verify(() => mockLogin(
-            serverUrl: 'https://moodle.example.com',
-            username: 'student1',
-            password: 'password123',
-          )).called(1);
+      verify(
+        () => mockLogin(
+          serverUrl: 'https://moodle.example.com',
+          username: 'student1',
+          password: 'password123',
+        ),
+      ).called(1);
     });
 
     testWidgets('shows error snackbar on login failure', (tester) async {
-      when(() => mockLogin(
-            serverUrl: any(named: 'serverUrl'),
-            username: any(named: 'username'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async =>
-          const Left(ServerFailure(message: 'Invalid credentials')));
+      when(
+        () => mockLogin(
+          serverUrl: any(named: 'serverUrl'),
+          username: any(named: 'username'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer(
+        (_) async => const Left(ServerFailure(message: 'Invalid credentials')),
+      );
 
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle();
@@ -174,11 +179,13 @@ void main() {
       }
 
       // Login use case should NOT have been called (validation failed)
-      verifyNever(() => mockLogin(
-            serverUrl: any(named: 'serverUrl'),
-            username: any(named: 'username'),
-            password: any(named: 'password'),
-          ));
+      verifyNever(
+        () => mockLogin(
+          serverUrl: any(named: 'serverUrl'),
+          username: any(named: 'username'),
+          password: any(named: 'password'),
+        ),
+      );
     });
   });
 }
