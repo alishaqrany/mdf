@@ -365,7 +365,11 @@ class _SettingsSection extends StatelessWidget {
             _SettingsTile(
               icon: Icons.grade_rounded,
               title: tr('grades.title'),
-              onTap: () => context.push('/student/grades?userId=$userId'),
+              onTap: () {
+                final authState = context.read<AuthBloc>().state;
+                final prefix = authState is AuthAuthenticated && authState.user.isAdmin ? '/admin' : '/student';
+                context.push('$prefix/grades?userId=$userId');
+              },
             ),
             _SettingsTile(
               icon: Icons.language_rounded,
@@ -389,8 +393,11 @@ class _SettingsSection extends StatelessWidget {
             _SettingsTile(
               icon: Icons.notifications_rounded,
               title: tr('profile.notifications'),
-              onTap: () =>
-                  context.push('/student/notifications?userId=$userId'),
+              onTap: () {
+                final authState = context.read<AuthBloc>().state;
+                final prefix = authState is AuthAuthenticated && authState.user.isAdmin ? '/admin' : '/student';
+                context.push('$prefix/notifications?userId=$userId');
+              },
             ),
             _SettingsTile(
               icon: Icons.download_rounded,
