@@ -134,7 +134,8 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       add(const LoadCohorts());
     } catch (e) {
       final failure = MdfErrorHandler.handleException(
-        e, featureName: 'الدفعات (Cohorts)',
+        e,
+        featureName: 'الدفعات (Cohorts)',
       );
       emit(CohortError(message: failure.message));
     }
@@ -150,7 +151,8 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       add(const LoadCohorts());
     } catch (e) {
       final failure = MdfErrorHandler.handleException(
-        e, featureName: 'الدفعات (Cohorts)',
+        e,
+        featureName: 'الدفعات (Cohorts)',
       );
       emit(CohortError(message: failure.message));
     }
@@ -170,7 +172,8 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       add(LoadCohortCourseSyncs(cohortid: event.cohortid));
     } catch (e) {
       final failure = MdfErrorHandler.handleException(
-        e, featureName: 'الدفعات (Cohorts)',
+        e,
+        featureName: 'الدفعات (Cohorts)',
       );
       emit(CohortError(message: failure.message));
     }
@@ -189,7 +192,8 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       add(LoadCohortCourseSyncs(cohortid: event.cohortid));
     } catch (e) {
       final failure = MdfErrorHandler.handleException(
-        e, featureName: 'الدفعات (Cohorts)',
+        e,
+        featureName: 'الدفعات (Cohorts)',
       );
       emit(CohortError(message: failure.message));
     }
@@ -204,13 +208,11 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
       final syncs = await _dataSource.getCohortCourseSyncs(
         cohortid: event.cohortid,
       );
-      emit(CohortCourseSyncsLoaded(
-        cohortid: event.cohortid,
-        syncs: syncs,
-      ));
+      emit(CohortCourseSyncsLoaded(cohortid: event.cohortid, syncs: syncs));
     } catch (e) {
       final failure = MdfErrorHandler.handleException(
-        e, featureName: 'الدفعات (Cohorts)',
+        e,
+        featureName: 'الدفعات (Cohorts)',
       );
       emit(CohortError(message: failure.message));
     }

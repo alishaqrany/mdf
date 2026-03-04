@@ -33,14 +33,14 @@ class SubmitCourseCreate extends CourseCreateEvent {
 
   @override
   List<Object?> get props => [
-        fullName,
-        shortName,
-        categoryId,
-        summary,
-        visible,
-        startDate,
-        endDate,
-        format,
-        numSections,
-      ];
+    fullName,
+    shortName,
+    categoryId,
+    summary,
+    visible,
+    startDate,
+    endDate,
+    format,
+    numSections,
+  ];
 }

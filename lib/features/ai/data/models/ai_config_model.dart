@@ -93,5 +93,11 @@ class AiConfigModel {
   }
 
   /// All supported provider keys.
-  static const allProviders = ['gemini', 'mistral', 'cohere', 'openrouter', 'groq'];
+  static const allProviders = [
+    'gemini',
+    'mistral',
+    'cohere',
+    'openrouter',
+    'groq',
+  ];
 }

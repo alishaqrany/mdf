@@ -155,10 +155,12 @@ class AiRepositoryImpl implements AiRepository {
     if (aiRemoteDataSource != null) {
       try {
         final historyMaps = history
-            .map((m) => {
-                  'role': m.isUser ? 'user' : 'assistant',
-                  'content': m.content,
-                })
+            .map(
+              (m) => {
+                'role': m.isUser ? 'user' : 'assistant',
+                'content': m.content,
+              },
+            )
             .toList();
 
         final proxyResponse = await aiRemoteDataSource!.proxyAiRequest(
@@ -187,12 +189,14 @@ class AiRepositoryImpl implements AiRepository {
             // Non-critical — don't fail on history save errors
           }
 
-          return Right(AiChatMessage(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            content: proxyResponse.content,
-            isUser: false,
-            timestamp: DateTime.now(),
-          ));
+          return Right(
+            AiChatMessage(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              content: proxyResponse.content,
+              isUser: false,
+              timestamp: DateTime.now(),
+            ),
+          );
         }
         // If proxy returned error, fall through to local engine
       } catch (_) {

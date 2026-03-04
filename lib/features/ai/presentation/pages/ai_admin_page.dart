@@ -15,9 +15,9 @@ class AiAdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AiAdminBloc(
-        dataSource: GetIt.instance<AiRemoteDataSource>(),
-      )..add(const LoadAiAdminData()),
+      create: (_) =>
+          AiAdminBloc(dataSource: GetIt.instance<AiRemoteDataSource>())
+            ..add(const LoadAiAdminData()),
       child: const _AiAdminView(),
     );
   }
@@ -96,9 +96,9 @@ class _AiAdminView extends StatelessWidget {
                   Text(state.message),
                   const SizedBox(height: 16),
                   FilledButton(
-                    onPressed: () => context
-                        .read<AiAdminBloc>()
-                        .add(const LoadAiAdminData()),
+                    onPressed: () => context.read<AiAdminBloc>().add(
+                      const LoadAiAdminData(),
+                    ),
                     child: Text(tr('common.retry')),
                   ),
                 ],
@@ -122,7 +122,8 @@ class _AiAdminView extends StatelessWidget {
     }
 
     return AiConfigModel.allProviders.map((provider) {
-      final config = configMap[provider] ??
+      final config =
+          configMap[provider] ??
           AiConfigModel(
             provider: provider,
             model: AiConfigModel.defaultModels[provider] ?? '',
@@ -161,7 +162,10 @@ class _UsageStatsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(tr('ai_admin.usage_stats'), style: theme.textTheme.titleMedium),
+            Text(
+              tr('ai_admin.usage_stats'),
+              style: theme.textTheme.titleMedium,
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -190,19 +194,26 @@ class _UsageStatsCard extends StatelessWidget {
             ),
             if (stats.providers.isNotEmpty) ...[
               const Divider(height: 24),
-              Text(tr('ai_admin.per_provider'), style: theme.textTheme.labelLarge),
+              Text(
+                tr('ai_admin.per_provider'),
+                style: theme.textTheme.labelLarge,
+              ),
               const SizedBox(height: 8),
-              ...stats.providers.map((p) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AiConfigModel.displayName(p.provider)),
-                    Text('${p.messages} msgs / ${_formatNumber(p.tokens)} tokens',
-                        style: theme.textTheme.bodySmall),
-                  ],
+              ...stats.providers.map(
+                (p) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(AiConfigModel.displayName(p.provider)),
+                      Text(
+                        '${p.messages} msgs / ${_formatNumber(p.tokens)} tokens',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
-              )),
+              ),
             ],
           ],
         ),
@@ -236,10 +247,17 @@ class _StatTile extends StatelessWidget {
       children: [
         Icon(icon, size: 24, color: theme.colorScheme.primary),
         const SizedBox(height: 4),
-        Text(value, style: theme.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-        )),
-        Text(label, style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
+        Text(
+          value,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
@@ -262,8 +280,10 @@ class _DefaultLimitsCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(tr('ai_admin.default_limits'),
-                    style: theme.textTheme.titleMedium),
+                Text(
+                  tr('ai_admin.default_limits'),
+                  style: theme.textTheme.titleMedium,
+                ),
                 IconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () => _showEditLimitsDialog(context),
@@ -289,9 +309,7 @@ class _DefaultLimitsCard extends StatelessWidget {
   }
 
   void _showEditLimitsDialog(BuildContext context) {
-    final dailyCtrl = TextEditingController(
-      text: limits.dailylimit.toString(),
-    );
+    final dailyCtrl = TextEditingController(text: limits.dailylimit.toString());
     final monthlyCtrl = TextEditingController(
       text: limits.monthlylimit.toString(),
     );
@@ -331,11 +349,13 @@ class _DefaultLimitsCard extends StatelessWidget {
             onPressed: () {
               final daily = int.tryParse(dailyCtrl.text) ?? 50;
               final monthly = int.tryParse(monthlyCtrl.text) ?? 1000;
-              context.read<AiAdminBloc>().add(SetAiUserLimits(
-                userid: 0,
-                dailylimit: daily,
-                monthlylimit: monthly,
-              ));
+              context.read<AiAdminBloc>().add(
+                SetAiUserLimits(
+                  userid: 0,
+                  dailylimit: daily,
+                  monthlylimit: monthly,
+                ),
+              );
               Navigator.pop(dialogCtx);
             },
             child: Text(tr('common.save')),
@@ -365,8 +385,8 @@ class _LimitBar extends StatelessWidget {
     final color = ratio < 0.7
         ? Colors.green
         : ratio < 0.9
-            ? Colors.orange
-            : theme.colorScheme.error;
+        ? Colors.orange
+        : theme.colorScheme.error;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,7 +539,9 @@ class _ProviderConfigFormState extends State<_ProviderConfigForm> {
         const SizedBox(height: 12),
         Row(
           children: [
-            Text('${tr("ai_admin.temperature")}: ${_temperature.toStringAsFixed(1)}'),
+            Text(
+              '${tr("ai_admin.temperature")}: ${_temperature.toStringAsFixed(1)}',
+            ),
             Expanded(
               child: Slider(
                 min: 0.0,
@@ -534,17 +556,19 @@ class _ProviderConfigFormState extends State<_ProviderConfigForm> {
         const SizedBox(height: 16),
         FilledButton(
           onPressed: () {
-            context.read<AiAdminBloc>().add(SaveAiProviderConfig(
-              config: AiConfigModel(
-                provider: widget.config.provider,
-                apikey: _apikeyCtrl.text.trim(),
-                model: _modelCtrl.text.trim(),
-                systemprompt: _promptCtrl.text.trim(),
-                maxtokens: int.tryParse(_maxTokensCtrl.text) ?? 1024,
-                temperature: _temperature,
-                enabled: _enabled,
+            context.read<AiAdminBloc>().add(
+              SaveAiProviderConfig(
+                config: AiConfigModel(
+                  provider: widget.config.provider,
+                  apikey: _apikeyCtrl.text.trim(),
+                  model: _modelCtrl.text.trim(),
+                  systemprompt: _promptCtrl.text.trim(),
+                  maxtokens: int.tryParse(_maxTokensCtrl.text) ?? 1024,
+                  temperature: _temperature,
+                  enabled: _enabled,
+                ),
               ),
-            ));
+            );
           },
           child: Text(tr('common.save')),
         ),
@@ -586,9 +610,7 @@ class _ChatHistorySheet extends StatelessWidget {
                 ),
                 if (messages.isEmpty)
                   Expanded(
-                    child: Center(
-                      child: Text(tr('ai_admin.no_history')),
-                    ),
+                    child: Center(child: Text(tr('ai_admin.no_history'))),
                   )
                 else
                   Expanded(

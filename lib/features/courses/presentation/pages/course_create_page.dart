@@ -55,18 +55,14 @@ class _CourseCreatePageState extends State<CourseCreatePage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(tr('admin.create_course')),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(tr('admin.create_course')), centerTitle: true),
       body: BlocConsumer<CourseCreateBloc, CourseCreateState>(
         listener: (context, state) {
           if (state is CourseCreateSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  tr('admin.course_created_success',
-                      args: [state.courseName]),
+                  tr('admin.course_created_success', args: [state.courseName]),
                 ),
                 backgroundColor: Colors.green,
               ),
@@ -89,8 +85,9 @@ class _CourseCreatePageState extends State<CourseCreatePage> {
           List<CourseCategoryModel> categories = [];
           if (state is CategoriesLoadedForCreate) {
             categories = state.categories;
-            _selectedCategoryId ??=
-                categories.isNotEmpty ? categories.first.id : null;
+            _selectedCategoryId ??= categories.isNotEmpty
+                ? categories.first.id
+                : null;
           }
 
           final isSubmitting = state is CourseCreateSubmitting;
@@ -228,7 +225,9 @@ class _CourseCreatePageState extends State<CourseCreatePage> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: tr('admin.course_num_sections'),
-                              prefixIcon: const Icon(Icons.format_list_numbered),
+                              prefixIcon: const Icon(
+                                Icons.format_list_numbered,
+                              ),
                               border: const OutlineInputBorder(),
                             ),
                           ),
@@ -342,25 +341,24 @@ class _CourseCreatePageState extends State<CourseCreatePage> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('admin.select_category'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(tr('admin.select_category'))));
       return;
     }
 
     context.read<CourseCreateBloc>().add(
-          SubmitCourseCreate(
-            fullName: _fullNameController.text.trim(),
-            shortName: _shortNameController.text.trim(),
-            categoryId: _selectedCategoryId!,
-            summary: _summaryController.text.trim(),
-            visible: _visible,
-            startDate: _startDate,
-            endDate: _endDate,
-            format: _format,
-            numSections:
-                int.tryParse(_numSectionsController.text.trim()),
-          ),
-        );
+      SubmitCourseCreate(
+        fullName: _fullNameController.text.trim(),
+        shortName: _shortNameController.text.trim(),
+        categoryId: _selectedCategoryId!,
+        summary: _summaryController.text.trim(),
+        visible: _visible,
+        startDate: _startDate,
+        endDate: _endDate,
+        format: _format,
+        numSections: int.tryParse(_numSectionsController.text.trim()),
+      ),
+    );
   }
 }

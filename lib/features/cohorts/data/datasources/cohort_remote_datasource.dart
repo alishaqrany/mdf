@@ -173,11 +173,7 @@ class CohortRemoteDataSourceImpl implements CohortRemoteDataSource {
   }) async {
     final response = await apiClient.call(
       MoodleApiEndpoints.mdfSyncCohortToCourse,
-      params: {
-        'cohortid': cohortid,
-        'courseid': courseid,
-        'roleid': roleid,
-      },
+      params: {'cohortid': cohortid, 'courseid': courseid, 'roleid': roleid},
     );
     return response is Map<String, dynamic> ? response : {'success': true};
   }
@@ -205,9 +201,7 @@ class CohortRemoteDataSourceImpl implements CohortRemoteDataSource {
 
     if (response is Map<String, dynamic> && response.containsKey('syncs')) {
       return (response['syncs'] as List)
-          .map(
-            (e) => CohortCourseSyncModel.fromJson(e as Map<String, dynamic>),
-          )
+          .map((e) => CohortCourseSyncModel.fromJson(e as Map<String, dynamic>))
           .toList();
     }
     return [];

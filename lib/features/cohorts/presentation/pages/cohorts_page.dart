@@ -89,12 +89,14 @@ class _CohortsViewState extends State<_CohortsView> {
             FilledButton(
               onPressed: () {
                 if (nameCtrl.text.trim().isEmpty) return;
-                outerContext.read<CohortBloc>().add(CreateCohort(
-                  name: nameCtrl.text.trim(),
-                  idnumber: idnumberCtrl.text.trim(),
-                  description: descCtrl.text.trim(),
-                  visible: visible,
-                ));
+                outerContext.read<CohortBloc>().add(
+                  CreateCohort(
+                    name: nameCtrl.text.trim(),
+                    idnumber: idnumberCtrl.text.trim(),
+                    description: descCtrl.text.trim(),
+                    visible: visible,
+                  ),
+                );
                 Navigator.pop(dialogCtx);
               },
               child: Text(tr('common.create')),
@@ -159,9 +161,9 @@ class _CohortsViewState extends State<_CohortsView> {
                   );
                 }
                 if (state is CohortActionSuccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
                 }
               },
               builder: (context, state) {

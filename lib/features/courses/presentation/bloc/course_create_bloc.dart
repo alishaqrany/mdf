@@ -15,7 +15,7 @@ class CourseCreateBloc extends Bloc<CourseCreateEvent, CourseCreateState> {
   final CoursesRemoteDataSource coursesDataSource;
 
   CourseCreateBloc({required this.apiClient, required this.coursesDataSource})
-      : super(CourseCreateInitial()) {
+    : super(CourseCreateInitial()) {
     on<LoadCategoriesForCreate>(_onLoadCategories);
     on<SubmitCourseCreate>(_onSubmit);
   }
@@ -81,10 +81,9 @@ class CourseCreateBloc extends Bloc<CourseCreateEvent, CourseCreateState> {
         newCourseId = (response.first as Map<String, dynamic>)['id'] as int?;
       }
 
-      emit(CourseCreateSuccess(
-        courseId: newCourseId,
-        courseName: event.fullName,
-      ));
+      emit(
+        CourseCreateSuccess(courseId: newCourseId, courseName: event.fullName),
+      );
     } catch (e) {
       final failure = MdfErrorHandler.handleException(
         e,

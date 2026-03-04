@@ -398,10 +398,12 @@ Future<void> initDependencies() async {
   sl.registerFactory(() => AiAdminBloc(dataSource: sl()));
 
   // ─── Course Create ───
-  sl.registerFactory(() => CourseCreateBloc(
-    apiClient: sl(),
-    coursesDataSource: sl<CoursesRemoteDataSource>(),
-  ));
+  sl.registerFactory(
+    () => CourseCreateBloc(
+      apiClient: sl(),
+      coursesDataSource: sl<CoursesRemoteDataSource>(),
+    ),
+  );
 
   // ─── Social Feature ───
   sl.registerLazySingleton<SocialRemoteDataSource>(

@@ -43,11 +43,7 @@ abstract class AiRemoteDataSource {
   Future<AiUserLimitModel> getAiUserLimit({int userid});
 
   /// Set AI usage limits for a user.
-  Future<void> setAiUserLimit({
-    int userid,
-    int dailylimit,
-    int monthlylimit,
-  });
+  Future<void> setAiUserLimit({int userid, int dailylimit, int monthlylimit});
 }
 
 class AiRemoteDataSourceImpl implements AiRemoteDataSource {
@@ -62,10 +58,7 @@ class AiRemoteDataSourceImpl implements AiRemoteDataSource {
     String? provider,
     String locale = 'en',
   }) async {
-    final params = <String, dynamic>{
-      'message': message,
-      'locale': locale,
-    };
+    final params = <String, dynamic>{'message': message, 'locale': locale};
     if (provider != null) params['provider'] = provider;
 
     // Encode history as indexed params
@@ -122,8 +115,7 @@ class AiRemoteDataSourceImpl implements AiRemoteDataSource {
       params: params,
     );
 
-    if (response is Map<String, dynamic> &&
-        response.containsKey('messages')) {
+    if (response is Map<String, dynamic> && response.containsKey('messages')) {
       return (response['messages'] as List)
           .map((e) => AiMessageModel.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -138,8 +130,7 @@ class AiRemoteDataSourceImpl implements AiRemoteDataSource {
       params: {},
     );
 
-    if (response is Map<String, dynamic> &&
-        response.containsKey('configs')) {
+    if (response is Map<String, dynamic> && response.containsKey('configs')) {
       return (response['configs'] as List)
           .map((e) => AiConfigModel.fromJson(e as Map<String, dynamic>))
           .toList();

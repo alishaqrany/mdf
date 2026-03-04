@@ -30,11 +30,9 @@ class AiAdminBloc extends Bloc<AiAdminEvent, AiAdminState> {
       final stats = await dataSource.getAiUsageStats();
       final limits = await dataSource.getAiUserLimit(userid: 0);
 
-      emit(AiAdminLoaded(
-        configs: configs,
-        stats: stats,
-        defaultLimits: limits,
-      ));
+      emit(
+        AiAdminLoaded(configs: configs, stats: stats, defaultLimits: limits),
+      );
     } catch (e) {
       emit(AiAdminError(message: e.toString()));
     }
