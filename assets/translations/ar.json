@@ -71,7 +71,26 @@
     "pending_tasks": "مهام معلقة",
     "failed_tasks": "فشلت (24 ساعة)",
     "ai_settings": "إعدادات الذكاء الاصطناعي",
-    "ai_usage": "استخدام الذكاء الاصطناعي"
+    "ai_usage": "استخدام الذكاء الاصطناعي",
+    "course_basic_info": "المعلومات الأساسية",
+    "course_full_name": "اسم المقرر الكامل",
+    "course_short_name": "الاسم المختصر",
+    "course_category": "التصنيف",
+    "course_description": "الوصف",
+    "course_summary": "ملخص المقرر",
+    "course_settings": "الإعدادات",
+    "course_format": "تنسيق المقرر",
+    "course_num_sections": "عدد الأقسام",
+    "course_visible": "مرئي للطلاب",
+    "course_visible_hint": "يمكن للطلاب رؤية هذا المقرر والوصول إليه",
+    "course_dates": "تواريخ المقرر",
+    "course_start_date": "تاريخ البدء",
+    "course_end_date": "تاريخ الانتهاء",
+    "not_set": "غير محدد",
+    "course_created_success": "تم إنشاء المقرر '{}' بنجاح",
+    "field_required": "هذا الحقل مطلوب",
+    "creating": "جاري الإنشاء...",
+    "select_category": "يرجى اختيار التصنيف"
   },
   "courses": {
     "title": "المقررات",
@@ -102,7 +121,10 @@
     "no_courses_found": "لم يتم العثور على مقررات",
     "course_content": "محتوى المقرر",
     "sections": "{} أقسام",
-    "activities": "{} أنشطة"
+    "activities": "{} أنشطة",
+    "no_completed": "لا توجد مقررات مكتملة",
+    "no_courses": "لا توجد مقررات متاحة",
+    "no_in_progress": "لا توجد مقررات قيد التقدم"
   },
   "content": {
     "video": "فيديو",
@@ -170,7 +192,9 @@
     "not_submitted": "لم يتم التسليم",
     "graded": "تم التقييم",
     "submit_assignment": "تسليم الواجب",
-    "upload_file": "رفع ملف",    "upload_image": "تحديد صورة",    "add_text": "إضافة نص",
+    "upload_file": "رفع ملف",
+    "upload_image": "تحديد صورة",
+    "add_text": "إضافة نص",
     "submission_status": "حالة التسليم",
     "grading_status": "حالة التقييم",
     "feedback": "الملاحظات",
@@ -633,7 +657,8 @@
     "social_learning": "التعلم الاجتماعي",
     "social_desc": "مجموعات دراسية وملاحظات ومراجعة أقران",
     "groups_count": "المجموعات",
-    "reviews_pending": "مراجعات معلقة"
+    "reviews_pending": "مراجعات معلقة",
+    "plugin_required": "يتطلب تفعيل إضافة التعلم الاجتماعي"
   },
   "gamification": {
     "title": "التلعيب",
@@ -682,5 +707,11 @@
     "error_title": "خطأ",
     "gamification_hub": "التلعيب",
     "gamification_desc": "نقاط وشارات ولوحة متصدرين"
+  },
+  "quizzes": {
+    "title": "الاختبارات"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب"
   }
 }

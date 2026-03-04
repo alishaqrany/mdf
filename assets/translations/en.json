@@ -71,7 +71,26 @@
     "pending_tasks": "Pending Tasks",
     "failed_tasks": "Failed (24h)",
     "ai_settings": "AI Settings",
-    "ai_usage": "AI Usage"
+    "ai_usage": "AI Usage",
+    "course_basic_info": "Basic Information",
+    "course_full_name": "Course Full Name",
+    "course_short_name": "Course Short Name",
+    "course_category": "Category",
+    "course_description": "Description",
+    "course_summary": "Course Summary",
+    "course_settings": "Settings",
+    "course_format": "Course Format",
+    "course_num_sections": "Number of Sections",
+    "course_visible": "Visible to Students",
+    "course_visible_hint": "Students can see and access this course",
+    "course_dates": "Course Dates",
+    "course_start_date": "Start Date",
+    "course_end_date": "End Date",
+    "not_set": "Not set",
+    "course_created_success": "Course '{}' created successfully",
+    "field_required": "This field is required",
+    "creating": "Creating...",
+    "select_category": "Please select a category"
   },
   "courses": {
     "title": "Courses",
@@ -102,7 +121,10 @@
     "no_courses_found": "No courses found",
     "course_content": "Course Content",
     "sections": "{} sections",
-    "activities": "{} activities"
+    "activities": "{} activities",
+    "no_completed": "No completed courses",
+    "no_courses": "No courses available",
+    "no_in_progress": "No courses in progress"
   },
   "content": {
     "video": "Video",
@@ -170,7 +192,9 @@
     "not_submitted": "Not Submitted",
     "graded": "Graded",
     "submit_assignment": "Submit Assignment",
-    "upload_file": "Upload File",    "upload_image": "Upload Image",    "add_text": "Add Text Submission",
+    "upload_file": "Upload File",
+    "upload_image": "Upload Image",
+    "add_text": "Add Text Submission",
     "submission_status": "Submission Status",
     "grading_status": "Grading Status",
     "feedback": "Feedback",
@@ -633,7 +657,8 @@
     "social_learning": "Social Learning",
     "social_desc": "Study groups, notes & peer review",
     "groups_count": "Groups",
-    "reviews_pending": "Reviews Pending"
+    "reviews_pending": "Reviews Pending",
+    "plugin_required": "Social plugin is required for this feature"
   },
   "gamification": {
     "title": "Gamification",
@@ -682,5 +707,11 @@
     "error_title": "Error",
     "gamification_hub": "Gamification",
     "gamification_desc": "Points, badges & leaderboard"
+  },
+  "quizzes": {
+    "title": "Quizzes"
+  },
+  "validation": {
+    "required": "This field is required"
   }
 }

@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../courses/domain/entities/course.dart';
+import '../../../calendar/domain/entities/calendar_event.dart';
 import '../../../ai/presentation/bloc/ai_insights_bloc.dart';
 import '../bloc/student_dashboard_bloc.dart';
 
@@ -144,6 +146,71 @@ class _StudentDashboardView extends StatelessWidget {
                           child: _QuickAccessGrid(userId: user?.id ?? 0),
                         ),
                       ),
+
+                      // ─── Upcoming Events ───
+                      if (state.upcomingEvents.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 160),
+                            child: _SectionHeader(
+                              title: tr('dashboard.upcoming_events'),
+                              onViewAll: () =>
+                                  context.go('/student/calendar'),
+                            ),
+                          ),
+                        ),
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 170),
+                            child: _UpcomingEventsPreview(
+                              events: state.upcomingEvents,
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      // ─── Recommended Courses ───
+                      if (state.recommendedCourses.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 172),
+                            child: _SectionHeader(
+                              title: tr('dashboard.recommended'),
+                              onViewAll: () =>
+                                  context.go('/student/courses'),
+                            ),
+                          ),
+                        ),
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 174),
+                            child: SizedBox(
+                              height: 200,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                itemCount:
+                                    state.recommendedCourses.length.clamp(
+                                      0,
+                                      10,
+                                    ),
+                                itemBuilder: (context, index) =>
+                                    _ContinueLearningCard(
+                                      course:
+                                          state.recommendedCourses[index],
+                                      cardWidth: isWide ? 320 : 280,
+                                    ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
 
                       // ─── AI Insights Preview ───
                       SliverToBoxAdapter(
@@ -1104,6 +1171,84 @@ class _AiMetricChip extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Upcoming Events Preview ───
+class _UpcomingEventsPreview extends StatelessWidget {
+  final List<CalendarEvent> events;
+
+  const _UpcomingEventsPreview({required this.events});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final displayEvents = events.take(3).toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: displayEvents.map((event) {
+          final dateTime = event.startDateTime;
+          final timeStr = DateFormat.jm().format(dateTime);
+          final dateStr = DateFormat.MMMd().format(dateTime);
+
+          IconData icon;
+          Color color;
+          switch (event.eventType) {
+            case 'course':
+              icon = Icons.school_rounded;
+              color = AppColors.primary;
+              break;
+            case 'user':
+              icon = Icons.person_rounded;
+              color = AppColors.info;
+              break;
+            case 'site':
+              icon = Icons.public_rounded;
+              color = AppColors.accent;
+              break;
+            default:
+              icon = Icons.event_rounded;
+              color = AppColors.warning;
+          }
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              title: Text(
+                event.name,
+                style: theme.textTheme.titleSmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                '$dateStr • $timeStr'
+                '${event.courseName != null ? ' • ${event.courseName}' : ''}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondaryLight,
+                ),
+              ),
+              trailing: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: AppColors.textTertiaryLight,
+              ),
+              onTap: () => context.push('/student/calendar'),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
