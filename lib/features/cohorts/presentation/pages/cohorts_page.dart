@@ -33,6 +33,78 @@ class _CohortsView extends StatefulWidget {
 class _CohortsViewState extends State<_CohortsView> {
   final _searchController = TextEditingController();
 
+  void _showCreateCohortDialog(BuildContext outerContext) {
+    final nameCtrl = TextEditingController();
+    final idnumberCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+    bool visible = true;
+
+    showDialog(
+      context: outerContext,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text(tr('cohorts.create')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: tr('cohorts.name'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: idnumberCtrl,
+                  decoration: InputDecoration(
+                    labelText: tr('cohorts.idnumber'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descCtrl,
+                  decoration: InputDecoration(
+                    labelText: tr('cohorts.description_label'),
+                    border: const OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  title: Text(tr('cohorts.visible')),
+                  value: visible,
+                  onChanged: (v) => setDialogState(() => visible = v),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: Text(tr('common.cancel')),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (nameCtrl.text.trim().isEmpty) return;
+                outerContext.read<CohortBloc>().add(CreateCohort(
+                  name: nameCtrl.text.trim(),
+                  idnumber: idnumberCtrl.text.trim(),
+                  description: descCtrl.text.trim(),
+                  visible: visible,
+                ));
+                Navigator.pop(dialogCtx);
+              },
+              child: Text(tr('common.create')),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -44,6 +116,11 @@ class _CohortsViewState extends State<_CohortsView> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(tr('cohorts.title'))),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showCreateCohortDialog(context),
+        icon: const Icon(Icons.group_add_rounded),
+        label: Text(tr('cohorts.create')),
+      ),
       body: Column(
         children: [
           // Search bar
@@ -79,6 +156,11 @@ class _CohortsViewState extends State<_CohortsView> {
                       content: Text(state.message),
                       backgroundColor: theme.colorScheme.error,
                     ),
+                  );
+                }
+                if (state is CohortActionSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
                   );
                 }
               },
@@ -204,6 +286,34 @@ class _CohortCard extends StatelessWidget {
             extra: {'cohortName': cohort.name},
           );
         },
+        onLongPress: () => _confirmDelete(context),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(tr('cohorts.delete_title')),
+        content: Text(tr('cohorts.delete_confirm', args: [cohort.name])),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: Text(tr('common.cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogCtx);
+              context.read<CohortBloc>().add(DeleteCohort(cohortid: cohort.id));
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+            ),
+            child: Text(tr('common.delete')),
+          ),
+        ],
       ),
     );
   }

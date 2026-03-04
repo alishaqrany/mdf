@@ -68,3 +68,36 @@ class CohortMemberModel extends Equatable {
   @override
   List<Object?> get props => [userid];
 }
+
+/// Model for a cohort-to-course sync (enrolment method).
+class CohortCourseSyncModel extends Equatable {
+  final int enrolid;
+  final int courseid;
+  final String fullname;
+  final String shortname;
+  final int roleid;
+  final int status;
+
+  const CohortCourseSyncModel({
+    required this.enrolid,
+    required this.courseid,
+    required this.fullname,
+    this.shortname = '',
+    this.roleid = 5,
+    this.status = 0,
+  });
+
+  factory CohortCourseSyncModel.fromJson(Map<String, dynamic> json) {
+    return CohortCourseSyncModel(
+      enrolid: json['enrolid'] as int? ?? 0,
+      courseid: json['courseid'] as int? ?? 0,
+      fullname: json['fullname'] as String? ?? '',
+      shortname: json['shortname'] as String? ?? '',
+      roleid: json['roleid'] as int? ?? 5,
+      status: json['status'] as int? ?? 0,
+    );
+  }
+
+  @override
+  List<Object?> get props => [enrolid, courseid];
+}

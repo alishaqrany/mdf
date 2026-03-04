@@ -183,4 +183,36 @@ $capabilities = [
         ],
         'riskbitmask'  => RISK_CONFIG,
     ],
+
+    // ─── Course Management capabilities ───
+    'local/mdf_api:managecourses' => [
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'manager'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+        ],
+        'riskbitmask'  => RISK_CONFIG,
+    ],
+
+    // ─── AI capabilities ───
+    'local/mdf_api:manageai' => [
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'manager' => CAP_ALLOW,
+        ],
+        'riskbitmask'  => RISK_CONFIG,
+    ],
+    'local/mdf_api:useai' => [
+        'captype'      => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'user'           => CAP_ALLOW,
+            'student'        => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ],
+    ],
 ];

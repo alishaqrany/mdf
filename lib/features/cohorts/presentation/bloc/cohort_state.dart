@@ -51,3 +51,16 @@ class CohortActionSuccess extends CohortState {
   @override
   List<Object?> get props => [message];
 }
+
+class CohortCourseSyncsLoaded extends CohortState {
+  final int cohortid;
+  final List<CohortCourseSyncModel> syncs;
+
+  const CohortCourseSyncsLoaded({
+    required this.cohortid,
+    required this.syncs,
+  });
+
+  @override
+  List<Object?> get props => [cohortid, syncs];
+}

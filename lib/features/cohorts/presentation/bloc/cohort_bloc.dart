@@ -22,6 +22,11 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
     on<LoadCohortMembers>(_onLoadMembers);
     on<AddMembersToCohort>(_onAddMembers);
     on<RemoveMembersFromCohort>(_onRemoveMembers);
+    on<CreateCohort>(_onCreateCohort);
+    on<DeleteCohort>(_onDeleteCohort);
+    on<SyncCohortToCourse>(_onSyncCohort);
+    on<UnsyncCohortFromCourse>(_onUnsyncCohort);
+    on<LoadCohortCourseSyncs>(_onLoadSyncs);
   }
 
   Future<void> _onLoadCohorts(
@@ -112,4 +117,102 @@ class CohortBloc extends Bloc<CohortEvent, CohortState> {
 
   /// Set the current cohort name for display in member views.
   void setCohortName(String name) => _currentCohortName = name;
+
+  Future<void> _onCreateCohort(
+    CreateCohort event,
+    Emitter<CohortState> emit,
+  ) async {
+    emit(CohortLoading());
+    try {
+      await _dataSource.createCohort(
+        name: event.name,
+        idnumber: event.idnumber,
+        description: event.description,
+        visible: event.visible,
+      );
+      emit(const CohortActionSuccess(message: 'Cohort created successfully'));
+      add(const LoadCohorts());
+    } catch (e) {
+      final failure = MdfErrorHandler.handleException(
+        e, featureName: 'الدفعات (Cohorts)',
+      );
+      emit(CohortError(message: failure.message));
+    }
+  }
+
+  Future<void> _onDeleteCohort(
+    DeleteCohort event,
+    Emitter<CohortState> emit,
+  ) async {
+    try {
+      await _dataSource.deleteCohort(cohortid: event.cohortid);
+      emit(const CohortActionSuccess(message: 'Cohort deleted'));
+      add(const LoadCohorts());
+    } catch (e) {
+      final failure = MdfErrorHandler.handleException(
+        e, featureName: 'الدفعات (Cohorts)',
+      );
+      emit(CohortError(message: failure.message));
+    }
+  }
+
+  Future<void> _onSyncCohort(
+    SyncCohortToCourse event,
+    Emitter<CohortState> emit,
+  ) async {
+    try {
+      await _dataSource.syncCohortToCourse(
+        cohortid: event.cohortid,
+        courseid: event.courseid,
+        roleid: event.roleid,
+      );
+      emit(const CohortActionSuccess(message: 'Cohort synced to course'));
+      add(LoadCohortCourseSyncs(cohortid: event.cohortid));
+    } catch (e) {
+      final failure = MdfErrorHandler.handleException(
+        e, featureName: 'الدفعات (Cohorts)',
+      );
+      emit(CohortError(message: failure.message));
+    }
+  }
+
+  Future<void> _onUnsyncCohort(
+    UnsyncCohortFromCourse event,
+    Emitter<CohortState> emit,
+  ) async {
+    try {
+      await _dataSource.unsyncCohortFromCourse(
+        cohortid: event.cohortid,
+        courseid: event.courseid,
+      );
+      emit(const CohortActionSuccess(message: 'Sync removed'));
+      add(LoadCohortCourseSyncs(cohortid: event.cohortid));
+    } catch (e) {
+      final failure = MdfErrorHandler.handleException(
+        e, featureName: 'الدفعات (Cohorts)',
+      );
+      emit(CohortError(message: failure.message));
+    }
+  }
+
+  Future<void> _onLoadSyncs(
+    LoadCohortCourseSyncs event,
+    Emitter<CohortState> emit,
+  ) async {
+    emit(CohortLoading());
+    try {
+      final syncs = await _dataSource.getCohortCourseSyncs(
+        cohortid: event.cohortid,
+      );
+      emit(CohortCourseSyncsLoaded(
+        cohortid: event.cohortid,
+        syncs: syncs,
+      ));
+    } catch (e) {
+      final failure = MdfErrorHandler.handleException(
+        e, featureName: 'الدفعات (Cohorts)',
+      );
+      emit(CohortError(message: failure.message));
+    }
+  }
 }

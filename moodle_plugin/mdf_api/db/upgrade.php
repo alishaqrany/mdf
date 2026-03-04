@@ -449,5 +449,83 @@ function xmldb_local_mdf_api_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026030300, 'local', 'mdf_api');
     }
 
+    // =====================================================================
+    // v2.2.0 — AI Management + Enhanced Cohort/Course Management.
+    // =====================================================================
+    if ($oldversion < 2026030400) {
+
+        // 1. local_mdf_ai_config — AI provider configuration.
+        $table = new xmldb_table('local_mdf_ai_config');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id',           XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('provider',     XMLDB_TYPE_CHAR,   '50', null, XMLDB_NOTNULL);
+            $table->add_field('apikey',       XMLDB_TYPE_TEXT,    null, null, XMLDB_NOTNULL);
+            $table->add_field('model',        XMLDB_TYPE_CHAR,  '100', null, null);
+            $table->add_field('systemprompt', XMLDB_TYPE_TEXT,    null, null, null);
+            $table->add_field('maxtokens',    XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1024');
+            $table->add_field('temperature',  XMLDB_TYPE_NUMBER,  '4',  null, XMLDB_NOTNULL, null, '0.70');
+            $table->add_field('enabled',      XMLDB_TYPE_INTEGER, '1',  null, XMLDB_NOTNULL, null, '1');
+            $table->add_field('timecreated',  XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('provider_unique', XMLDB_INDEX_UNIQUE, ['provider']);
+
+            $dbman->create_table($table);
+        }
+
+        // 2. local_mdf_ai_messages — chat history.
+        $table = new xmldb_table('local_mdf_ai_messages');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id',          XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('userid',      XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $table->add_field('role',        XMLDB_TYPE_CHAR,   '20', null, XMLDB_NOTNULL);
+            $table->add_field('content',     XMLDB_TYPE_TEXT,    null, null, XMLDB_NOTNULL);
+            $table->add_field('provider',    XMLDB_TYPE_CHAR,   '50', null, XMLDB_NOTNULL, null, 'local');
+            $table->add_field('tokensused',  XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+            $table->add_index('userid_time_idx', XMLDB_INDEX_NOTUNIQUE, ['userid', 'timecreated']);
+            $table->add_index('provider_idx', XMLDB_INDEX_NOTUNIQUE, ['provider']);
+
+            $dbman->create_table($table);
+        }
+
+        // 3. local_mdf_ai_limits — per-user message limits.
+        $table = new xmldb_table('local_mdf_ai_limits');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id',           XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('userid',       XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('dailylimit',   XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '50');
+            $table->add_field('monthlylimit', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1000');
+            $table->add_field('dailycount',   XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('monthlycount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('lastreset',    XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('userid_unique', XMLDB_INDEX_UNIQUE, ['userid']);
+
+            $dbman->create_table($table);
+        }
+
+        // Seed default AI limits (userid=0 = system defaults).
+        if (!$DB->record_exists('local_mdf_ai_limits', ['userid' => 0])) {
+            $DB->insert_record('local_mdf_ai_limits', (object)[
+                'userid'       => 0,
+                'dailylimit'   => 50,
+                'monthlylimit' => 1000,
+                'dailycount'   => 0,
+                'monthlycount' => 0,
+                'lastreset'    => time(),
+                'timemodified' => time(),
+            ]);
+        }
+
+        upgrade_plugin_savepoint(true, 2026030400, 'local', 'mdf_api');
+    }
+
     return true;
 }

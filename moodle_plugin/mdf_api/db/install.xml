@@ -384,5 +384,68 @@
         <INDEX NAME="course_target_unique" UNIQUE="true" FIELDS="courseid,targettype,targetid"/>
       </INDEXES>
     </TABLE>
+
+    <!-- ─── AI: Provider Configuration ─── -->
+    <TABLE NAME="local_mdf_ai_config" COMMENT="AI provider API keys and settings">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="provider" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="gemini|mistral|cohere|openrouter|groq"/>
+        <FIELD NAME="apikey" TYPE="text" NOTNULL="true" COMMENT="Encrypted API key"/>
+        <FIELD NAME="model" TYPE="char" LENGTH="100" NOTNULL="false" COMMENT="Model identifier"/>
+        <FIELD NAME="systemprompt" TYPE="text" NOTNULL="false" COMMENT="System prompt for the provider"/>
+        <FIELD NAME="maxtokens" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1024"/>
+        <FIELD NAME="temperature" TYPE="number" LENGTH="4" DECIMALS="2" NOTNULL="true" DEFAULT="0.70"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="provider_unique" UNIQUE="true" FIELDS="provider"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── AI: Chat Messages ─── -->
+    <TABLE NAME="local_mdf_ai_messages" COMMENT="Persisted AI chat messages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="20" NOTNULL="true" COMMENT="user|assistant|system"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="provider" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="local"/>
+        <FIELD NAME="tokensused" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_time_idx" UNIQUE="false" FIELDS="userid,timecreated"/>
+        <INDEX NAME="provider_idx" UNIQUE="false" FIELDS="provider"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── AI: User Limits ─── -->
+    <TABLE NAME="local_mdf_ai_limits" COMMENT="Per-user AI message limits and counters">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="0 = system defaults"/>
+        <FIELD NAME="dailylimit" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="50"/>
+        <FIELD NAME="monthlylimit" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1000"/>
+        <FIELD NAME="dailycount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="monthlycount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lastreset" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

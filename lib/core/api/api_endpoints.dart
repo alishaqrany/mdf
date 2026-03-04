@@ -233,4 +233,22 @@ class MoodleApiEndpoints {
   static const String mdfAddCohortMembers = 'local_mdf_api_add_cohort_members';
   static const String mdfRemoveCohortMembers =
       'local_mdf_api_remove_cohort_members';
+  static const String mdfCreateCohort = 'local_mdf_api_create_cohort';
+  static const String mdfDeleteCohort = 'local_mdf_api_delete_cohort';
+  static const String mdfSyncCohortToCourse =
+      'local_mdf_api_sync_cohort_to_course';
+  static const String mdfUnsyncCohortFromCourse =
+      'local_mdf_api_unsync_cohort_from_course';
+  static const String mdfGetCohortCourseSyncs =
+      'local_mdf_api_get_cohort_course_syncs';
+
+  // ─── AI Management (local_mdf_api) ───
+  static const String mdfSaveAiConfig = 'local_mdf_api_save_ai_config';
+  static const String mdfGetAiConfig = 'local_mdf_api_get_ai_config';
+  static const String mdfSaveChatMessage = 'local_mdf_api_save_chat_message';
+  static const String mdfGetChatHistory = 'local_mdf_api_get_chat_history';
+  static const String mdfGetAiUsageStats = 'local_mdf_api_get_ai_usage_stats';
+  static const String mdfSetAiUserLimit = 'local_mdf_api_set_ai_user_limit';
+  static const String mdfGetAiUserLimit = 'local_mdf_api_get_ai_user_limit';
+  static const String mdfProxyAiRequest = 'local_mdf_api_proxy_ai_request';
 }

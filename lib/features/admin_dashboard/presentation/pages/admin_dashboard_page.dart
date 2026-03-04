@@ -323,7 +323,8 @@ class _AdminDashboardViewState extends State<_AdminDashboardView> {
                                 _QuickActionChip(
                                   icon: Icons.add_box_rounded,
                                   label: tr('admin.create_course'),
-                                  onTap: () {},
+                                  onTap: () =>
+                                      context.push('/admin/courses/create'),
                                 ),
                                 _QuickActionChip(
                                   icon: Icons.group_add_rounded,
@@ -351,6 +352,12 @@ class _AdminDashboardViewState extends State<_AdminDashboardView> {
                                   icon: Icons.groups_rounded,
                                   label: tr('admin.manage_cohorts'),
                                   onTap: () => context.push('/admin/cohorts'),
+                                ),
+                                _QuickActionChip(
+                                  icon: Icons.smart_toy_rounded,
+                                  label: tr('admin.ai_settings'),
+                                  onTap: () =>
+                                      context.push('/admin/ai-settings'),
                                 ),
                               ],
                             ),

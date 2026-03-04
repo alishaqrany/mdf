@@ -112,10 +112,12 @@ import '../../features/downloads/presentation/bloc/downloads_bloc.dart';
 
 // ─── AI Features ───
 import '../../features/ai/data/ai_engine.dart';
+import '../../features/ai/data/datasources/ai_remote_datasource.dart';
 import '../../features/ai/data/repositories/ai_repository_impl.dart';
 import '../../features/ai/domain/repositories/ai_repository.dart';
 import '../../features/ai/presentation/bloc/ai_insights_bloc.dart';
 import '../../features/ai/presentation/bloc/ai_chat_bloc.dart';
+import '../../features/ai/presentation/bloc/ai_admin_bloc.dart';
 
 // ─── Social Features ───
 import '../../features/social/data/datasources/social_remote_datasource.dart';
@@ -141,6 +143,9 @@ import '../../features/course_visibility/data/datasources/course_visibility_remo
 
 // ─── Cohorts ───
 import '../../features/cohorts/presentation/bloc/cohort_bloc.dart';
+
+// ─── Course Create ───
+import '../../features/courses/presentation/bloc/course_create_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -375,6 +380,9 @@ Future<void> initDependencies() async {
 
   // ─── AI Feature ───
   sl.registerLazySingleton(() => AiEngine(apiClient: sl()));
+  sl.registerLazySingleton<AiRemoteDataSource>(
+    () => AiRemoteDataSourceImpl(apiClient: sl()),
+  );
   sl.registerLazySingleton<AiRepository>(
     () => AiRepositoryImpl(
       aiEngine: sl(),
@@ -382,10 +390,18 @@ Future<void> initDependencies() async {
       courseContentRepository: sl(),
       gradeRepository: sl(),
       networkInfo: sl(),
+      aiRemoteDataSource: sl<AiRemoteDataSource>(),
     ),
   );
   sl.registerFactory(() => AiInsightsBloc(repository: sl()));
   sl.registerFactory(() => AiChatBloc(repository: sl()));
+  sl.registerFactory(() => AiAdminBloc(dataSource: sl()));
+
+  // ─── Course Create ───
+  sl.registerFactory(() => CourseCreateBloc(
+    apiClient: sl(),
+    coursesDataSource: sl<CoursesRemoteDataSource>(),
+  ));
 
   // ─── Social Feature ───
   sl.registerLazySingleton<SocialRemoteDataSource>(

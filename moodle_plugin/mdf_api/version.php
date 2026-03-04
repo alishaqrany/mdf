@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026030300;        // YYYYMMDDXX format.
+$plugin->version   = 2026030400;        // YYYYMMDDXX format.
 $plugin->requires  = 2022112800;        // Moodle 4.1+.
 $plugin->component = 'local_mdf_api';   // Full name of the plugin.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.1.1';           // Service/core function sync + cohorts/visibility fixes.
+$plugin->release   = '2.2.0';           // AI management + enhanced cohort/course management.

@@ -10,6 +10,7 @@ import '../../../grades/domain/repositories/grade_repository.dart';
 import '../../domain/entities/ai_entities.dart';
 import '../../domain/repositories/ai_repository.dart';
 import '../ai_engine.dart';
+import '../datasources/ai_remote_datasource.dart';
 
 class AiRepositoryImpl implements AiRepository {
   final AiEngine aiEngine;
@@ -17,6 +18,8 @@ class AiRepositoryImpl implements AiRepository {
   final CourseContentRepository courseContentRepository;
   final GradeRepository gradeRepository;
   final NetworkInfo networkInfo;
+  final AiRemoteDataSource? aiRemoteDataSource;
+  final String locale;
 
   AiRepositoryImpl({
     required this.aiEngine,
@@ -24,6 +27,8 @@ class AiRepositoryImpl implements AiRepository {
     required this.courseContentRepository,
     required this.gradeRepository,
     required this.networkInfo,
+    this.aiRemoteDataSource,
+    this.locale = 'en',
   });
 
   // Cache to avoid re-fetching within the same session
@@ -146,6 +151,56 @@ class AiRepositoryImpl implements AiRepository {
     String message,
     List<AiChatMessage> history,
   ) async {
+    // Try server-side AI proxy first
+    if (aiRemoteDataSource != null) {
+      try {
+        final historyMaps = history
+            .map((m) => {
+                  'role': m.isUser ? 'user' : 'assistant',
+                  'content': m.content,
+                })
+            .toList();
+
+        final proxyResponse = await aiRemoteDataSource!.proxyAiRequest(
+          message: message,
+          history: historyMaps,
+          locale: locale,
+        );
+
+        if (proxyResponse.success && proxyResponse.content.isNotEmpty) {
+          // Save messages to server for history tracking
+          try {
+            await aiRemoteDataSource!.saveChatMessage(
+              userid: userId,
+              role: 'user',
+              content: message,
+              provider: proxyResponse.provider,
+            );
+            await aiRemoteDataSource!.saveChatMessage(
+              userid: userId,
+              role: 'assistant',
+              content: proxyResponse.content,
+              provider: proxyResponse.provider,
+              tokensused: proxyResponse.tokensused,
+            );
+          } catch (_) {
+            // Non-critical — don't fail on history save errors
+          }
+
+          return Right(AiChatMessage(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            content: proxyResponse.content,
+            isUser: false,
+            timestamp: DateTime.now(),
+          ));
+        }
+        // If proxy returned error, fall through to local engine
+      } catch (_) {
+        // Proxy failed — fall through to local engine
+      }
+    }
+
+    // Fallback: local heuristic engine
     try {
       await _ensureData(userId);
 

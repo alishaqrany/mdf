@@ -25,6 +25,35 @@ abstract class CohortRemoteDataSource {
     required int cohortid,
     required List<int> userids,
   });
+
+  /// Create a new system-level cohort.
+  Future<Map<String, dynamic>> createCohort({
+    required String name,
+    String idnumber = '',
+    String description = '',
+    bool visible = true,
+  });
+
+  /// Delete a cohort by ID.
+  Future<Map<String, dynamic>> deleteCohort({required int cohortid});
+
+  /// Sync a cohort to a course (enable cohort enrolment method).
+  Future<Map<String, dynamic>> syncCohortToCourse({
+    required int cohortid,
+    required int courseid,
+    int roleid = 5,
+  });
+
+  /// Remove cohort enrolment from a course.
+  Future<Map<String, dynamic>> unsyncCohortFromCourse({
+    required int cohortid,
+    required int courseid,
+  });
+
+  /// Get courses synced with a cohort.
+  Future<List<CohortCourseSyncModel>> getCohortCourseSyncs({
+    required int cohortid,
+  });
 }
 
 class CohortRemoteDataSourceImpl implements CohortRemoteDataSource {
@@ -106,5 +135,81 @@ class CohortRemoteDataSourceImpl implements CohortRemoteDataSource {
       },
     );
     return response is Map<String, dynamic> ? response : {'success': true};
+  }
+
+  @override
+  Future<Map<String, dynamic>> createCohort({
+    required String name,
+    String idnumber = '',
+    String description = '',
+    bool visible = true,
+  }) async {
+    final response = await apiClient.call(
+      MoodleApiEndpoints.mdfCreateCohort,
+      params: {
+        'name': name,
+        'idnumber': idnumber,
+        'description': description,
+        'visible': visible ? 1 : 0,
+      },
+    );
+    return response is Map<String, dynamic> ? response : {'success': true};
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteCohort({required int cohortid}) async {
+    final response = await apiClient.call(
+      MoodleApiEndpoints.mdfDeleteCohort,
+      params: {'cohortid': cohortid},
+    );
+    return response is Map<String, dynamic> ? response : {'success': true};
+  }
+
+  @override
+  Future<Map<String, dynamic>> syncCohortToCourse({
+    required int cohortid,
+    required int courseid,
+    int roleid = 5,
+  }) async {
+    final response = await apiClient.call(
+      MoodleApiEndpoints.mdfSyncCohortToCourse,
+      params: {
+        'cohortid': cohortid,
+        'courseid': courseid,
+        'roleid': roleid,
+      },
+    );
+    return response is Map<String, dynamic> ? response : {'success': true};
+  }
+
+  @override
+  Future<Map<String, dynamic>> unsyncCohortFromCourse({
+    required int cohortid,
+    required int courseid,
+  }) async {
+    final response = await apiClient.call(
+      MoodleApiEndpoints.mdfUnsyncCohortFromCourse,
+      params: {'cohortid': cohortid, 'courseid': courseid},
+    );
+    return response is Map<String, dynamic> ? response : {'success': true};
+  }
+
+  @override
+  Future<List<CohortCourseSyncModel>> getCohortCourseSyncs({
+    required int cohortid,
+  }) async {
+    final response = await apiClient.call(
+      MoodleApiEndpoints.mdfGetCohortCourseSyncs,
+      params: {'cohortid': cohortid},
+    );
+
+    if (response is Map<String, dynamic> && response.containsKey('syncs')) {
+      return (response['syncs'] as List)
+          .map(
+            (e) => CohortCourseSyncModel.fromJson(e as Map<String, dynamic>),
+          )
+          .toList();
+    }
+    return [];
   }
 }

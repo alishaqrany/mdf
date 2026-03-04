@@ -51,6 +51,8 @@ import '../../features/gamification/presentation/pages/leaderboard_page.dart';
 import '../../features/gamification/presentation/pages/badges_page.dart';
 import '../../features/gamification/presentation/pages/challenges_page.dart';
 import '../../features/course_visibility/presentation/pages/course_visibility_page.dart';
+import '../../features/ai/presentation/pages/ai_admin_page.dart';
+import '../../features/courses/presentation/pages/course_create_page.dart';
 import '../../features/cohorts/presentation/pages/cohorts_page.dart';
 import '../../features/cohorts/presentation/pages/cohort_detail_page.dart';
 
@@ -109,6 +111,8 @@ abstract class AppRoutes {
   static const courseVisibility = 'course-visibility';
   static const cohorts = 'cohorts';
   static const cohortDetail = 'cohort-detail';
+  static const courseCreate = 'course-create';
+  static const aiAdmin = 'ai-admin';
 }
 
 /// GoRouter configuration with role-based guards
@@ -480,6 +484,18 @@ class AppRouter {
                 cohortName: cohortName,
               );
             },
+          ),
+          // ─── Course Create Route ───
+          GoRoute(
+            path: '/admin/courses/create',
+            name: AppRoutes.courseCreate,
+            builder: (context, state) => const CourseCreatePage(),
+          ),
+          // ─── AI Admin Route ───
+          GoRoute(
+            path: '/admin/ai-settings',
+            name: AppRoutes.aiAdmin,
+            builder: (context, state) => const AiAdminPage(),
           ),
         ],
       ),

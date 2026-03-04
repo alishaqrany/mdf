@@ -48,3 +48,64 @@ class RemoveMembersFromCohort extends CohortEvent {
   @override
   List<Object?> get props => [cohortid, userids];
 }
+
+class CreateCohort extends CohortEvent {
+  final String name;
+  final String idnumber;
+  final String description;
+  final bool visible;
+
+  const CreateCohort({
+    required this.name,
+    this.idnumber = '',
+    this.description = '',
+    this.visible = true,
+  });
+
+  @override
+  List<Object?> get props => [name, idnumber, description, visible];
+}
+
+class DeleteCohort extends CohortEvent {
+  final int cohortid;
+  const DeleteCohort({required this.cohortid});
+
+  @override
+  List<Object?> get props => [cohortid];
+}
+
+class SyncCohortToCourse extends CohortEvent {
+  final int cohortid;
+  final int courseid;
+  final int roleid;
+
+  const SyncCohortToCourse({
+    required this.cohortid,
+    required this.courseid,
+    this.roleid = 5,
+  });
+
+  @override
+  List<Object?> get props => [cohortid, courseid, roleid];
+}
+
+class UnsyncCohortFromCourse extends CohortEvent {
+  final int cohortid;
+  final int courseid;
+
+  const UnsyncCohortFromCourse({
+    required this.cohortid,
+    required this.courseid,
+  });
+
+  @override
+  List<Object?> get props => [cohortid, courseid];
+}
+
+class LoadCohortCourseSyncs extends CohortEvent {
+  final int cohortid;
+  const LoadCohortCourseSyncs({required this.cohortid});
+
+  @override
+  List<Object?> get props => [cohortid];
+}
