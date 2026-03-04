@@ -367,7 +367,10 @@ class _SettingsSection extends StatelessWidget {
               title: tr('grades.title'),
               onTap: () {
                 final authState = context.read<AuthBloc>().state;
-                final prefix = authState is AuthAuthenticated && authState.user.isAdmin ? '/admin' : '/student';
+                final prefix =
+                    authState is AuthAuthenticated && authState.user.isAdmin
+                    ? '/admin'
+                    : '/student';
                 context.push('$prefix/grades?userId=$userId');
               },
             ),
@@ -395,7 +398,10 @@ class _SettingsSection extends StatelessWidget {
               title: tr('profile.notifications'),
               onTap: () {
                 final authState = context.read<AuthBloc>().state;
-                final prefix = authState is AuthAuthenticated && authState.user.isAdmin ? '/admin' : '/student';
+                final prefix =
+                    authState is AuthAuthenticated && authState.user.isAdmin
+                    ? '/admin'
+                    : '/student';
                 context.push('$prefix/notifications?userId=$userId');
               },
             ),
