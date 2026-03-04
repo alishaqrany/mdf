@@ -241,7 +241,11 @@ Future<void> initDependencies() async {
 
   // ─── Student Dashboard ───
   sl.registerFactory(
-    () => StudentDashboardBloc(coursesRepository: sl(), authRepository: sl()),
+    () => StudentDashboardBloc(
+      coursesRepository: sl(),
+      authRepository: sl(),
+      calendarRepository: sl(),
+    ),
   );
 
   // ─── Admin Dashboard ───

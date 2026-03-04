@@ -18,6 +18,8 @@ class StudentDashboardLoaded extends StudentDashboardState {
   final int totalEnrolled;
   final int totalCompleted;
   final int totalInProgress;
+  final List<CalendarEvent> upcomingEvents;
+  final List<Course> recommendedCourses;
 
   const StudentDashboardLoaded({
     required this.enrolledCourses,
@@ -27,6 +29,8 @@ class StudentDashboardLoaded extends StudentDashboardState {
     required this.totalEnrolled,
     required this.totalCompleted,
     required this.totalInProgress,
+    this.upcomingEvents = const [],
+    this.recommendedCourses = const [],
   });
 
   @override
@@ -38,6 +42,8 @@ class StudentDashboardLoaded extends StudentDashboardState {
     totalEnrolled,
     totalCompleted,
     totalInProgress,
+    upcomingEvents,
+    recommendedCourses,
   ];
 }
 
