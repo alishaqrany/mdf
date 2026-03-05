@@ -25,6 +25,12 @@ class CoursesRepositoryImpl implements CoursesRepository {
     this.visibilityDataSource,
   });
 
+  String _enrolledCacheKey(int userId) =>
+      userId > 0 ? 'enrolled_$userId' : 'enrolled_current';
+
+  String _recentCacheKey(int userId) =>
+      userId > 0 ? 'recent_$userId' : 'recent_current';
+
   /// Fetch hidden course IDs from MDF plugin (silently fails if plugin unavailable).
   Future<Set<int>> _getHiddenCourseIds() async {
     if (_hiddenCourseIds != null) return _hiddenCourseIds!;
@@ -53,15 +59,18 @@ class CoursesRepositoryImpl implements CoursesRepository {
 
   @override
   Future<Either<Failure, List<Course>>> getEnrolledCourses(int userId) async {
+    final cacheKey = _enrolledCacheKey(userId);
     if (await networkInfo.isConnected) {
       try {
         final courses = await remoteDataSource.getEnrolledCourses(userId);
-        // Cache the result
-        CacheManager.put(
-          boxName: CacheConfig.coursesBox,
-          key: 'enrolled_$userId',
-          data: courses.map((c) => c.toJson()).toList(),
-        );
+        // Only cache non-empty results to avoid overwriting valid cache
+        if (courses.isNotEmpty) {
+          CacheManager.put(
+            boxName: CacheConfig.coursesBox,
+            key: cacheKey,
+            data: courses.map((c) => c.toJson()).toList(),
+          );
+        }
         // Filter hidden courses (wrapped in try-catch so it never blocks course display)
         Set<int> hidden = {};
         try {
@@ -71,15 +80,31 @@ class CoursesRepositoryImpl implements CoursesRepository {
         }
         return Right(_filterHidden(courses, hidden));
       } on ServerException catch (e) {
+        // API error — try cache before returning error
+        final cached = CacheManager.getList<Course>(
+          boxName: CacheConfig.coursesBox,
+          key: cacheKey,
+          ttl: CacheConfig.longTTL,
+          fromJson: (json) => CourseModel.fromEnrolledCourse(json),
+        );
+        if (cached != null && cached.isNotEmpty) return Right(cached);
         return Left(ServerFailure(message: e.message));
       } catch (e) {
+        // Unexpected error — try cache before returning error
+        final cached = CacheManager.getList<Course>(
+          boxName: CacheConfig.coursesBox,
+          key: cacheKey,
+          ttl: CacheConfig.longTTL,
+          fromJson: (json) => CourseModel.fromEnrolledCourse(json),
+        );
+        if (cached != null && cached.isNotEmpty) return Right(cached);
         return Left(UnexpectedFailure(message: e.toString()));
       }
     }
     // Offline: try cache
     final cached = CacheManager.getList<Course>(
       boxName: CacheConfig.coursesBox,
-      key: 'enrolled_$userId',
+      key: cacheKey,
       ttl: CacheConfig.longTTL,
       fromJson: (json) => CourseModel.fromEnrolledCourse(json),
     );
@@ -89,16 +114,22 @@ class CoursesRepositoryImpl implements CoursesRepository {
 
   @override
   Future<Either<Failure, List<Course>>> getRecentCourses(int userId) async {
+    final cacheKey = _recentCacheKey(userId);
     if (await networkInfo.isConnected) {
       try {
         final courses = await remoteDataSource.getRecentCourses(userId);
-        CacheManager.put(
-          boxName: CacheConfig.coursesBox,
-          key: 'recent_$userId',
-          data: courses.map((c) => c.toJson()).toList(),
-        );
+        if (courses.isNotEmpty) {
+          CacheManager.put(
+            boxName: CacheConfig.coursesBox,
+            key: cacheKey,
+            data: courses.map((c) => c.toJson()).toList(),
+          );
+        }
         // Filter hidden courses
-        final hidden = await _getHiddenCourseIds();
+        Set<int> hidden = {};
+        try {
+          hidden = await _getHiddenCourseIds();
+        } catch (_) {}
         return Right(_filterHidden(courses, hidden));
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -108,7 +139,7 @@ class CoursesRepositoryImpl implements CoursesRepository {
     }
     final cached = CacheManager.getList<Course>(
       boxName: CacheConfig.coursesBox,
-      key: 'recent_$userId',
+      key: cacheKey,
       ttl: CacheConfig.defaultTTL,
       fromJson: (json) => CourseModel.fromEnrolledCourse(json),
     );
@@ -136,11 +167,13 @@ class CoursesRepositoryImpl implements CoursesRepository {
     if (await networkInfo.isConnected) {
       try {
         final courses = await remoteDataSource.getAllCourses();
-        CacheManager.put(
-          boxName: CacheConfig.coursesBox,
-          key: 'all_courses',
-          data: courses.map((c) => c.toJson()).toList(),
-        );
+        if (courses.isNotEmpty) {
+          CacheManager.put(
+            boxName: CacheConfig.coursesBox,
+            key: 'all_courses',
+            data: courses.map((c) => c.toJson()).toList(),
+          );
+        }
         return Right(courses);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));

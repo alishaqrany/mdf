@@ -52,7 +52,6 @@ function xmldb_local_mdf_api_upgrade($oldversion) {
 
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
             $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
-            $table->add_index('userid_unique', XMLDB_INDEX_UNIQUE, ['userid']);
 
             $dbman->create_table($table);
         }
@@ -568,7 +567,6 @@ function xmldb_local_mdf_api_upgrade($oldversion) {
             $table->add_key('primary',    XMLDB_KEY_PRIMARY, ['id']);
             $table->add_key('userid_fk',  XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
             $table->add_index('userid_deviceid_unique', XMLDB_INDEX_UNIQUE, ['userid', 'deviceid']);
-            $table->add_index('userid_idx', XMLDB_INDEX_NOTUNIQUE, ['userid']);
 
             $dbman->create_table($table);
         }
@@ -584,7 +582,6 @@ function xmldb_local_mdf_api_upgrade($oldversion) {
 
             $table->add_key('primary',   XMLDB_KEY_PRIMARY, ['id']);
             $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
-            $table->add_index('userid_unique', XMLDB_INDEX_UNIQUE, ['userid']);
 
             $dbman->create_table($table);
         }
@@ -603,7 +600,6 @@ function xmldb_local_mdf_api_upgrade($oldversion) {
 
             $table->add_key('primary',   XMLDB_KEY_PRIMARY, ['id']);
             $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
-            $table->add_index('userid_idx',      XMLDB_INDEX_NOTUNIQUE, ['userid']);
             $table->add_index('action_idx',      XMLDB_INDEX_NOTUNIQUE, ['action']);
             $table->add_index('timecreated_idx', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
 
@@ -611,6 +607,49 @@ function xmldb_local_mdf_api_upgrade($oldversion) {
         }
 
         upgrade_plugin_savepoint(true, 2026030500, 'local', 'mdf_api');
+    }
+
+    // =====================================================================
+    // v2.3.1 — Fix userid_fk / userid_idx key collision.
+    // Drop redundant userid_idx indexes from tables where userid_fk
+    // foreign key already provides the index.
+    // =====================================================================
+    if ($oldversion < 2026030501) {
+
+        $tablenames = [
+            'local_mdf_user_devices',
+            'local_mdf_protection_log',
+            'local_mdf_fcm_tokens',
+            'local_mdf_push_log',
+        ];
+
+        foreach ($tablenames as $tname) {
+            $table = new xmldb_table($tname);
+            if ($dbman->table_exists($table)) {
+                $index = new xmldb_index('userid_idx', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+                if ($dbman->index_exists($table, $index)) {
+                    $dbman->drop_index($table, $index);
+                }
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026030501, 'local', 'mdf_api');
+    }
+
+    // =====================================================================
+    // v2.3.2 — Fix userid_fk / userid_unique key collision in device limits.
+    // =====================================================================
+    if ($oldversion < 2026030502) {
+
+        $table = new xmldb_table('local_mdf_device_limits');
+        if ($dbman->table_exists($table)) {
+            $index = new xmldb_index('userid_unique', XMLDB_INDEX_UNIQUE, ['userid']);
+            if ($dbman->index_exists($table, $index)) {
+                $dbman->drop_index($table, $index);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026030502, 'local', 'mdf_api');
     }
 
     return true;

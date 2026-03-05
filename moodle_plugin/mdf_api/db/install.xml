@@ -21,7 +21,6 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="tokenhash_unique" UNIQUE="true" FIELDS="tokenhash"/>
-        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_mdf_push_log" COMMENT="Log of sent push notifications">
@@ -42,7 +41,6 @@
         <KEY NAME="senderid_fk" TYPE="foreign" FIELDS="senderid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
       </INDEXES>
     </TABLE>
@@ -66,9 +64,6 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
-      <INDEXES>
-        <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
-      </INDEXES>
     </TABLE>
 
     <!-- ─── Gamification: Point Transactions ─── -->
@@ -487,7 +482,6 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid_deviceid_unique" UNIQUE="true" FIELDS="userid,deviceid"/>
-        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
 
@@ -504,9 +498,6 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
-      <INDEXES>
-        <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
-      </INDEXES>
     </TABLE>
 
     <!-- ─── Content Protection: Audit Log ─── -->
@@ -526,7 +517,6 @@
         <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="action_idx" UNIQUE="false" FIELDS="action"/>
         <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
       </INDEXES>

@@ -51,25 +51,48 @@ class CourseModel extends Course {
     }
 
     return CourseModel(
-      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()) ?? 0,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id'].toString()) ?? 0,
       shortName: json['shortname']?.toString() ?? '',
       fullName: json['fullname']?.toString() ?? '',
       displayName: json['displayname']?.toString(),
       summary: json['summary']?.toString(),
-      summaryFormat: json['summaryformat'] is int ? json['summaryformat'] as int : int.tryParse(json['summaryformat'].toString()),
-      categoryId: json['category'] is int ? json['category'] as int : int.tryParse(json['category'].toString()),
+      summaryFormat: json['summaryformat'] is int
+          ? json['summaryformat'] as int
+          : int.tryParse(json['summaryformat'].toString()),
+      categoryId: json['category'] is int
+          ? json['category'] as int
+          : int.tryParse(json['category'].toString()),
       categoryName: json['categoryname']?.toString(),
-      startDate: json['startdate'] is int ? json['startdate'] as int : int.tryParse(json['startdate'].toString()),
-      endDate: json['enddate'] is int ? json['enddate'] as int : int.tryParse(json['enddate'].toString()),
+      startDate: json['startdate'] is int
+          ? json['startdate'] as int
+          : int.tryParse(json['startdate'].toString()),
+      endDate: json['enddate'] is int
+          ? json['enddate'] as int
+          : int.tryParse(json['enddate'].toString()),
       imageUrl: imageUrl,
-      enrolledUserCount: json['enrolledusercount'] is int ? json['enrolledusercount'] as int : int.tryParse(json['enrolledusercount'].toString()),
-      visible: json['visible'] == 1 || json['visible'] == true || json['visible'] == '1',
+      enrolledUserCount: json['enrolledusercount'] is int
+          ? json['enrolledusercount'] as int
+          : int.tryParse(json['enrolledusercount'].toString()),
+      visible:
+          json['visible'] == 1 ||
+          json['visible'] == true ||
+          json['visible'] == '1',
       progress: json['progress'] != null
           ? double.tryParse(json['progress'].toString())
           : null,
-      completed: json['completed'] == 1 || json['completed'] == true || json['completed'] == '1',
-      isFavourite: json['isfavourite'] == 1 || json['isfavourite'] == true || json['isfavourite'] == '1',
-      lastAccess: json['lastaccess'] is int ? json['lastaccess'] as int : int.tryParse(json['lastaccess'].toString()),
+      completed:
+          json['completed'] == 1 ||
+          json['completed'] == true ||
+          json['completed'] == '1',
+      isFavourite:
+          json['isfavourite'] == 1 ||
+          json['isfavourite'] == true ||
+          json['isfavourite'] == '1',
+      lastAccess: json['lastaccess'] is int
+          ? json['lastaccess'] as int
+          : int.tryParse(json['lastaccess'].toString()),
       contacts: contactsList,
     );
   }
@@ -84,15 +107,21 @@ class CourseModel extends Course {
     imageUrl ??= json['courseimage'] as String?;
 
     return CourseModel(
-      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()) ?? 0,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id'].toString()) ?? 0,
       shortName: json['shortname']?.toString() ?? '',
       fullName: json['fullname']?.toString() ?? '',
       displayName: json['displayname']?.toString(),
       summary: json['summary']?.toString(),
-      categoryId: json['categoryid'] is int ? json['categoryid'] as int : int.tryParse(json['categoryid'].toString()),
+      categoryId: json['categoryid'] is int
+          ? json['categoryid'] as int
+          : int.tryParse(json['categoryid'].toString()),
       categoryName: json['categoryname']?.toString(),
       imageUrl: imageUrl,
-      enrolledUserCount: json['enrolledusercount'] is int ? json['enrolledusercount'] as int : int.tryParse(json['enrolledusercount'].toString()),
+      enrolledUserCount: json['enrolledusercount'] is int
+          ? json['enrolledusercount'] as int
+          : int.tryParse(json['enrolledusercount'].toString()),
     );
   }
 
@@ -107,7 +136,7 @@ class CourseModel extends Course {
       'categoryname': categoryName,
       'startdate': startDate,
       'enddate': endDate,
-      'imageUrl': imageUrl,
+      'courseimage': imageUrl,
       'enrolledusercount': enrolledUserCount,
       'visible': visible == true ? 1 : 0,
       'progress': progress,

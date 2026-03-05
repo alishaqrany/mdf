@@ -682,8 +682,16 @@ $services = [
                 'core_course_get_contents',
                 'core_course_search_courses',
                 'core_course_get_recent_courses',
+                'core_course_get_enrolled_courses_by_timeline_classification',
                 'core_course_view_course',
                 'core_files_upload',
+
+                // Completion.
+                'core_completion_get_activities_completion_status',
+
+                // Unenrolment.
+                'enrol_manual_unenrol_users',
+                'enrol_self_enrol_user',
             ]
         ))),
         'restrictedusers'   => 0,

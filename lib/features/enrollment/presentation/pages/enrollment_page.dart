@@ -1,20 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/di/injection.dart';
 import '../../../../app/theme/colors.dart';
-import '../../domain/entities/enrolled_user.dart';
 import '../../../../features/courses/domain/entities/course.dart';
 import '../../../../features/courses/domain/repositories/courses_repository.dart';
-import '../bloc/enrollment_bloc.dart';
-import '../bloc/enrollment_event.dart';
-import '../bloc/enrollment_state.dart';
-import 'enroll_user_page.dart';
 
-/// Page to manage enrollment for a specific course.
-/// Shows enrolled users with ability to enroll/unenroll.
+/// Redesigned Enrollment page — shows ALL courses as a searchable grid.
+/// Tapping a course opens the detailed enrollment management page.
 class EnrollmentPage extends StatefulWidget {
   final int? preselectedCourseId;
 
@@ -25,275 +20,219 @@ class EnrollmentPage extends StatefulWidget {
 }
 
 class _EnrollmentPageState extends State<EnrollmentPage> {
-  late final EnrollmentBloc _bloc;
-  int? _currentCourseId;
-  List<Course>? _allCourses;
-  bool _loadingCourses = true;
+  List<Course> _allCourses = [];
+  List<Course> _filteredCourses = [];
+  bool _loading = true;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
-    _bloc = EnrollmentBloc(repository: sl());
-    if (widget.preselectedCourseId != null) {
-      _currentCourseId = widget.preselectedCourseId;
-      _bloc.add(LoadEnrolledUsers(courseId: widget.preselectedCourseId!));
-    }
     _loadAllCourses();
   }
 
   Future<void> _loadAllCourses() async {
+    setState(() { _loading = true; _error = ''; });
     final coursesRepo = sl<CoursesRepository>();
     final result = await coursesRepo.getAllCourses();
-    if (mounted) {
-      setState(() {
-        _loadingCourses = false;
-        result.fold(
-          (failure) => _allCourses = [],
-          (courses) => _allCourses = courses,
-        );
-        // Clean up course list
-        _allCourses?.removeWhere((c) => c.fullName.trim().isEmpty);
-
-        // Ensure current course ID is valid if set
-        if (_currentCourseId != null && _allCourses != null) {
-          final exists = _allCourses!.any((c) => c.id == _currentCourseId);
-          if (!exists) {
-            _currentCourseId = null;
-          }
+    if (!mounted) return;
+    result.fold(
+      (failure) => setState(() { _loading = false; _error = failure.toString(); }),
+      (courses) {
+        courses.removeWhere((c) => c.fullName.trim().isEmpty);
+        setState(() {
+          _allCourses = courses;
+          _filteredCourses = List.from(courses);
+          _loading = false;
+        });
+        // If a preselected courseId was passed, navigate directly
+        if (widget.preselectedCourseId != null) {
+          final course = courses.firstWhere(
+            (c) => c.id == widget.preselectedCourseId,
+            orElse: () => courses.first,
+          );
+          _openCourseEnrollment(course);
         }
-      });
-    }
+      },
+    );
+  }
+
+  void _filterCourses(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredCourses = List.from(_allCourses);
+      } else {
+        final q = query.toLowerCase();
+        _filteredCourses = _allCourses
+            .where((c) =>
+                c.fullName.toLowerCase().contains(q) ||
+                c.shortName.toLowerCase().contains(q) ||
+                (c.categoryName ?? '').toLowerCase().contains(q))
+            .toList();
+      }
+    });
+  }
+
+  void _openCourseEnrollment(Course course) {
+    context.push(
+      '/admin/enrollment/${course.id}?title=${Uri.encodeComponent(course.fullName)}',
+    );
   }
 
   @override
-  void dispose() {
-    _bloc.close();
-    super.dispose();
-  }
-
-  void _loadCourse(int id) {
-    setState(() => _currentCourseId = id);
-    _bloc.add(LoadEnrolledUsers(courseId: id));
-  }
-
-  void _confirmUnenroll(EnrolledUser user) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('enrollment.unenroll'.tr()),
-        content: Text(
-          '${'enrollment.confirm_unenroll'.tr()} ${user.fullName}?',
-        ),
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('enrollment.title'.tr()),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('common.cancel'.tr()),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadAllCourses,
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _bloc.add(
-                UnenrollUser(courseId: _currentCourseId!, userId: user.id),
-              );
-            },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('enrollment.unenroll'.tr()),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'enrollment.search_courses'.tr(),
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                filled: true,
+                fillColor: theme.colorScheme.surface,
+                isDense: true,
+              ),
+              onChanged: _filterCourses,
+            ),
+          ),
+          // Courses count
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const Icon(Icons.school, size: 18, color: AppColors.textSecondaryLight),
+                const SizedBox(width: 6),
+                Text(
+                  '${_filteredCourses.length} ${'enrollment.courses_available'.tr()}',
+                  style: theme.textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryLight),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Course grid
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _error.isNotEmpty
+                    ? Center(child: Text(_error))
+                    : _filteredCourses.isEmpty
+                        ? Center(child: Text('common.no_results'.tr()))
+                        : RefreshIndicator(
+                            onRefresh: _loadAllCourses,
+                            child: GridView.builder(
+                              padding: const EdgeInsets.all(12),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                                childAspectRatio: 0.85,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                              ),
+                              itemCount: _filteredCourses.length,
+                              itemBuilder: (context, index) {
+                                final course = _filteredCourses[index];
+                                return _CourseCard(
+                                  course: course,
+                                  onTap: () => _openCourseEnrollment(course),
+                                );
+                              },
+                            ),
+                          ),
           ),
         ],
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return BlocProvider.value(
-      value: _bloc,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('enrollment.title'.tr()),
-          actions: [
-            if (_currentCourseId != null)
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () =>
-                    _bloc.add(LoadEnrolledUsers(courseId: _currentCourseId!)),
-              ),
-          ],
-        ),
-        floatingActionButton: _currentCourseId != null
-            ? FloatingActionButton.extended(
-                onPressed: () async {
-                  final result = await Navigator.push<bool>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          EnrollUserPage(courseId: _currentCourseId!),
-                    ),
-                  );
-                  if (result == true && _currentCourseId != null) {
-                    _bloc.add(LoadEnrolledUsers(courseId: _currentCourseId!));
-                  }
-                },
-                icon: const Icon(Icons.person_add),
-                label: Text('enrollment.enroll_user'.tr()),
-              )
-            : null,
-        body: Column(
-          children: [
-            // Course selection
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: _loadingCourses
-                  ? const Center(child: CircularProgressIndicator())
-                  : DropdownButtonFormField<int>(
-                      value: _currentCourseId,
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        labelText: 'courses.my_courses'
-                            .tr(), // Or 'enrollment.select_course'.tr() if available
-                        hintText: 'enrollment.enter_course_id'.tr(),
-                        prefixIcon: const Icon(Icons.school),
-                        border: const OutlineInputBorder(),
-                      ),
-                      items:
-                          _allCourses?.map((course) {
-                            return DropdownMenuItem<int>(
-                              value: course.id,
-                              child: Text(course.fullName),
-                            );
-                          }).toList() ??
-                          [],
-                      onChanged: (id) {
-                        if (id != null) _loadCourse(id);
-                      },
-                    ),
-            ),
-            const Divider(height: 1),
-
-            // Enrolled users list
-            Expanded(
-              child: BlocConsumer<EnrollmentBloc, EnrollmentState>(
-                listener: (context, state) {
-                  if (state is UserEnrolled) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('enrollment.user_enrolled'.tr())),
-                    );
-                    _bloc.add(LoadEnrolledUsers(courseId: _currentCourseId!));
-                  }
-                  if (state is BulkUsersEnrolled) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${'enrollment.bulk_enrolled'.tr()} (${state.count})',
-                        ),
-                      ),
-                    );
-                    _bloc.add(LoadEnrolledUsers(courseId: _currentCourseId!));
-                  }
-                  if (state is UserUnenrolled) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('enrollment.user_unenrolled'.tr()),
-                      ),
-                    );
-                    _bloc.add(LoadEnrolledUsers(courseId: _currentCourseId!));
-                  }
-                  if (state is EnrollmentError) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(state.message)));
-                  }
-                },
-                builder: (context, state) {
-                  if (_currentCourseId == null) {
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.school_outlined,
-                            size: 64,
-                            color: AppColors.textSecondaryLight,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'enrollment.select_course'.tr(),
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: AppColors.textSecondaryLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  if (state is EnrollmentLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state is EnrolledUsersLoaded) {
-                    if (state.users.isEmpty) {
-                      return Center(
-                        child: Text('enrollment.no_enrolled_users'.tr()),
-                      );
-                    }
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        _bloc.add(
-                          LoadEnrolledUsers(courseId: _currentCourseId!),
-                        );
-                      },
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 80),
-                        itemCount: state.users.length,
-                        itemBuilder: (context, idx) {
-                          final user = state.users[idx];
-                          return _EnrolledUserTile(
-                            user: user,
-                            onUnenroll: () => _confirmUnenroll(user),
-                          );
-                        },
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
-class _EnrolledUserTile extends StatelessWidget {
-  final EnrolledUser user;
-  final VoidCallback onUnenroll;
+class _CourseCard extends StatelessWidget {
+  final Course course;
+  final VoidCallback onTap;
 
-  const _EnrolledUserTile({required this.user, required this.onUnenroll});
+  const _CourseCard({required this.course, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundImage: user.profileImageUrl != null
-            ? CachedNetworkImageProvider(user.profileImageUrl!)
-            : null,
-        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-        child: user.profileImageUrl == null
-            ? Text(user.initials, style: const TextStyle(fontSize: 12))
-            : null,
-      ),
-      title: Text(user.fullName),
-      subtitle: Text(
-        '${user.email} • ${user.primaryRoleName}',
-        style: theme.textTheme.bodySmall,
-      ),
-      trailing: IconButton(
-        icon: const Icon(Icons.person_remove, color: Colors.red),
-        tooltip: 'enrollment.unenroll'.tr(),
-        onPressed: onUnenroll,
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Course image
+            Expanded(
+              flex: 3,
+              child: Container(
+                width: double.infinity,
+                color: AppColors.primary.withValues(alpha: 0.1),
+                child: course.imageUrl != null && course.imageUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: course.imageUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        placeholder: (_, __) => const Center(
+                          child: Icon(Icons.school, size: 36, color: AppColors.primary),
+                        ),
+                        errorWidget: (_, __, ___) => const Center(
+                          child: Icon(Icons.school, size: 36, color: AppColors.primary),
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(Icons.school, size: 36, color: AppColors.primary),
+                      ),
+              ),
+            ),
+            // Course info
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.fullName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        const Icon(Icons.people, size: 14, color: AppColors.textSecondaryLight),
+                        const SizedBox(width: 4),
+                        Text(
+                          'ID: ${course.id}',
+                          style: theme.textTheme.labelSmall?.copyWith(color: AppColors.textSecondaryLight),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.primary),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

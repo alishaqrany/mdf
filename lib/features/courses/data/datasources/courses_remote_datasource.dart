@@ -1,5 +1,6 @@
 import '../../../../core/api/moodle_api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
+import '../../../../core/error/exceptions.dart';
 import '../models/course_model.dart';
 
 /// Remote data source for courses.
@@ -17,18 +18,99 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
 
   CoursesRemoteDataSourceImpl({required this.apiClient});
 
-  @override
-  Future<List<CourseModel>> getEnrolledCourses(int userId) async {
-    // Resolve userId=0 — happens if auth state was not ready when page loaded
-    int resolvedUserId = userId;
-    if (resolvedUserId == 0) {
-      final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
-      resolvedUserId =
-          (siteInfo as Map<String, dynamic>)['userid'] as int? ?? 0;
-    }
-    if (resolvedUserId == 0) return [];
+  int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse('$value') ?? 0;
+  }
 
-    // ─── Strategy 1: Timeline classification (most reliable for mobile tokens) ───
+  Map<String, dynamic>? _asStringMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      return Map<String, dynamic>.from(
+        value.map((key, val) => MapEntry('$key', val)),
+      );
+    }
+    return null;
+  }
+
+  List<CourseModel> _parseCourseList(dynamic response, {String? listKey}) {
+    List<dynamic>? rawList;
+
+    if (response is List) {
+      rawList = response;
+    } else if (response is Map &&
+        listKey != null &&
+        response[listKey] is List) {
+      rawList = response[listKey] as List;
+    }
+
+    if (rawList == null) return [];
+
+    final courses = <CourseModel>[];
+    for (final item in rawList) {
+      final map = _asStringMap(item);
+      if (map != null) {
+        courses.add(CourseModel.fromEnrolledCourse(map));
+      }
+    }
+    return courses;
+  }
+
+  bool _isInvalidRecordUnknown(Object error) {
+    if (error is MoodleException) {
+      return error.errorCode == 'invalidrecordunknown';
+    }
+    if (error is ServerException) {
+      return error.errorCode == 'invalidrecordunknown' ||
+          error.message.contains('invalidrecordunknown');
+    }
+    return false;
+  }
+
+  Future<int> _resolveCurrentUserId() async {
+    final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+    final siteInfoMap = _asStringMap(siteInfo);
+    return _parseInt(siteInfoMap?['userid']);
+  }
+
+  Future<List<CourseModel>> _loadEnrolledCoursesForUserId(
+    int resolvedUserId,
+  ) async {
+    // Track errors only from strategies that truly matter.
+    // When a strategy succeeds (no exception) but returns empty, that means
+    // the API call worked — we clear the error because the user simply has
+    // no courses via that endpoint.
+    Object? lastError;
+    bool anyStrategySucceeded = false;
+
+    // ─── Strategy 1: enrol_get_users_courses (most basic & reliable) ───
+    try {
+      final response = await apiClient.call(
+        MoodleApiEndpoints.getUsersCourses,
+        params: {'userid': resolvedUserId},
+      );
+      anyStrategySucceeded = true;
+      final courses = _parseCourseList(response);
+      if (courses.isNotEmpty) return courses;
+    } catch (e) {
+      lastError = e;
+    }
+
+    // ─── Strategy 2: Recent courses ───
+    try {
+      final recent = await apiClient.call(
+        MoodleApiEndpoints.getRecentCourses,
+        params: {'userid': resolvedUserId, 'limit': 50},
+      );
+      anyStrategySucceeded = true;
+      final courses = _parseCourseList(recent);
+      if (courses.isNotEmpty) return courses;
+    } catch (e) {
+      lastError ??= e;
+    }
+
+    // ─── Strategy 3: Timeline 'all' ───
     try {
       final timeline = await apiClient.call(
         MoodleApiEndpoints.getCoursesByTimeline,
@@ -39,17 +121,16 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
           'limit': 200,
         },
       );
+      anyStrategySucceeded = true;
+      final courses = _parseCourseList(timeline, listKey: 'courses');
+      if (courses.isNotEmpty) return courses;
+    } catch (e) {
+      // Timeline may not be available for this service token; don't mask
+      // earlier successes.
+      lastError ??= e;
+    }
 
-      if (timeline is Map && timeline['courses'] is List) {
-        final courses = (timeline['courses'] as List)
-            .whereType<Map<String, dynamic>>()
-            .map((json) => CourseModel.fromEnrolledCourse(json))
-            .toList();
-        if (courses.isNotEmpty) return courses;
-      }
-    } catch (_) {}
-
-    // ─── Strategy 1b: Timeline with 'inprogress' (in case 'all' isn't supported) ───
+    // ─── Strategy 4: Timeline 'inprogress' ───
     try {
       final timeline = await apiClient.call(
         MoodleApiEndpoints.getCoursesByTimeline,
@@ -60,47 +141,79 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
           'limit': 200,
         },
       );
+      anyStrategySucceeded = true;
+      final courses = _parseCourseList(timeline, listKey: 'courses');
+      if (courses.isNotEmpty) return courses;
+    } catch (e) {
+      lastError ??= e;
+    }
 
-      if (timeline is Map && timeline['courses'] is List) {
-        final courses = (timeline['courses'] as List)
-            .whereType<Map<String, dynamic>>()
-            .map((json) => CourseModel.fromEnrolledCourse(json))
-            .toList();
-        if (courses.isNotEmpty) return courses;
+    // If at least one strategy executed without an exception, the API is
+    // reachable and the user account is valid — return empty list.
+    if (anyStrategySucceeded) return [];
+
+    // ALL strategies threw exceptions — propagate a meaningful error.
+    if (lastError != null) {
+      if (lastError is ServerException) throw lastError;
+      if (lastError is MoodleException) {
+        throw ServerException(
+          message: 'خطأ من المنصة: ${(lastError as MoodleException).message}',
+          errorCode: (lastError as MoodleException).errorCode,
+        );
       }
-    } catch (_) {}
-
-    // ─── Strategy 2: enrol_get_users_courses ───
-    try {
-      final response = await apiClient.call(
-        MoodleApiEndpoints.getUsersCourses,
-        params: {'userid': resolvedUserId},
+      throw ServerException(
+        message:
+            'فشل تحميل المقررات. تحقق من اتصالك أو أعد تسجيل الدخول.\n'
+            'Failed to load courses: $lastError',
       );
-
-      if (response is List && response.isNotEmpty) {
-        return response
-            .whereType<Map<String, dynamic>>()
-            .map((json) => CourseModel.fromEnrolledCourse(json))
-            .toList();
-      }
-    } catch (_) {}
-
-    // ─── Strategy 3: Recent courses ───
-    try {
-      final recent = await apiClient.call(
-        MoodleApiEndpoints.getRecentCourses,
-        params: {'userid': resolvedUserId, 'limit': 50},
-      );
-
-      if (recent is List && recent.isNotEmpty) {
-        return recent
-            .whereType<Map<String, dynamic>>()
-            .map((json) => CourseModel.fromEnrolledCourse(json))
-            .toList();
-      }
-    } catch (_) {}
+    }
 
     return [];
+  }
+
+  @override
+  Future<List<CourseModel>> getEnrolledCourses(int userId) async {
+    // Resolve userId=0 — happens if auth state was not ready when page loaded
+    int resolvedUserId = userId;
+    if (resolvedUserId == 0) {
+      try {
+        resolvedUserId = await _resolveCurrentUserId();
+      } catch (e) {
+        // If we can't even get site info, rethrow — connectivity/auth issue
+        throw ServerException(
+          message:
+              'فشل الاتصال بالخادم. تحقق من اتصال الإنترنت أو أعد تسجيل الدخول.\n'
+              'Failed to connect. Check your connection or re-login.',
+        );
+      }
+    }
+    if (resolvedUserId == 0) {
+      throw const ServerException(
+        message:
+            'لم يتم التعرف على المستخدم. أعد تسجيل الدخول.\n'
+            'User not identified. Please re-login.',
+      );
+    }
+    try {
+      return await _loadEnrolledCoursesForUserId(resolvedUserId);
+    } on ServerException catch (e) {
+      if (_isInvalidRecordUnknown(e)) {
+        // Fallback: auth state may carry a stale userId for this token/site.
+        final currentUserId = await _resolveCurrentUserId();
+        if (currentUserId > 0 && currentUserId != resolvedUserId) {
+          return _loadEnrolledCoursesForUserId(currentUserId);
+        }
+      }
+      rethrow;
+    } catch (e) {
+      if (_isInvalidRecordUnknown(e)) {
+        final currentUserId = await _resolveCurrentUserId();
+        if (currentUserId > 0 && currentUserId != resolvedUserId) {
+          return _loadEnrolledCoursesForUserId(currentUserId);
+        }
+      }
+      rethrow;
+    }
   }
 
   @override

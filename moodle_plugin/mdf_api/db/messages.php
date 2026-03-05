@@ -9,7 +9,7 @@ $messageproviders = [
     // Admin-originated notification sent via the notification admin panel.
     'admin_notification' => [
         'defaults' => [
-            'popup'  => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN + MESSAGE_DEFAULT_LOGGEDOFF,
+            'popup'  => MESSAGE_PERMITTED,
             'email'  => MESSAGE_PERMITTED,
         ],
     ],

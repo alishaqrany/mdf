@@ -33,6 +33,9 @@ import '../../features/user_management/presentation/pages/user_list_page.dart';
 import '../../features/user_management/presentation/pages/user_detail_page.dart';
 import '../../features/user_management/presentation/pages/user_create_page.dart';
 import '../../features/enrollment/presentation/pages/enrollment_page.dart';
+import '../../features/enrollment/presentation/pages/course_enrollment_detail_page.dart';
+import '../../features/admin_dashboard/presentation/pages/admin_all_courses_page.dart';
+import '../../features/user_management/presentation/pages/user_enroll_course_page.dart';
 import '../../features/video_meetings/presentation/pages/meeting_list_page.dart';
 import '../../features/video_meetings/presentation/pages/meeting_detail_page.dart';
 import '../../features/video_meetings/domain/entities/meeting.dart';
@@ -104,6 +107,9 @@ abstract class AppRoutes {
   static const userDetail = 'user-detail';
   static const userCreate = 'user-create';
   static const enrollment = 'enrollment';
+  static const enrollmentDetail = 'enrollment-detail';
+  static const allCourses = 'all-courses';
+  static const userEnrollCourse = 'user-enroll-course';
   static const meetingList = 'meeting-list';
   static const meetingDetail = 'meeting-detail';
   static const downloads = 'downloads';
@@ -494,6 +500,36 @@ class AppRouter {
                 state.uri.queryParameters['courseId'] ?? '',
               );
               return EnrollmentPage(preselectedCourseId: courseId);
+            },
+          ),
+          GoRoute(
+            path: '/admin/enrollment/:courseId',
+            name: AppRoutes.enrollmentDetail,
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              final title = state.uri.queryParameters['title'] ?? '';
+              return CourseEnrollmentDetailPage(
+                courseId: courseId,
+                courseTitle: title,
+              );
+            },
+          ),
+          // ─── Admin All-Courses Route ───
+          GoRoute(
+            path: '/admin/all-courses',
+            name: AppRoutes.allCourses,
+            builder: (context, state) => const AdminAllCoursesPage(),
+          ),
+          // ─── User Enroll in Course Route ───
+          GoRoute(
+            path: '/admin/user-enroll/:userId',
+            name: AppRoutes.userEnrollCourse,
+            builder: (context, state) {
+              final userId =
+                  int.tryParse(state.pathParameters['userId'] ?? '') ?? 0;
+              final name = state.uri.queryParameters['name'] ?? '';
+              return UserEnrollCoursePage(userId: userId, userName: name);
             },
           ),
           // ─── Course Visibility Route ───

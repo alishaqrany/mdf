@@ -420,6 +420,12 @@ class _AdminDashboardViewState extends State<_AdminDashboardView> {
                               accentColor: const Color(0xFFFFB74D),
                               children: [
                                 _AdminToolTile(
+                                  icon: Icons.library_books_rounded,
+                                  label: tr('admin.all_courses'),
+                                  subtitle: tr('admin.preview_course'),
+                                  onTap: () => context.push('/admin/all-courses'),
+                                ),
+                                _AdminToolTile(
                                   icon: Icons.add_box_rounded,
                                   label: tr('admin.create_course'),
                                   subtitle: tr('admin.add_new_course'),

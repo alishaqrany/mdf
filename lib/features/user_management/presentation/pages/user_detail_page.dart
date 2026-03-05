@@ -380,7 +380,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                     leading: const Icon(Icons.group_add, color: Colors.blue),
                     title: Text('users.enroll_in_course'.tr()),
                     onTap: () =>
-                        context.push('/admin/enrollment?userId=${user.id}'),
+                        context.push('/admin/user-enroll/${user.id}?name=${Uri.encodeComponent(user.fullName)}'),
                   ),
                   ListTile(
                     leading: const Icon(Icons.delete, color: Colors.red),
