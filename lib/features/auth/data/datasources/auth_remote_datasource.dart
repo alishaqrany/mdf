@@ -14,6 +14,9 @@ abstract class AuthRemoteDataSource {
 
   /// Get current user info from server.
   Future<UserModel> getSiteInfo();
+
+  /// Get user role summary (teacher status, teacher course IDs).
+  Future<Map<String, dynamic>> getUserRoleSummary();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -53,5 +56,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> getSiteInfo() async {
     final response = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
     return UserModel.fromSiteInfo(response as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getUserRoleSummary() async {
+    try {
+      final response = await apiClient.call(
+        MoodleApiEndpoints.mdfGetUserRoleSummary,
+      );
+      return response as Map<String, dynamic>;
+    } catch (_) {
+      // If the endpoint doesn't exist yet (plugin not updated), return defaults.
+      return {'is_teacher': false, 'is_course_creator': false, 'teacher_courseids': <int>[]};
+    }
   }
 }

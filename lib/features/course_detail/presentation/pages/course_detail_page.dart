@@ -23,6 +23,7 @@ import '../../../course_content/domain/entities/course_content.dart';
 import '../../../course_content/presentation/bloc/course_content_bloc.dart';
 import '../../../content_viewer/presentation/pages/html_content_page.dart';
 import '../../data/datasources/course_detail_remote_datasource.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class CourseDetailPage extends StatefulWidget {
   final int courseId;
@@ -43,6 +44,15 @@ class CourseDetailPage extends StatefulWidget {
 class _CourseDetailPageState extends State<CourseDetailPage> {
   Course? _course;
   bool _courseLoading = true;
+  bool _editMode = false;
+
+  /// Whether the current user can manage content in this course.
+  bool get _canManage {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! AuthAuthenticated) return false;
+    final user = authState.user;
+    return user.isAdmin || user.isTeacherInCourse(widget.courseId);
+  }
 
   @override
   void initState() {
@@ -142,6 +152,44 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   ),
                 ),
                 actions: [
+                  if (_canManage)
+                    IconButton(
+                      icon: Icon(
+                        _editMode ? Icons.edit_off : Icons.edit_note,
+                        color: _editMode ? Colors.amber : null,
+                      ),
+                      tooltip: tr('course_mgmt.edit_mode'),
+                      onPressed: () => setState(() => _editMode = !_editMode),
+                    ),
+                  if (_canManage && _editMode)
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert),
+                      onSelected: (action) {
+                        final loc = GoRouterState.of(context).matchedLocation;
+                        final prefix = loc.startsWith('/admin')
+                            ? '/admin'
+                            : loc.startsWith('/teacher')
+                                ? '/teacher'
+                                : '/student';
+                        switch (action) {
+                          case 'add_section':
+                            context.push(
+                              '$prefix/course/${widget.courseId}/manage-sections',
+                            );
+                            break;
+                        }
+                      },
+                      itemBuilder: (_) => [
+                        PopupMenuItem(
+                          value: 'add_section',
+                          child: ListTile(
+                            leading: const Icon(Icons.playlist_add),
+                            title: Text(tr('course_mgmt.add_section')),
+                            dense: true,
+                          ),
+                        ),
+                      ],
+                    ),
                   IconButton(
                     icon: const Icon(Icons.share_rounded),
                     onPressed: () {
@@ -307,6 +355,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                             section: section,
                             courseId: widget.courseId,
                             initiallyExpanded: index == 0,
+                            editMode: _editMode,
                           ),
                         );
                       }, childCount: topLevelSections.length),
@@ -528,11 +577,13 @@ class _DetailSectionCard extends StatefulWidget {
   final CourseSection section;
   final int courseId;
   final bool initiallyExpanded;
+  final bool editMode;
 
   const _DetailSectionCard({
     required this.section,
     required this.courseId,
     this.initiallyExpanded = false,
+    this.editMode = false,
   });
 
   @override
@@ -627,18 +678,45 @@ class _DetailSectionCardState extends State<_DetailSectionCard> {
           AnimatedCrossFade(
             firstChild: const SizedBox(width: double.infinity),
             secondChild: Column(
-              children: widget.section.modules.map((module) {
-                if (module.isSubSection) {
-                  return _DetailSubSectionExpander(
+              children: [
+                ...widget.section.modules.map((module) {
+                  if (module.isSubSection) {
+                    return _DetailSubSectionExpander(
+                      module: module,
+                      courseId: widget.courseId,
+                    );
+                  }
+                  return _DetailModuleItem(
                     module: module,
                     courseId: widget.courseId,
+                    editMode: widget.editMode,
                   );
-                }
-                return _DetailModuleItem(
-                  module: module,
-                  courseId: widget.courseId,
-                );
-              }).toList(),
+                }),
+                if (widget.editMode)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        final loc =
+                            GoRouterState.of(context).matchedLocation;
+                        final prefix = loc.startsWith('/admin')
+                            ? '/admin'
+                            : loc.startsWith('/teacher')
+                                ? '/teacher'
+                                : '/student';
+                        context.push(
+                          '$prefix/course/${widget.courseId}/add-activity/${widget.section.sectionNumber}?sectionName=${Uri.encodeComponent(widget.section.name)}',
+                        );
+                      },
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: Text(tr('course_mgmt.add_activity')),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 40),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             crossFadeState: _expanded
                 ? CrossFadeState.showSecond
@@ -655,8 +733,13 @@ class _DetailSectionCardState extends State<_DetailSectionCard> {
 class _DetailModuleItem extends StatelessWidget {
   final CourseModule module;
   final int courseId;
+  final bool editMode;
 
-  const _DetailModuleItem({required this.module, required this.courseId});
+  const _DetailModuleItem({
+    required this.module,
+    required this.courseId,
+    this.editMode = false,
+  });
 
   IconData _getModuleIcon() {
     if (module.isQuiz) return Icons.quiz_rounded;
@@ -748,11 +831,29 @@ class _DetailModuleItem extends StatelessWidget {
                 size: 22,
               ),
             const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.textTertiaryLight,
-              size: 20,
-            ),
+            if (editMode)
+              IconButton(
+                icon: const Icon(Icons.edit, size: 18),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                onPressed: () {
+                  final loc = GoRouterState.of(context).matchedLocation;
+                  final prefix = loc.startsWith('/admin')
+                      ? '/admin'
+                      : loc.startsWith('/teacher')
+                          ? '/teacher'
+                          : '/student';
+                  context.push(
+                    '$prefix/edit-activity/${module.id}?module=${Uri.encodeComponent(module.modName)}&name=${Uri.encodeComponent(module.name)}',
+                  );
+                },
+              )
+            else
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.textTertiaryLight,
+                size: 20,
+              ),
           ],
         ),
       ),

@@ -32,6 +32,11 @@ class CourseContentRepositoryImpl implements CourseContentRepository {
         );
         return Right(sections);
       } on ServerException catch (e) {
+        final lowerMessage = e.message.toLowerCase();
+        if (lowerMessage.contains('accessexception') ||
+            lowerMessage.contains('nopermissions')) {
+          return const Right(<CourseSection>[]);
+        }
         return Left(ServerFailure(message: e.message));
       } catch (e) {
         return Left(UnexpectedFailure(message: e.toString()));

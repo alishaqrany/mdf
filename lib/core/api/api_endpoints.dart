@@ -242,6 +242,28 @@ class MoodleApiEndpoints {
   static const String mdfGetCohortCourseSyncs =
       'local_mdf_api_get_cohort_course_syncs';
 
+  // ─── Teacher Role (local_mdf_api) ───
+  static const String mdfGetUserRoleSummary =
+      'local_mdf_api_get_user_role_summary';
+
+  // ─── Course Content Management (local_mdf_api) ───
+  static const String mdfManageCourseSection =
+      'local_mdf_api_manage_course_section';
+  static const String mdfAddCourseModule = 'local_mdf_api_add_course_module';
+  static const String mdfUpdateCourseModule =
+      'local_mdf_api_update_course_module';
+  static const String mdfDeleteCourseModule =
+      'local_mdf_api_delete_course_module';
+  static const String mdfReorderCourseModules =
+      'local_mdf_api_reorder_course_modules';
+
+  // ─── Notification Management (local_mdf_api) ───
+  static const String mdfSendMoodleNotification =
+      'local_mdf_api_send_moodle_notification';
+  static const String mdfGetNotificationLog =
+      'local_mdf_api_get_notification_log';
+  static const String mdfGetUsersList = 'local_mdf_api_get_users_list';
+
   // ─── AI Management (local_mdf_api) ───
   static const String mdfSaveAiConfig = 'local_mdf_api_save_ai_config';
   static const String mdfGetAiConfig = 'local_mdf_api_get_ai_config';

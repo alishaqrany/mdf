@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/api/moodle_api_client.dart';
 import '../models/ai_config_model.dart';
@@ -37,7 +39,7 @@ abstract class AiRemoteDataSource {
   Future<void> saveAiConfig(AiConfigModel config);
 
   /// Get AI usage statistics.
-  Future<AiUsageStatsModel> getAiUsageStats({String period});
+  Future<AiUsageStatsModel> getAiUsageStats({int days});
 
   /// Get AI usage limits for a user.
   Future<AiUserLimitModel> getAiUserLimit({int userid});
@@ -58,15 +60,18 @@ class AiRemoteDataSourceImpl implements AiRemoteDataSource {
     String? provider,
     String locale = 'en',
   }) async {
-    final params = <String, dynamic>{'message': message, 'locale': locale};
-    if (provider != null) params['provider'] = provider;
-
-    // Encode history as indexed params
+    // Build a JSON array of {role, content} messages as the PHP endpoint expects.
+    final messageArray = <Map<String, String>>[];
     if (history != null) {
-      for (int i = 0; i < history.length; i++) {
-        params['history[$i][role]'] = history[i]['role'] ?? 'user';
-        params['history[$i][content]'] = history[i]['content'] ?? '';
-      }
+      messageArray.addAll(history);
+    }
+    messageArray.add({'role': 'user', 'content': message});
+
+    final params = <String, dynamic>{
+      'messages': jsonEncode(messageArray),
+    };
+    if (provider != null && provider.isNotEmpty) {
+      params['provider'] = provider;
     }
 
     final response = await apiClient.call(
@@ -155,10 +160,10 @@ class AiRemoteDataSourceImpl implements AiRemoteDataSource {
   }
 
   @override
-  Future<AiUsageStatsModel> getAiUsageStats({String period = 'month'}) async {
+  Future<AiUsageStatsModel> getAiUsageStats({int days = 30}) async {
     final response = await apiClient.call(
       MoodleApiEndpoints.mdfGetAiUsageStats,
-      params: {'period': period},
+      params: {'days': days},
     );
 
     if (response is Map<String, dynamic>) {

@@ -359,6 +359,11 @@ class _AdminDashboardViewState extends State<_AdminDashboardView> {
                                   onTap: () =>
                                       context.push('/admin/ai-settings'),
                                 ),
+                                _QuickActionChip(
+                                  icon: Icons.dashboard_customize_rounded,
+                                  label: tr('admin.student_view'),
+                                  onTap: () => context.push('/student'),
+                                ),
                               ],
                             ),
                           ],

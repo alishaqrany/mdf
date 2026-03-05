@@ -110,6 +110,9 @@ import '../../core/storage/offline_queue.dart';
 import '../../core/network/connectivity_cubit.dart';
 import '../../features/downloads/presentation/bloc/downloads_bloc.dart';
 
+// ─── Theme ───
+import '../../core/theme/theme_cubit.dart';
+
 // ─── AI Features ───
 import '../../features/ai/data/ai_engine.dart';
 import '../../features/ai/data/datasources/ai_remote_datasource.dart';
@@ -146,6 +149,14 @@ import '../../features/cohorts/presentation/bloc/cohort_bloc.dart';
 
 // ─── Course Create ───
 import '../../features/courses/presentation/bloc/course_create_bloc.dart';
+
+// ─── Course Management ───
+import '../../features/course_management/data/datasources/course_management_remote_datasource.dart';
+import '../../features/course_management/presentation/bloc/course_management_bloc.dart';
+
+// ─── Notification Admin ───
+import '../../features/notification_admin/data/datasources/notification_admin_remote_datasource.dart';
+import '../../features/notification_admin/presentation/bloc/notification_admin_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -377,6 +388,9 @@ Future<void> initDependencies() async {
     () => ConnectivityCubit(networkInfo: sl(), offlineQueue: sl()),
   );
 
+  // ─── Theme ───
+  sl.registerLazySingleton<ThemeCubit>(() => ThemeCubit(prefs: sl()));
+
   // ─── Downloads Feature (mobile/desktop only) ───
   if (PlatformInfo.supportsFileSystem) {
     sl.registerFactory(() => DownloadsBloc(downloadManager: sl()));
@@ -438,4 +452,20 @@ Future<void> initDependencies() async {
 
   // ─── Cohort Feature ───
   sl.registerFactory(() => CohortBloc(apiClient: sl()));
+
+  // ─── Course Management Feature ───
+  sl.registerLazySingleton<CourseManagementRemoteDataSource>(
+    () => CourseManagementRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerFactory(
+    () => CourseManagementBloc(dataSource: sl()),
+  );
+
+  // ─── Notification Admin Feature ───
+  sl.registerLazySingleton<NotificationAdminRemoteDataSource>(
+    () => NotificationAdminRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerFactory(
+    () => NotificationAdminBloc(dataSource: sl()),
+  );
 }

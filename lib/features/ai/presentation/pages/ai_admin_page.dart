@@ -7,6 +7,7 @@ import '../../data/datasources/ai_remote_datasource.dart';
 import '../../data/models/ai_config_model.dart';
 import '../../data/models/ai_usage_model.dart';
 import '../bloc/ai_admin_bloc.dart';
+import '../../../../app/di/injection.dart';
 
 /// Admin page for managing AI provider configurations, usage stats & limits.
 class AiAdminPage extends StatelessWidget {
@@ -15,9 +16,7 @@ class AiAdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          AiAdminBloc(dataSource: GetIt.instance<AiRemoteDataSource>())
-            ..add(const LoadAiAdminData()),
+      create: (_) => sl<AiAdminBloc>()..add(const LoadAiAdminData()),
       child: const _AiAdminView(),
     );
   }

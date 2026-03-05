@@ -1,4 +1,4 @@
-{
+﻿{
   "app_name": "أكاديمية MDF",
   "login": {
     "title": "مرحباً بعودتك",
@@ -71,6 +71,7 @@
     "pending_tasks": "مهام معلقة",
     "failed_tasks": "فشلت (24 ساعة)",
     "ai_settings": "إعدادات الذكاء الاصطناعي",
+    "student_view": "لوحة تحكم الطالب",
     "ai_usage": "استخدام الذكاء الاصطناعي",
     "course_basic_info": "المعلومات الأساسية",
     "course_full_name": "اسم المقرر الكامل",
@@ -713,5 +714,76 @@
   },
   "validation": {
     "required": "هذا الحقل مطلوب"
+  },
+  "teacher": {
+    "dashboard_title": "لوحة تحكم المعلم",
+    "welcome": "مرحباً",
+    "dashboard_subtitle": "إدارة المقررات والطلاب",
+    "quick_actions": "إجراءات سريعة",
+    "my_courses": "مقرراتي",
+    "no_courses": "لا توجد مقررات مخصصة لك",
+    "manage_content": "إدارة المحتوى"
+  },
+  "course_mgmt": {
+    "add_activity": "إضافة نشاط",
+    "edit_activity": "تعديل النشاط",
+    "add_section": "إضافة قسم",
+    "edit_section": "تعديل القسم",
+    "select_type": "اختر نوع النشاط",
+    "change_type": "تغيير النوع",
+    "section": "القسم",
+    "type_resource": "ملف مرفق",
+    "type_page": "صفحة",
+    "type_label": "تسمية",
+    "type_assign": "واجب",
+    "type_quiz": "اختبار",
+    "type_forum": "منتدى",
+    "type_url": "رابط خارجي",
+    "type_folder": "مجلد",
+    "field_name": "الاسم",
+    "field_description": "الوصف",
+    "field_label_text": "نص التسمية",
+    "field_section_name": "اسم القسم",
+    "field_section_summary": "ملخص القسم",
+    "field_due_date": "تاريخ الاستحقاق",
+    "field_max_grade": "الدرجة القصوى",
+    "field_time_limit": "المدة الزمنية (دقائق)",
+    "field_time_limit_help": "0 = بدون حد زمني",
+    "field_url": "رابط خارجي",
+    "field_visible": "مرئي للطلاب",
+    "visible_yes": "يمكن للطلاب رؤية هذا النشاط",
+    "visible_no": "مخفي عن الطلاب",
+    "delete_confirm_title": "حذف النشاط؟",
+    "delete_confirm_body": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع البيانات المرتبطة.",
+    "manage_sections": "إدارة الأقسام",
+    "edit_mode": "وضع التحرير"
+  },
+  "notif_admin": {
+    "title": "مدير الإشعارات",
+    "tab_compose": "إنشاء",
+    "tab_history": "السجل",
+    "field_subject": "العنوان",
+    "field_message": "الرسالة",
+    "send_fcm": "إرسال إشعار فوري",
+    "send_fcm_desc": "إرسال أيضاً عبر Firebase Cloud Messaging",
+    "recipients": "المستلمون",
+    "search_users": "البحث عن مستخدمين...",
+    "select_all": "تحديد الكل",
+    "selected": "المحدد",
+    "no_users": "لم يتم العثور على مستخدمين",
+    "send": "إرسال الإشعار",
+    "no_history": "لا يوجد سجل إشعار",
+    "to": "إلى"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "courses": "المقررات",
+    "messages": "الرسائل",
+    "calendar": "التقويم",
+    "profile": "الملف الشخصي",
+    "notifications": "الإشعارات",
+    "grades": "الدرجات",
+    "assignments": "الواجبات",
+    "forums": "المنتديات"
   }
 }

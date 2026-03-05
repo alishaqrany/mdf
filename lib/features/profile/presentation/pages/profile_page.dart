@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/di/injection.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/profile_bloc.dart';
@@ -386,12 +387,16 @@ class _SettingsSection extends StatelessWidget {
               icon: Icons.dark_mode_rounded,
               title: tr('profile.dark_mode'),
               trailing: Switch(
-                value: Theme.of(context).brightness == Brightness.dark,
+                value: context.watch<ThemeCubit>().state == ThemeMode.dark,
                 onChanged: (v) {
-                  // Dark mode toggle handled by theme
+                  context.read<ThemeCubit>().setTheme(
+                    v ? ThemeMode.dark : ThemeMode.light,
+                  );
                 },
               ),
-              onTap: () {},
+              onTap: () {
+                context.read<ThemeCubit>().toggleTheme();
+              },
             ),
             _SettingsTile(
               icon: Icons.notifications_rounded,

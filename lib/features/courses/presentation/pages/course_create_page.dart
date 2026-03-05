@@ -6,15 +6,28 @@ import 'package:intl/intl.dart';
 
 import '../../data/models/course_model.dart';
 import '../bloc/course_create_bloc.dart';
+import '../../../../app/di/injection.dart';
 
-class CourseCreatePage extends StatefulWidget {
+class CourseCreatePage extends StatelessWidget {
   const CourseCreatePage({super.key});
 
   @override
-  State<CourseCreatePage> createState() => _CourseCreatePageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => sl<CourseCreateBloc>()..add(LoadCategoriesForCreate()),
+      child: const _CourseCreateView(),
+    );
+  }
 }
 
-class _CourseCreatePageState extends State<CourseCreatePage> {
+class _CourseCreateView extends StatefulWidget {
+  const _CourseCreateView();
+
+  @override
+  State<_CourseCreateView> createState() => _CourseCreateViewState();
+}
+
+class _CourseCreateViewState extends State<_CourseCreateView> {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _shortNameController = TextEditingController();
@@ -37,7 +50,6 @@ class _CourseCreatePageState extends State<CourseCreatePage> {
   @override
   void initState() {
     super.initState();
-    context.read<CourseCreateBloc>().add(LoadCategoriesForCreate());
   }
 
   @override

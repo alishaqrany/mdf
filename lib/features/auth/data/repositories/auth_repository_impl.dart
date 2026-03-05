@@ -7,6 +7,7 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -40,7 +41,11 @@ class AuthRepositoryImpl implements AuthRepository {
       await localDataSource.saveUser(user);
       await localDataSource.saveServerUrl(serverUrl);
 
-      return Right(user);
+      // Enrich with teacher role info.
+      final enriched = await _enrichWithRoleSummary(user);
+      await localDataSource.saveUser(enriched);
+
+      return Right(enriched);
     } on AuthException catch (e) {
       return Left(AuthFailure(message: e.message));
     } on ServerException catch (e) {
@@ -79,8 +84,9 @@ class AuthRepositoryImpl implements AuthRepository {
         if (await networkInfo.isConnected) {
           try {
             final freshUser = await remoteDataSource.getSiteInfo();
-            await localDataSource.saveUser(freshUser);
-            return Right(freshUser);
+            final enriched = await _enrichWithRoleSummary(freshUser);
+            await localDataSource.saveUser(enriched);
+            return Right(enriched);
           } catch (_) {
             // If refresh fails, still return cached data
             return Right(cachedUser);
@@ -92,8 +98,9 @@ class AuthRepositoryImpl implements AuthRepository {
       // No cached user, try to fetch from server
       if (await networkInfo.isConnected) {
         final user = await remoteDataSource.getSiteInfo();
-        await localDataSource.saveUser(user);
-        return Right(user);
+        final enriched = await _enrichWithRoleSummary(user);
+        await localDataSource.saveUser(enriched);
+        return Right(enriched);
       }
 
       return const Left(AuthFailure(message: 'Not authenticated'));
@@ -133,9 +140,10 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       // Update cached user data
-      await localDataSource.saveUser(user);
+      final enriched = await _enrichWithRoleSummary(user);
+      await localDataSource.saveUser(enriched);
 
-      return Right(user);
+      return Right(enriched);
     } on AuthException catch (e) {
       return Left(AuthFailure(message: e.message));
     } on ServerException catch (e) {
@@ -152,5 +160,36 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<String?> getServerUrl() async {
     return localDataSource.getServerUrl();
+  }
+
+  /// Enrich user with teacher role info from the custom plugin endpoint.
+  Future<UserModel> _enrichWithRoleSummary(UserModel user) async {
+    try {
+      final summary = await remoteDataSource.getUserRoleSummary();
+      final isTeacher = summary['is_teacher'] == true;
+      final courseIds = (summary['teacher_courseids'] as List<dynamic>?)
+          ?.map((e) => e is int ? e : int.tryParse(e.toString()) ?? 0)
+          .where((id) => id > 0)
+          .toList() ?? const [];
+
+      return UserModel(
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        fullName: user.fullName,
+        email: user.email,
+        profileImageUrl: user.profileImageUrl,
+        lang: user.lang,
+        isSiteAdmin: user.isSiteAdmin,
+        isTeacher: isTeacher,
+        teacherCourseIds: courseIds,
+        siteId: user.siteId,
+        siteName: user.siteName,
+        siteUrl: user.siteUrl,
+      );
+    } catch (_) {
+      return user;
+    }
   }
 }

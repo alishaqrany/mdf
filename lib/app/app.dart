@@ -7,6 +7,7 @@ import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import '../core/config/tenant_resolver.dart';
 import '../core/config/tenant_theme.dart';
+import '../core/theme/theme_cubit.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../core/network/connectivity_cubit.dart';
 import '../core/widgets/connectivity_wrapper.dart';
@@ -22,6 +23,7 @@ class MdfApp extends StatelessWidget {
           create: (_) => sl<AuthBloc>()..add(const AuthCheckRequested()),
         ),
         BlocProvider(create: (_) => sl<ConnectivityCubit>()),
+        BlocProvider(create: (_) => sl<ThemeCubit>()),
       ],
       child: const _AppView(),
     );
@@ -49,6 +51,7 @@ class _AppViewState extends State<_AppView> {
     final tenant = TenantManager.current;
     final isCustomTenant = TenantManager.isCustomTenant;
     final locale = context.locale.languageCode;
+    final themeMode = context.watch<ThemeCubit>().state;
 
     return MaterialApp.router(
       // ─── Title ───
@@ -66,9 +69,7 @@ class _AppViewState extends State<_AppView> {
       darkTheme: isCustomTenant
           ? TenantTheme.dark(tenant, locale: locale)
           : AppTheme.dark(locale: locale),
-      themeMode: tenant.features.enableDarkMode
-          ? ThemeMode.system
-          : ThemeMode.light,
+      themeMode: themeMode,
 
       // ─── Router ───
       routerConfig: _appRouter.router,

@@ -18,10 +18,10 @@ class SaveAiProviderConfig extends AiAdminEvent {
 }
 
 class LoadAiUsageStats extends AiAdminEvent {
-  final String period;
-  const LoadAiUsageStats({this.period = 'month'});
+  final int days;
+  const LoadAiUsageStats({this.days = 30});
   @override
-  List<Object?> get props => [period];
+  List<Object?> get props => [days];
 }
 
 class SetAiUserLimits extends AiAdminEvent {

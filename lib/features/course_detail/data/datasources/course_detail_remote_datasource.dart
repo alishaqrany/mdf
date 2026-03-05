@@ -30,14 +30,49 @@ class CourseDetailRemoteDataSourceImpl implements CourseDetailRemoteDataSource {
         }
       }
     } catch (_) {
-      // Fallback: try getCourses and filter
+      // Fallback: resolve from current user's enrolled courses only
       try {
-        final response = await apiClient.call(MoodleApiEndpoints.getCourses);
+        final siteInfo = await apiClient.call(MoodleApiEndpoints.getSiteInfo);
+        final userId = (siteInfo as Map<String, dynamic>)['userid'] as int?;
+        if (userId == null || userId == 0) {
+          throw Exception('Cannot resolve current user');
+        }
+
+        final response = await apiClient.call(
+          MoodleApiEndpoints.getUsersCourses,
+          params: {'userid': userId},
+        );
+
         if (response is List) {
           final match = response.cast<Map<String, dynamic>>().firstWhere(
             (c) => c['id'] == courseId,
             orElse: () => <String, dynamic>{},
           );
+          if (match.isNotEmpty) {
+            return CourseModel.fromEnrolledCourse(match);
+          }
+        }
+      } catch (_) {}
+
+      // Fallback 2: enrolled timeline endpoint.
+      try {
+        final timeline = await apiClient.call(
+          MoodleApiEndpoints.getCoursesByTimeline,
+          params: {
+            'classification': 'all',
+            'sort': 'fullname',
+            'offset': 0,
+            'limit': 200,
+          },
+        );
+
+        if (timeline is Map && timeline['courses'] is List) {
+          final match = (timeline['courses'] as List)
+              .cast<Map<String, dynamic>>()
+              .firstWhere(
+                (c) => c['id'] == courseId,
+                orElse: () => <String, dynamic>{},
+              );
           if (match.isNotEmpty) {
             return CourseModel.fromEnrolledCourse(match);
           }

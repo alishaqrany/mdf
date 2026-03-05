@@ -44,19 +44,46 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
       }
       return [];
     } catch (_) {
-      // Fallback: use core_course_get_courses if enrol_get_users_courses fails
+      // Safe fallback 1: timeline endpoint (enrolled-only view).
       try {
-        final response = await apiClient.call(MoodleApiEndpoints.getCourses);
-        if (response is List) {
-          return response
+        final timeline = await apiClient.call(
+          MoodleApiEndpoints.getCoursesByTimeline,
+          params: {
+            'classification': 'all',
+            'sort': 'fullname',
+            'offset': 0,
+            'limit': 200,
+          },
+        );
+
+        if (timeline is Map && timeline['courses'] is List) {
+          final courses = (timeline['courses'] as List)
               .map(
-                (json) => CourseModel.fromEnrolledCourse(
-                  json as Map<String, dynamic>,
-                ),
+                (json) =>
+                    CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
+              )
+              .toList();
+          if (courses.isNotEmpty) return courses;
+        }
+      } catch (_) {}
+
+      // Safe fallback 2: recent courses endpoint (also enrolled-only).
+      try {
+        final recent = await apiClient.call(
+          MoodleApiEndpoints.getRecentCourses,
+          params: {'userid': resolvedUserId, 'limit': 50},
+        );
+
+        if (recent is List) {
+          return recent
+              .map(
+                (json) =>
+                    CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
               )
               .toList();
         }
       } catch (_) {}
+
       return [];
     }
   }

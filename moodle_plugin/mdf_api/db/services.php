@@ -454,6 +454,76 @@ $functions = [
     ],
 
     // ─── AI Management ───
+
+    // ─── Teacher Role ───
+    'local_mdf_api_get_user_role_summary' => [
+        'classname'     => 'local_mdf_api\external\get_user_role_summary',
+        'description'   => 'Get current user role summary (teacher courses, etc.)',
+        'type'          => 'read',
+        'ajax'          => true,
+        'capabilities'  => '',
+    ],
+
+    // ─── Course Content Management ───
+    'local_mdf_api_manage_course_section' => [
+        'classname'     => 'local_mdf_api\external\manage_course_section',
+        'description'   => 'Add, edit, delete, or move a course section',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'moodle/course:update',
+    ],
+    'local_mdf_api_add_course_module' => [
+        'classname'     => 'local_mdf_api\external\add_course_module',
+        'description'   => 'Add a new activity or resource to a course section',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'moodle/course:manageactivities',
+    ],
+    'local_mdf_api_update_course_module' => [
+        'classname'     => 'local_mdf_api\external\update_course_module',
+        'description'   => 'Update an existing course module',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'moodle/course:manageactivities',
+    ],
+    'local_mdf_api_delete_course_module' => [
+        'classname'     => 'local_mdf_api\external\delete_course_module',
+        'description'   => 'Delete a course module',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'moodle/course:manageactivities',
+    ],
+    'local_mdf_api_reorder_course_modules' => [
+        'classname'     => 'local_mdf_api\external\reorder_course_modules',
+        'description'   => 'Move a course module to a different section or position',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'moodle/course:manageactivities',
+    ],
+
+    // ─── Notification Management ───
+    'local_mdf_api_send_moodle_notification' => [
+        'classname'     => 'local_mdf_api\external\send_moodle_notification',
+        'description'   => 'Send Moodle native notifications to users',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'local/mdf_api:sendnotification',
+    ],
+    'local_mdf_api_get_notification_log' => [
+        'classname'     => 'local_mdf_api\external\get_notification_log',
+        'description'   => 'Get push notification history log',
+        'type'          => 'read',
+        'ajax'          => true,
+        'capabilities'  => 'local/mdf_api:sendnotification',
+    ],
+    'local_mdf_api_get_users_list' => [
+        'classname'     => 'local_mdf_api\external\get_users_list',
+        'description'   => 'Get searchable user list for recipient picker',
+        'type'          => 'read',
+        'ajax'          => true,
+        'capabilities'  => 'local/mdf_api:sendnotification',
+    ],
+
     'local_mdf_api_save_ai_config' => [
         'classname'     => 'local_mdf_api\external\save_ai_config',
         'description'   => 'Save AI provider configuration (admin)',
@@ -541,6 +611,13 @@ $services = [
                 'enrol_get_users_courses',
                 'enrol_get_enrolled_users',
                 'enrol_manual_enrol_users',
+
+                // Course content management APIs.
+                'core_course_get_contents',
+                'core_course_search_courses',
+                'core_course_get_recent_courses',
+                'core_course_view_course',
+                'core_files_upload',
             ]
         ))),
         'restrictedusers'   => 0,

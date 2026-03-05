@@ -56,7 +56,7 @@ class AiAdminBloc extends Bloc<AiAdminEvent, AiAdminState> {
     Emitter<AiAdminState> emit,
   ) async {
     try {
-      final stats = await dataSource.getAiUsageStats(period: event.period);
+      final stats = await dataSource.getAiUsageStats(days: event.days);
       final currentState = state;
       if (currentState is AiAdminLoaded) {
         emit(currentState.copyWith(stats: stats));

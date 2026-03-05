@@ -55,6 +55,11 @@ import '../../features/ai/presentation/pages/ai_admin_page.dart';
 import '../../features/courses/presentation/pages/course_create_page.dart';
 import '../../features/cohorts/presentation/pages/cohorts_page.dart';
 import '../../features/cohorts/presentation/pages/cohort_detail_page.dart';
+import '../../features/teacher_dashboard/presentation/pages/teacher_dashboard_page.dart';
+import '../../features/course_management/presentation/pages/add_activity_page.dart';
+import '../../features/course_management/presentation/pages/edit_activity_page.dart';
+import '../../features/course_management/presentation/pages/manage_sections_page.dart';
+import '../../features/notification_admin/presentation/pages/notification_admin_page.dart';
 
 /// Route name constants
 abstract class AppRoutes {
@@ -113,6 +118,11 @@ abstract class AppRoutes {
   static const cohortDetail = 'cohort-detail';
   static const courseCreate = 'course-create';
   static const aiAdmin = 'ai-admin';
+  static const teacherDashboard = 'teacher-dashboard';
+  static const addActivity = 'add-activity';
+  static const editActivity = 'edit-activity';
+  static const manageSections = 'manage-sections';
+  static const notificationAdmin = 'notification-admin';
 }
 
 /// GoRouter configuration with role-based guards
@@ -144,6 +154,9 @@ class AppRouter {
       if (isAuthenticated && isLoginRoute) {
         if (authState.user.isAdmin) {
           return '/admin';
+        }
+        if (authState.user.isTeacher) {
+          return '/teacher';
         }
         return '/student';
       }
@@ -496,6 +509,188 @@ class AppRouter {
             path: '/admin/ai-settings',
             name: AppRoutes.aiAdmin,
             builder: (context, state) => const AiAdminPage(),
+          ),
+          // ─── Notification Admin Route ───
+          GoRoute(
+            path: '/admin/notification-admin',
+            name: AppRoutes.notificationAdmin,
+            builder: (context, state) => const NotificationAdminPage(),
+          ),
+          // ─── Course Content Management (Admin) ───
+          GoRoute(
+            path: '/admin/course/:courseId/add-activity/:sectionNum',
+            name: '${AppRoutes.addActivity}-admin',
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              final sectionNum =
+                  int.tryParse(state.pathParameters['sectionNum'] ?? '') ?? 0;
+              final sectionName =
+                  state.uri.queryParameters['sectionName'] ?? '';
+              return AddActivityPage(
+                courseId: courseId,
+                sectionNum: sectionNum,
+                sectionName: sectionName,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/admin/edit-activity/:cmid',
+            name: '${AppRoutes.editActivity}-admin',
+            builder: (context, state) {
+              final cmid =
+                  int.tryParse(state.pathParameters['cmid'] ?? '') ?? 0;
+              final moduleName =
+                  state.uri.queryParameters['module'] ?? 'resource';
+              final currentName = state.uri.queryParameters['name'] ?? '';
+              return EditActivityPage(
+                cmid: cmid,
+                moduleName: moduleName,
+                currentName: currentName,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/admin/course/:courseId/manage-sections',
+            name: '${AppRoutes.manageSections}-admin',
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              return ManageSectionsPage(courseId: courseId);
+            },
+          ),
+        ],
+      ),
+
+      // ─── Teacher Shell ───
+      ShellRoute(
+        builder: (context, state, child) =>
+            AdaptiveShell(role: 'teacher', child: child),
+        routes: [
+          GoRoute(
+            path: '/teacher',
+            name: AppRoutes.teacherDashboard,
+            builder: (context, state) => const TeacherDashboardPage(),
+          ),
+          GoRoute(
+            path: '/teacher/courses',
+            name: 'teacher-courses',
+            builder: (context, state) => const CoursesPage(),
+          ),
+          GoRoute(
+            path: '/teacher/course/:courseId',
+            name: 'teacher-course-detail',
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              final courseTitle = state.uri.queryParameters['title'] ?? '';
+              final imageUrl = state.uri.queryParameters['image'];
+              return CourseDetailPage(
+                courseId: courseId,
+                courseTitle: courseTitle,
+                imageUrl: imageUrl,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/teacher/profile',
+            name: '${AppRoutes.profile}-teacher',
+            builder: (context, state) => const ProfilePage(),
+          ),
+          GoRoute(
+            path: '/teacher/messages',
+            name: '${AppRoutes.conversations}-teacher',
+            builder: (context, state) {
+              final userId =
+                  int.tryParse(state.uri.queryParameters['userId'] ?? '') ?? 0;
+              return ConversationsPage(userId: userId);
+            },
+          ),
+          GoRoute(
+            path: '/teacher/notifications',
+            name: '${AppRoutes.notifications}-teacher',
+            builder: (context, state) {
+              final userId =
+                  int.tryParse(state.uri.queryParameters['userId'] ?? '') ?? 0;
+              return NotificationsPage(userId: userId);
+            },
+          ),
+          GoRoute(
+            path: '/teacher/calendar',
+            name: '${AppRoutes.calendar}-teacher',
+            builder: (context, state) => const CalendarPage(),
+          ),
+          GoRoute(
+            path: '/teacher/search',
+            name: '${AppRoutes.search}-teacher',
+            builder: (context, state) => const SearchPage(),
+          ),
+          GoRoute(
+            path: '/teacher/grades',
+            name: '${AppRoutes.grades}-teacher',
+            builder: (context, state) {
+              final userId =
+                  int.tryParse(state.uri.queryParameters['userId'] ?? '') ?? 0;
+              return GradesPage(userId: userId);
+            },
+          ),
+          GoRoute(
+            path: '/teacher/downloads',
+            name: '${AppRoutes.downloads}-teacher',
+            builder: (context, state) => const DownloadsPage(),
+          ),
+          GoRoute(
+            path: '/teacher/ai-insights',
+            name: '${AppRoutes.aiInsights}-teacher',
+            builder: (context, state) => const AiInsightsPage(),
+          ),
+          GoRoute(
+            path: '/teacher/ai-chat',
+            name: '${AppRoutes.aiChat}-teacher',
+            builder: (context, state) => const AiChatPage(),
+          ),
+          // ─── Course Content Management (Teacher) ───
+          GoRoute(
+            path: '/teacher/course/:courseId/add-activity/:sectionNum',
+            name: '${AppRoutes.addActivity}-teacher',
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              final sectionNum =
+                  int.tryParse(state.pathParameters['sectionNum'] ?? '') ?? 0;
+              final sectionName =
+                  state.uri.queryParameters['sectionName'] ?? '';
+              return AddActivityPage(
+                courseId: courseId,
+                sectionNum: sectionNum,
+                sectionName: sectionName,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/teacher/edit-activity/:cmid',
+            name: '${AppRoutes.editActivity}-teacher',
+            builder: (context, state) {
+              final cmid =
+                  int.tryParse(state.pathParameters['cmid'] ?? '') ?? 0;
+              final moduleName =
+                  state.uri.queryParameters['module'] ?? 'resource';
+              final currentName = state.uri.queryParameters['name'] ?? '';
+              return EditActivityPage(
+                cmid: cmid,
+                moduleName: moduleName,
+                currentName: currentName,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/teacher/course/:courseId/manage-sections',
+            name: '${AppRoutes.manageSections}-teacher',
+            builder: (context, state) {
+              final courseId =
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0;
+              return ManageSectionsPage(courseId: courseId);
+            },
           ),
         ],
       ),
