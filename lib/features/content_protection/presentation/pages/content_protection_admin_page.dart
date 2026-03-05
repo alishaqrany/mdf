@@ -321,12 +321,16 @@ class _ContentProtectionAdminPageState
                           children: [
                             Expanded(
                               child: _allCourses == null
-                                  ? const Center(child: CircularProgressIndicator())
+                                  ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
                                   : DropdownButtonFormField<int>(
                                       value: _selectedCourseIdToAdd,
                                       isExpanded: true,
                                       decoration: InputDecoration(
-                                        labelText: 'content_protection.add_course_id'.tr(),
+                                        labelText:
+                                            'content_protection.add_course_id'
+                                                .tr(),
                                         isDense: true,
                                         border: const OutlineInputBorder(),
                                       ),
@@ -336,9 +340,14 @@ class _ContentProtectionAdminPageState
                                           child: Text(course.fullName),
                                         );
                                       }).toList(),
-                                      onChanged: _settings.enabled ? (val) {
-                                        setState(() => _selectedCourseIdToAdd = val);
-                                      } : null,
+                                      onChanged: _settings.enabled
+                                          ? (val) {
+                                              setState(
+                                                () => _selectedCourseIdToAdd =
+                                                    val,
+                                              );
+                                            }
+                                          : null,
                                     ),
                             ),
                             const SizedBox(width: 8),

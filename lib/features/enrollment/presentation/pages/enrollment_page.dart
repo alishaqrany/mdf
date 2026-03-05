@@ -150,17 +150,20 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                       value: _currentCourseId,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        labelText: 'courses.my_courses'.tr(), // Or 'enrollment.select_course'.tr() if available
+                        labelText: 'courses.my_courses'
+                            .tr(), // Or 'enrollment.select_course'.tr() if available
                         hintText: 'enrollment.enter_course_id'.tr(),
                         prefixIcon: const Icon(Icons.school),
                         border: const OutlineInputBorder(),
                       ),
-                      items: _allCourses?.map((course) {
-                        return DropdownMenuItem<int>(
-                          value: course.id,
-                          child: Text(course.fullName),
-                        );
-                      }).toList() ?? [],
+                      items:
+                          _allCourses?.map((course) {
+                            return DropdownMenuItem<int>(
+                              value: course.id,
+                              child: Text(course.fullName),
+                            );
+                          }).toList() ??
+                          [],
                       onChanged: (id) {
                         if (id != null) _loadCourse(id);
                       },

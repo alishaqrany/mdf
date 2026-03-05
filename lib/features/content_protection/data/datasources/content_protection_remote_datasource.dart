@@ -164,10 +164,7 @@ class ContentProtectionRemoteDataSourceImpl
     String? action,
     int? userId,
   }) async {
-    final params = <String, dynamic>{
-      'page': page,
-      'perpage': perPage,
-    };
+    final params = <String, dynamic>{'page': page, 'perpage': perPage};
     if (action != null) params['action'] = action;
     if (userId != null) params['userid'] = userId;
 

@@ -155,7 +155,11 @@ class _CoursesViewState extends State<_CoursesView>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
@@ -178,8 +182,8 @@ class _CoursesViewState extends State<_CoursesView>
           }
 
           if (state is CoursesLoaded || state is CoursesSearchResults) {
-            final courses = state is CoursesLoaded 
-                ? state.courses 
+            final courses = state is CoursesLoaded
+                ? state.courses
                 : (state as CoursesSearchResults).courses;
 
             return TabBarView(
@@ -522,7 +526,10 @@ class _CourseListCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.chevron_right, color: AppColors.textTertiaryLight),
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.textTertiaryLight,
+              ),
             ],
           ),
         ),
