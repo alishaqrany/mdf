@@ -8,10 +8,9 @@ class CourseManagementBloc
     extends Bloc<CourseManagementEvent, CourseManagementState> {
   final CourseManagementRemoteDataSource _dataSource;
 
-  CourseManagementBloc({
-    required CourseManagementRemoteDataSource dataSource,
-  })  : _dataSource = dataSource,
-        super(const CourseManagementInitial()) {
+  CourseManagementBloc({required CourseManagementRemoteDataSource dataSource})
+    : _dataSource = dataSource,
+      super(const CourseManagementInitial()) {
     on<AddSection>(_onAddSection);
     on<UpdateSection>(_onUpdateSection);
     on<DeleteSection>(_onDeleteSection);
@@ -33,10 +32,12 @@ class CourseManagementBloc
         name: event.name,
         summary: event.summary,
       );
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Section added',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Section added',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }
@@ -54,10 +55,12 @@ class CourseManagementBloc
         summary: event.summary,
         visible: event.visible,
       );
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Section updated',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Section updated',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }
@@ -73,10 +76,12 @@ class CourseManagementBloc
         courseId: event.courseId,
         sectionId: event.sectionId,
       );
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Section deleted',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Section deleted',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }
@@ -93,10 +98,12 @@ class CourseManagementBloc
         sectionId: event.sectionId,
         position: event.position,
       );
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Section moved',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Section moved',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }
@@ -116,10 +123,12 @@ class CourseManagementBloc
         intro: event.intro,
         config: event.config,
       );
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Activity added',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Activity added',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }
@@ -138,10 +147,12 @@ class CourseManagementBloc
         visible: event.visible,
         config: event.config,
       );
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Activity updated',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Activity updated',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }
@@ -154,10 +165,12 @@ class CourseManagementBloc
     emit(const CourseManagementLoading());
     try {
       final result = await _dataSource.deleteModule(cmid: event.cmid);
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Activity deleted',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Activity deleted',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }
@@ -174,10 +187,12 @@ class CourseManagementBloc
         sectionId: event.sectionId,
         beforeMod: event.beforeMod,
       );
-      emit(CourseManagementSuccess(
-        message: result['message'] ?? 'Activity moved',
-        data: result,
-      ));
+      emit(
+        CourseManagementSuccess(
+          message: result['message'] ?? 'Activity moved',
+          data: result,
+        ),
+      );
     } catch (e) {
       emit(CourseManagementError(message: e.toString()));
     }

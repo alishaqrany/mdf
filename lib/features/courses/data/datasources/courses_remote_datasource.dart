@@ -59,8 +59,9 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
         if (timeline is Map && timeline['courses'] is List) {
           final courses = (timeline['courses'] as List)
               .map(
-                (json) =>
-                    CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
+                (json) => CourseModel.fromEnrolledCourse(
+                  json as Map<String, dynamic>,
+                ),
               )
               .toList();
           if (courses.isNotEmpty) return courses;
@@ -77,8 +78,9 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
         if (recent is List) {
           return recent
               .map(
-                (json) =>
-                    CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
+                (json) => CourseModel.fromEnrolledCourse(
+                  json as Map<String, dynamic>,
+                ),
               )
               .toList();
         }

@@ -14,11 +14,7 @@ class AddSection extends CourseManagementEvent {
   final String name;
   final String? summary;
 
-  const AddSection({
-    required this.courseId,
-    required this.name,
-    this.summary,
-  });
+  const AddSection({required this.courseId, required this.name, this.summary});
 
   @override
   List<Object?> get props => [courseId, name, summary];
@@ -71,7 +67,8 @@ class MoveSection extends CourseManagementEvent {
 class AddModule extends CourseManagementEvent {
   final int courseId;
   final int sectionNum;
-  final String moduleName; // resource, page, label, assign, quiz, forum, url, folder
+  final String
+  moduleName; // resource, page, label, assign, quiz, forum, url, folder
   final String name;
   final String? intro;
   final Map<String, dynamic>? config;
@@ -86,7 +83,14 @@ class AddModule extends CourseManagementEvent {
   });
 
   @override
-  List<Object?> get props => [courseId, sectionNum, moduleName, name, intro, config];
+  List<Object?> get props => [
+    courseId,
+    sectionNum,
+    moduleName,
+    name,
+    intro,
+    config,
+  ];
 }
 
 class UpdateModule extends CourseManagementEvent {

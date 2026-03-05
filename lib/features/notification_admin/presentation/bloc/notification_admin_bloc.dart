@@ -8,10 +8,9 @@ class NotificationAdminBloc
     extends Bloc<NotificationAdminEvent, NotificationAdminState> {
   final NotificationAdminRemoteDataSource _dataSource;
 
-  NotificationAdminBloc({
-    required NotificationAdminRemoteDataSource dataSource,
-  })  : _dataSource = dataSource,
-        super(const NotificationAdminInitial()) {
+  NotificationAdminBloc({required NotificationAdminRemoteDataSource dataSource})
+    : _dataSource = dataSource,
+      super(const NotificationAdminInitial()) {
     on<LoadUsers>(_onLoadUsers);
     on<SendNotifications>(_onSendNotifications);
     on<LoadNotificationLog>(_onLoadLog);
@@ -28,14 +27,12 @@ class NotificationAdminBloc
         courseId: event.courseId,
         cohortId: event.cohortId,
       );
-      final users = (result['users'] as List?)
+      final users =
+          (result['users'] as List?)
               ?.map((u) => Map<String, dynamic>.from(u))
               .toList() ??
           [];
-      emit(UsersLoaded(
-        users: users,
-        total: result['total'] ?? users.length,
-      ));
+      emit(UsersLoaded(users: users, total: result['total'] ?? users.length));
     } catch (e) {
       emit(NotificationAdminError(message: e.toString()));
     }
@@ -53,12 +50,14 @@ class NotificationAdminBloc
         message: event.message,
         sendFcm: event.sendFcm,
       );
-      emit(NotificationSent(
-        totalSent: result['total_sent'] ?? 0,
-        totalFailed: result['total_failed'] ?? 0,
-        message:
-            '${result['total_sent'] ?? 0} sent, ${result['total_failed'] ?? 0} failed',
-      ));
+      emit(
+        NotificationSent(
+          totalSent: result['total_sent'] ?? 0,
+          totalFailed: result['total_failed'] ?? 0,
+          message:
+              '${result['total_sent'] ?? 0} sent, ${result['total_failed'] ?? 0} failed',
+        ),
+      );
     } catch (e) {
       emit(NotificationAdminError(message: e.toString()));
     }
@@ -74,14 +73,17 @@ class NotificationAdminBloc
         page: event.page,
         status: event.status,
       );
-      final logs = (result['logs'] as List?)
+      final logs =
+          (result['logs'] as List?)
               ?.map((l) => Map<String, dynamic>.from(l))
               .toList() ??
           [];
-      emit(NotificationLogLoaded(
-        logs: logs,
-        total: result['total'] ?? logs.length,
-      ));
+      emit(
+        NotificationLogLoaded(
+          logs: logs,
+          total: result['total'] ?? logs.length,
+        ),
+      );
     } catch (e) {
       emit(NotificationAdminError(message: e.toString()));
     }

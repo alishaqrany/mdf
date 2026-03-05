@@ -457,15 +457,11 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<CourseManagementRemoteDataSource>(
     () => CourseManagementRemoteDataSourceImpl(apiClient: sl()),
   );
-  sl.registerFactory(
-    () => CourseManagementBloc(dataSource: sl()),
-  );
+  sl.registerFactory(() => CourseManagementBloc(dataSource: sl()));
 
   // ─── Notification Admin Feature ───
   sl.registerLazySingleton<NotificationAdminRemoteDataSource>(
     () => NotificationAdminRemoteDataSourceImpl(apiClient: sl()),
   );
-  sl.registerFactory(
-    () => NotificationAdminBloc(dataSource: sl()),
-  );
+  sl.registerFactory(() => NotificationAdminBloc(dataSource: sl()));
 }

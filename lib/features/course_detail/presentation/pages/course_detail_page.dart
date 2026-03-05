@@ -169,8 +169,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         final prefix = loc.startsWith('/admin')
                             ? '/admin'
                             : loc.startsWith('/teacher')
-                                ? '/teacher'
-                                : '/student';
+                            ? '/teacher'
+                            : '/student';
                         switch (action) {
                           case 'add_section':
                             context.push(
@@ -485,7 +485,9 @@ class _CourseInfoCard extends StatelessWidget {
                       CircleAvatar(
                         radius: 16,
                         backgroundImage: contact.profileImageUrl != null
-                            ? CachedNetworkImageProvider(contact.profileImageUrl!)
+                            ? CachedNetworkImageProvider(
+                                contact.profileImageUrl!,
+                              )
                             : null,
                         backgroundColor: AppColors.primary.withValues(
                           alpha: 0.1,
@@ -695,16 +697,17 @@ class _DetailSectionCardState extends State<_DetailSectionCard> {
                 if (widget.editMode)
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        final loc =
-                            GoRouterState.of(context).matchedLocation;
+                        final loc = GoRouterState.of(context).matchedLocation;
                         final prefix = loc.startsWith('/admin')
                             ? '/admin'
                             : loc.startsWith('/teacher')
-                                ? '/teacher'
-                                : '/student';
+                            ? '/teacher'
+                            : '/student';
                         context.push(
                           '$prefix/course/${widget.courseId}/add-activity/${widget.section.sectionNumber}?sectionName=${Uri.encodeComponent(widget.section.name)}',
                         );
@@ -841,8 +844,8 @@ class _DetailModuleItem extends StatelessWidget {
                   final prefix = loc.startsWith('/admin')
                       ? '/admin'
                       : loc.startsWith('/teacher')
-                          ? '/teacher'
-                          : '/student';
+                      ? '/teacher'
+                      : '/student';
                   context.push(
                     '$prefix/edit-activity/${module.id}?module=${Uri.encodeComponent(module.modName)}&name=${Uri.encodeComponent(module.name)}',
                   );

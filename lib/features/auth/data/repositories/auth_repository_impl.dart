@@ -167,10 +167,12 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final summary = await remoteDataSource.getUserRoleSummary();
       final isTeacher = summary['is_teacher'] == true;
-      final courseIds = (summary['teacher_courseids'] as List<dynamic>?)
-          ?.map((e) => e is int ? e : int.tryParse(e.toString()) ?? 0)
-          .where((id) => id > 0)
-          .toList() ?? const [];
+      final courseIds =
+          (summary['teacher_courseids'] as List<dynamic>?)
+              ?.map((e) => e is int ? e : int.tryParse(e.toString()) ?? 0)
+              .where((id) => id > 0)
+              .toList() ??
+          const [];
 
       return UserModel(
         id: user.id,

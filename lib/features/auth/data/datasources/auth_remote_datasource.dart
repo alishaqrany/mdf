@@ -67,7 +67,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return response as Map<String, dynamic>;
     } catch (_) {
       // If the endpoint doesn't exist yet (plugin not updated), return defaults.
-      return {'is_teacher': false, 'is_course_creator': false, 'teacher_courseids': <int>[]};
+      return {
+        'is_teacher': false,
+        'is_course_creator': false,
+        'teacher_courseids': <int>[],
+      };
     }
   }
 }

@@ -33,7 +33,7 @@ class NotificationAdminRemoteDataSourceImpl
   final MoodleApiClient _apiClient;
 
   NotificationAdminRemoteDataSourceImpl({required MoodleApiClient apiClient})
-      : _apiClient = apiClient;
+    : _apiClient = apiClient;
 
   @override
   Future<Map<String, dynamic>> sendNotification({

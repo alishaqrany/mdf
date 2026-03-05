@@ -116,13 +116,15 @@ class _ManageSectionsViewState extends State<_ManageSectionsView> {
 
   void _onSubmit() {
     if (_nameController.text.isEmpty) return;
-    context.read<CourseManagementBloc>().add(AddSection(
-          courseId: widget.courseId,
-          name: _nameController.text,
-          summary: _summaryController.text.isNotEmpty
-              ? _summaryController.text
-              : null,
-        ));
+    context.read<CourseManagementBloc>().add(
+      AddSection(
+        courseId: widget.courseId,
+        name: _nameController.text,
+        summary: _summaryController.text.isNotEmpty
+            ? _summaryController.text
+            : null,
+      ),
+    );
   }
 }
 
@@ -169,8 +171,9 @@ class _EditSectionDialogState extends State<_EditSectionDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.currentName);
-    _summaryController =
-        TextEditingController(text: widget.currentSummary ?? '');
+    _summaryController = TextEditingController(
+      text: widget.currentSummary ?? '',
+    );
   }
 
   @override
@@ -228,12 +231,12 @@ class _EditSectionDialogState extends State<_EditSectionDialog> {
                     ? null
                     : () {
                         context.read<CourseManagementBloc>().add(
-                              UpdateSection(
-                                sectionId: widget.sectionId,
-                                name: _nameController.text,
-                                summary: _summaryController.text,
-                              ),
-                            );
+                          UpdateSection(
+                            sectionId: widget.sectionId,
+                            name: _nameController.text,
+                            summary: _summaryController.text,
+                          ),
+                        );
                       },
                 child: Text(tr('common.save')),
               );

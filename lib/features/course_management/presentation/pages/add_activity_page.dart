@@ -237,7 +237,7 @@ class _AddActivityViewState extends State<_AddActivityView> {
               maxLines: 4,
               validator: _selectedType == 'label'
                   ? (v) =>
-                      (v == null || v.isEmpty) ? tr('common.required') : null
+                        (v == null || v.isEmpty) ? tr('common.required') : null
                   : null,
             ),
             const SizedBox(height: 16),
@@ -303,8 +303,9 @@ class _AddActivityViewState extends State<_AddActivityView> {
                     time?.hour ?? 23,
                     time?.minute ?? 59,
                   );
-                  _dueDateController.text =
-                      DateFormat('yyyy-MM-dd HH:mm').format(_dueDate!);
+                  _dueDateController.text = DateFormat(
+                    'yyyy-MM-dd HH:mm',
+                  ).format(_dueDate!);
                 });
               }
             },
@@ -378,16 +379,18 @@ class _AddActivityViewState extends State<_AddActivityView> {
         break;
     }
 
-    context.read<CourseManagementBloc>().add(AddModule(
-          courseId: widget.courseId,
-          sectionNum: widget.sectionNum,
-          moduleName: _selectedType!,
-          name: _selectedType == 'label'
-              ? _descController.text
-              : _nameController.text,
-          intro: _descController.text,
-          config: config,
-        ));
+    context.read<CourseManagementBloc>().add(
+      AddModule(
+        courseId: widget.courseId,
+        sectionNum: widget.sectionNum,
+        moduleName: _selectedType!,
+        name: _selectedType == 'label'
+            ? _descController.text
+            : _nameController.text,
+        intro: _descController.text,
+        config: config,
+      ),
+    );
   }
 }
 

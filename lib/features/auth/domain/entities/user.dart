@@ -53,10 +53,7 @@ class User extends Equatable {
       isSiteAdmin || teacherCourseIds.contains(courseId);
 
   /// Copy with updated teacher info.
-  User copyWithTeacherInfo({
-    bool? isTeacher,
-    List<int>? teacherCourseIds,
-  }) {
+  User copyWithTeacherInfo({bool? isTeacher, List<int>? teacherCourseIds}) {
     return User(
       id: id,
       username: username,

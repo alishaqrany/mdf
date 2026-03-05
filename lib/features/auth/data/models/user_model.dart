@@ -85,9 +85,11 @@ class UserModel extends User {
       lang: json['lang'] as String?,
       isSiteAdmin: json['isSiteAdmin'] as bool? ?? false,
       isTeacher: json['isTeacher'] as bool? ?? false,
-      teacherCourseIds: (json['teacherCourseIds'] as List<dynamic>?)
-          ?.map((e) => e as int)
-          .toList() ?? const [],
+      teacherCourseIds:
+          (json['teacherCourseIds'] as List<dynamic>?)
+              ?.map((e) => e as int)
+              .toList() ??
+          const [],
       siteId: json['siteId'] as int?,
       siteName: json['siteName'] as String?,
       siteUrl: json['siteUrl'] as String?,

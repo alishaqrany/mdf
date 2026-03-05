@@ -179,8 +179,7 @@ class _EditActivityViewState extends State<_EditActivityView> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child:
-                                  CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.save),
                       label: Text(tr('common.save')),
@@ -233,12 +232,10 @@ class _EditActivityViewState extends State<_EditActivityView> {
             onPressed: () {
               Navigator.pop(ctx);
               context.read<CourseManagementBloc>().add(
-                    DeleteModule(cmid: widget.cmid),
-                  );
+                DeleteModule(cmid: widget.cmid),
+              );
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.error,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             child: Text(tr('common.delete')),
           ),
         ],
@@ -249,11 +246,13 @@ class _EditActivityViewState extends State<_EditActivityView> {
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
-    context.read<CourseManagementBloc>().add(UpdateModule(
-          cmid: widget.cmid,
-          name: _nameController.text,
-          intro: _descController.text,
-          visible: _isVisible ? 1 : 0,
-        ));
+    context.read<CourseManagementBloc>().add(
+      UpdateModule(
+        cmid: widget.cmid,
+        name: _nameController.text,
+        intro: _descController.text,
+        visible: _isVisible ? 1 : 0,
+      ),
+    );
   }
 }

@@ -43,9 +43,7 @@ class _TeacherDashboardView extends StatelessWidget {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          context
-              .read<CoursesBloc>()
-              .add(LoadEnrolledCourses(userId: userId));
+          context.read<CoursesBloc>().add(LoadEnrolledCourses(userId: userId));
         },
         child: CustomScrollView(
           slivers: [
@@ -108,8 +106,10 @@ class _TeacherDashboardView extends StatelessWidget {
               child: FadeInUp(
                 duration: const Duration(milliseconds: 500),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Text(
                     tr('teacher.quick_actions'),
                     style: theme.textTheme.titleLarge?.copyWith(
@@ -187,9 +187,9 @@ class _TeacherDashboardView extends StatelessWidget {
                           Text(state.message),
                           const SizedBox(height: 8),
                           ElevatedButton(
-                            onPressed: () => context
-                                .read<CoursesBloc>()
-                                .add(LoadEnrolledCourses(userId: userId)),
+                            onPressed: () => context.read<CoursesBloc>().add(
+                              LoadEnrolledCourses(userId: userId),
+                            ),
                             child: Text(tr('common.retry')),
                           ),
                         ],
@@ -203,8 +203,8 @@ class _TeacherDashboardView extends StatelessWidget {
                   final courses = teacherCourseIds.isEmpty
                       ? state.courses
                       : state.courses
-                          .where((c) => teacherCourseIds.contains(c.id))
-                          .toList();
+                            .where((c) => teacherCourseIds.contains(c.id))
+                            .toList();
 
                   if (courses.isEmpty) {
                     return SliverFillRemaining(
@@ -231,163 +231,151 @@ class _TeacherDashboardView extends StatelessWidget {
                   return SliverPadding(
                     padding: const EdgeInsets.all(16),
                     sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final course = courses[index];
-                          return FadeInUp(
-                            duration: Duration(
-                                milliseconds: 400 + (index * 100)),
-                            child: Card(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final course = courses[index];
+                        return FadeInUp(
+                          duration: Duration(milliseconds: 400 + (index * 100)),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => context.go(
+                                '/teacher/course/${course.id}?title=${Uri.encodeComponent(course.fullName)}',
                               ),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
-                                onTap: () => context.go(
-                                  '/teacher/course/${course.id}?title=${Uri.encodeComponent(course.fullName)}',
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    children: [
-                                      // Course icon
-                                      Container(
-                                        width: 56,
-                                        height: 56,
-                                        decoration: BoxDecoration(
-                                          color: theme.primaryColor
-                                              .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    // Course icon
+                                    Container(
+                                      width: 56,
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        color: theme.primaryColor.withValues(
+                                          alpha: 0.1,
                                         ),
-                                        child: course.imageUrl != null
-                                            ? ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                child: Image.network(
-                                                  course.imageUrl!,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (_, e, s) => Icon(
-                                                    Icons.school,
-                                                    color:
-                                                        theme.primaryColor,
-                                                  ),
-                                                ),
-                                              )
-                                            : Icon(
-                                                Icons.school,
-                                                color: theme.primaryColor,
-                                              ),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                      const SizedBox(width: 16),
-                                      // Course info
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
+                                      child: course.imageUrl != null
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              child: Image.network(
+                                                course.imageUrl!,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, e, s) => Icon(
+                                                  Icons.school,
+                                                  color: theme.primaryColor,
+                                                ),
+                                              ),
+                                            )
+                                          : Icon(
+                                              Icons.school,
+                                              color: theme.primaryColor,
+                                            ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // Course info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            course.fullName,
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (course.shortName.isNotEmpty)
                                             Text(
-                                              course.fullName,
-                                              style: theme
-                                                  .textTheme.titleMedium
+                                              course.shortName,
+                                              style: theme.textTheme.bodySmall
                                                   ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
+                                                    color: theme.hintColor,
+                                                  ),
                                             ),
-                                            if (course.shortName.isNotEmpty)
-                                              Text(
-                                                course.shortName,
-                                                style: theme
-                                                    .textTheme.bodySmall
-                                                    ?.copyWith(
-                                                  color: theme.hintColor,
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                      // Actions
-                                      PopupMenuButton<String>(
-                                        onSelected: (action) {
-                                          switch (action) {
-                                            case 'content':
-                                              context.go(
-                                                '/teacher/course/${course.id}?title=${Uri.encodeComponent(course.fullName)}',
-                                              );
-                                              break;
-                                            case 'grades':
-                                              context.go(
-                                                '/grades/${course.id}',
-                                              );
-                                              break;
-                                            case 'forums':
-                                              context.go(
-                                                '/forum/list/${course.id}',
-                                              );
-                                              break;
-                                            case 'assignments':
-                                              context.go(
-                                                '/assignment/list/${course.id}',
-                                              );
-                                              break;
-                                          }
-                                        },
-                                        itemBuilder: (context) => [
-                                          PopupMenuItem(
-                                            value: 'content',
-                                            child: ListTile(
-                                              leading: const Icon(
-                                                  Icons.edit_note),
-                                              title: Text(tr(
-                                                  'teacher.manage_content')),
-                                              dense: true,
-                                            ),
-                                          ),
-                                          PopupMenuItem(
-                                            value: 'grades',
-                                            child: ListTile(
-                                              leading:
-                                                  const Icon(Icons.grade),
-                                              title: Text(
-                                                  tr('nav.grades')),
-                                              dense: true,
-                                            ),
-                                          ),
-                                          PopupMenuItem(
-                                            value: 'assignments',
-                                            child: ListTile(
-                                              leading: const Icon(
-                                                  Icons.assignment),
-                                              title: Text(tr(
-                                                  'nav.assignments')),
-                                              dense: true,
-                                            ),
-                                          ),
-                                          PopupMenuItem(
-                                            value: 'forums',
-                                            child: ListTile(
-                                              leading:
-                                                  const Icon(Icons.forum),
-                                              title: Text(
-                                                  tr('nav.forums')),
-                                              dense: true,
-                                            ),
-                                          ),
                                         ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    // Actions
+                                    PopupMenuButton<String>(
+                                      onSelected: (action) {
+                                        switch (action) {
+                                          case 'content':
+                                            context.go(
+                                              '/teacher/course/${course.id}?title=${Uri.encodeComponent(course.fullName)}',
+                                            );
+                                            break;
+                                          case 'grades':
+                                            context.go('/grades/${course.id}');
+                                            break;
+                                          case 'forums':
+                                            context.go(
+                                              '/forum/list/${course.id}',
+                                            );
+                                            break;
+                                          case 'assignments':
+                                            context.go(
+                                              '/assignment/list/${course.id}',
+                                            );
+                                            break;
+                                        }
+                                      },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem(
+                                          value: 'content',
+                                          child: ListTile(
+                                            leading: const Icon(
+                                              Icons.edit_note,
+                                            ),
+                                            title: Text(
+                                              tr('teacher.manage_content'),
+                                            ),
+                                            dense: true,
+                                          ),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'grades',
+                                          child: ListTile(
+                                            leading: const Icon(Icons.grade),
+                                            title: Text(tr('nav.grades')),
+                                            dense: true,
+                                          ),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'assignments',
+                                          child: ListTile(
+                                            leading: const Icon(
+                                              Icons.assignment,
+                                            ),
+                                            title: Text(tr('nav.assignments')),
+                                            dense: true,
+                                          ),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'forums',
+                                          child: ListTile(
+                                            leading: const Icon(Icons.forum),
+                                            title: Text(tr('nav.forums')),
+                                            dense: true,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          );
-                        },
-                        childCount: courses.length,
-                      ),
+                          ),
+                        );
+                      }, childCount: courses.length),
                     ),
                   );
                 }

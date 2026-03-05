@@ -67,9 +67,7 @@ class AiRemoteDataSourceImpl implements AiRemoteDataSource {
     }
     messageArray.add({'role': 'user', 'content': message});
 
-    final params = <String, dynamic>{
-      'messages': jsonEncode(messageArray),
-    };
+    final params = <String, dynamic>{'messages': jsonEncode(messageArray)};
     if (provider != null && provider.isNotEmpty) {
       params['provider'] = provider;
     }

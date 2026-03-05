@@ -60,7 +60,7 @@ class CourseManagementRemoteDataSourceImpl
   final MoodleApiClient _apiClient;
 
   CourseManagementRemoteDataSourceImpl({required MoodleApiClient apiClient})
-      : _apiClient = apiClient;
+    : _apiClient = apiClient;
 
   // ─── Sections ───
 

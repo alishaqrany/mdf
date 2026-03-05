@@ -67,10 +67,7 @@ class _NotificationAdminViewState extends State<_NotificationAdminView>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          _ComposeTab(),
-          _HistoryTab(),
-        ],
+        children: const [_ComposeTab(), _HistoryTab()],
       ),
     );
   }
@@ -208,16 +205,16 @@ class _ComposeTabState extends State<_ComposeTab> {
                   suffixIcon: IconButton(
                     onPressed: () {
                       context.read<NotificationAdminBloc>().add(
-                            LoadUsers(search: _searchController.text),
-                          );
+                        LoadUsers(search: _searchController.text),
+                      );
                     },
                     icon: const Icon(Icons.search),
                   ),
                 ),
                 onSubmitted: (v) {
-                  context
-                      .read<NotificationAdminBloc>()
-                      .add(LoadUsers(search: v));
+                  context.read<NotificationAdminBloc>().add(
+                    LoadUsers(search: v),
+                  );
                 },
               ),
               const SizedBox(height: 8),
@@ -265,9 +262,7 @@ class _ComposeTabState extends State<_ComposeTab> {
                   if (_users.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.all(32),
-                      child: Center(
-                        child: Text(tr('notif_admin.no_users')),
-                      ),
+                      child: Center(child: Text(tr('notif_admin.no_users'))),
                     );
                   }
 
@@ -343,12 +338,14 @@ class _ComposeTabState extends State<_ComposeTab> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedUserIds.isEmpty) return;
 
-    context.read<NotificationAdminBloc>().add(SendNotifications(
-          userIds: _selectedUserIds.toList(),
-          subject: _subjectController.text,
-          message: _messageController.text,
-          sendFcm: _sendFcm,
-        ));
+    context.read<NotificationAdminBloc>().add(
+      SendNotifications(
+        userIds: _selectedUserIds.toList(),
+        subject: _subjectController.text,
+        message: _messageController.text,
+        sendFcm: _sendFcm,
+      ),
+    );
   }
 }
 
@@ -368,9 +365,7 @@ class _HistoryTabState extends State<_HistoryTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<NotificationAdminBloc>()
-          .add(const LoadNotificationLog());
+      context.read<NotificationAdminBloc>().add(const LoadNotificationLog());
     });
   }
 
@@ -390,8 +385,11 @@ class _HistoryTabState extends State<_HistoryTab> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.notifications_off,
-                      size: 64, color: theme.disabledColor),
+                  Icon(
+                    Icons.notifications_off,
+                    size: 64,
+                    color: theme.disabledColor,
+                  ),
                   const SizedBox(height: 16),
                   Text(tr('notif_admin.no_history')),
                 ],
@@ -401,9 +399,9 @@ class _HistoryTabState extends State<_HistoryTab> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              context
-                  .read<NotificationAdminBloc>()
-                  .add(const LoadNotificationLog());
+              context.read<NotificationAdminBloc>().add(
+                const LoadNotificationLog(),
+              );
             },
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -417,8 +415,9 @@ class _HistoryTabState extends State<_HistoryTab> {
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor:
-                          isSuccess ? AppColors.success : AppColors.error,
+                      backgroundColor: isSuccess
+                          ? AppColors.success
+                          : AppColors.error,
                       child: Icon(
                         isSuccess ? Icons.check : Icons.error,
                         color: Colors.white,
@@ -462,9 +461,9 @@ class _HistoryTabState extends State<_HistoryTab> {
                 Text(state.message),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () => context
-                      .read<NotificationAdminBloc>()
-                      .add(const LoadNotificationLog()),
+                  onPressed: () => context.read<NotificationAdminBloc>().add(
+                    const LoadNotificationLog(),
+                  ),
                   child: Text(tr('common.retry')),
                 ),
               ],
