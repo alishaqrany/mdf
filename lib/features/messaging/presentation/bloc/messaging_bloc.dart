@@ -14,6 +14,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     on<LoadConversations>(_onLoadConversations);
     on<LoadMessages>(_onLoadMessages);
     on<SendMessageEvent>(_onSendMessage);
+    on<DeleteMessageEvent>(_onDeleteMessage);
   }
 
   Future<void> _onLoadConversations(
@@ -55,6 +56,20 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     result.fold(
       (f) => emit(MessagingError(message: f.message)),
       (_) => emit(MessageSent()),
+    );
+  }
+
+  Future<void> _onDeleteMessage(
+    DeleteMessageEvent event,
+    Emitter<MessagingState> emit,
+  ) async {
+    final result = await repository.deleteMessage(
+      event.messageId,
+      event.userId,
+    );
+    result.fold(
+      (f) => emit(MessagingError(message: f.message)),
+      (_) => emit(MessageDeleted()),
     );
   }
 }

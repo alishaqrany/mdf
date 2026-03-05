@@ -10,6 +10,8 @@ abstract class MessagingRemoteDataSource {
     int userId,
   );
   Future<void> sendMessage(int userId, String message);
+  Future<void> deleteMessage(int messageId, int userId);
+  Future<int> uploadFile(String filePath, String fileName);
 }
 
 class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
@@ -105,5 +107,28 @@ class MessagingRemoteDataSourceImpl implements MessagingRemoteDataSource {
       MoodleApiEndpoints.sendInstantMessages,
       params: {'messages[0][touserid]': userId, 'messages[0][text]': message},
     );
+  }
+
+  @override
+  Future<void> deleteMessage(int messageId, int userId) async {
+    final resolvedUserId = await _resolveUserId(userId);
+    await apiClient.call(
+      'core_message_delete_message',
+      params: {'messageid': messageId, 'userid': resolvedUserId},
+    );
+  }
+
+  @override
+  Future<int> uploadFile(String filePath, String fileName) async {
+    final response = await apiClient.uploadFile(
+      filePath: filePath,
+      fileName: fileName,
+      fileArea: 'draft',
+      itemId: 0,
+    );
+    if (response.isNotEmpty && response[0] is Map) {
+      return (response[0] as Map)['itemid'] as int? ?? 0;
+    }
+    return 0;
   }
 }

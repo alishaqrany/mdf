@@ -215,4 +215,14 @@ $capabilities = [
             'manager'        => CAP_ALLOW,
         ],
     ],
+
+    // ─── Content Protection capabilities ───
+    'local/mdf_api:manageprotection' => [
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'manager' => CAP_ALLOW,
+        ],
+        'riskbitmask'  => RISK_CONFIG,
+    ],
 ];

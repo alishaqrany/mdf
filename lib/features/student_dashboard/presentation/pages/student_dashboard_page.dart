@@ -51,7 +51,17 @@ class _StudentDashboardView extends StatelessWidget {
     final authState = context.read<AuthBloc>().state;
     final user = authState is AuthAuthenticated ? authState.user : null;
 
-    return Scaffold(
+    // Detect whether user is an admin viewing the student dashboard
+    final isAdminPreview = user != null && user.isAdmin;
+
+    return PopScope(
+      canPop: !isAdminPreview,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && isAdminPreview) {
+          context.go('/admin');
+        }
+      },
+      child: Scaffold(
       floatingActionButton: FadeInUp(
         duration: const Duration(milliseconds: 600),
         delay: const Duration(milliseconds: 500),
@@ -166,47 +176,6 @@ class _StudentDashboardView extends StatelessWidget {
                             delay: const Duration(milliseconds: 170),
                             child: _UpcomingEventsPreview(
                               events: state.upcomingEvents,
-                            ),
-                          ),
-                        ),
-                      ],
-
-                      // ─── Recommended Courses ───
-                      if (state.recommendedCourses.isNotEmpty) ...[
-                        SliverToBoxAdapter(
-                          child: FadeInUp(
-                            duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 172),
-                            child: _SectionHeader(
-                              title: tr('dashboard.recommended'),
-                              onViewAll: () =>
-                                  context.go('/student/courses'),
-                            ),
-                          ),
-                        ),
-                        SliverToBoxAdapter(
-                          child: FadeInUp(
-                            duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 174),
-                            child: SizedBox(
-                              height: 200,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                itemCount:
-                                    state.recommendedCourses.length.clamp(
-                                      0,
-                                      10,
-                                    ),
-                                itemBuilder: (context, index) =>
-                                    _ContinueLearningCard(
-                                      course:
-                                          state.recommendedCourses[index],
-                                      cardWidth: isWide ? 320 : 280,
-                                    ),
-                              ),
                             ),
                           ),
                         ),
@@ -370,6 +339,7 @@ class _StudentDashboardView extends StatelessWidget {
           return const SizedBox();
         },
       ),
+    ),
     );
   }
 }
@@ -405,6 +375,23 @@ class _WelcomeHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Back button – always show, uses GoRouter to go back to admin
+          Builder(
+            builder: (ctx) {
+              final authState = ctx.read<AuthBloc>().state;
+              final isAdmin = authState is AuthAuthenticated &&
+                  authState.user.isAdmin;
+              if (!isAdmin) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsetsDirectional.only(end: 4),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                  tooltip: tr('common.back'),
+                  onPressed: () => ctx.go('/admin'),
+                ),
+              );
+            },
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,44 +621,72 @@ class _QuickAccessGrid extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: items
-            .map(
-              (item) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: InkWell(
-                    onTap: item.onTap,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 500;
+          final crossAxisCount = isWide ? 5 : 3;
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: items.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.1,
+            ),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return InkWell(
+                onTap: item.onTap,
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
                         color: item.color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      child: Column(
-                        children: [
-                          Icon(item.icon, color: item.color, size: 26),
-                          const SizedBox(height: 6),
-                          Text(
-                            item.label,
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(
-                                  color: item.color,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+                    ],
+                    border: Border.all(
+                      color: item.color.withValues(alpha: 0.2),
+                      width: 1,
                     ),
                   ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: item.color.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(item.icon, color: item.color, size: 28),
+                      ),
+                      const Spacer(),
+                      Text(
+                        item.label,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            )
-            .toList(),
+              );
+            },
+          );
+        },
       ),
     );
   }

@@ -39,3 +39,5 @@ class AssignmentError extends AssignmentState {
   @override
   List<Object?> get props => [message];
 }
+
+class GradeSaved extends AssignmentState {}

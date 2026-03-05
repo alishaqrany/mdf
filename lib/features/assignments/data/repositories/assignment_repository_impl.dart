@@ -96,4 +96,22 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
       return Left(UnexpectedFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> saveGrade(
+    int assignmentId,
+    int userId,
+    double grade,
+    String? feedback,
+  ) async {
+    if (!await networkInfo.isConnected) return const Left(NetworkFailure());
+    try {
+      await remoteDataSource.saveGrade(assignmentId, userId, grade, feedback);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure(message: e.toString()));
+    }
+  }
 }

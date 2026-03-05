@@ -47,5 +47,23 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!-- Camera / Photo Library / Microphone permissions -->
+		<key>NSCameraUsageDescription</key>
+		<string>This app needs camera access to capture photos for assignments and profile.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app needs photo library access to attach images to assignments and messages.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>This app needs microphone access for audio recording and video calls.</string>
+		<!-- File access -->
+		<key>LSSupportsOpeningDocumentsInPlace</key>
+		<true/>
+		<key>UIFileSharingEnabled</key>
+		<true/>
+		<!-- Push notifications -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>fetch</string>
+			<string>remote-notification</string>
+		</array>
 	</dict>
 </plist>

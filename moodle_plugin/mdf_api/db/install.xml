@@ -447,5 +447,89 @@
         <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
+
+    <!-- ─── Content Protection: Settings ─── -->
+    <TABLE NAME="local_mdf_protection_settings" COMMENT="Global content protection settings (singleton row)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="Master switch"/>
+        <FIELD NAME="preventscreencapture" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="preventscreenrecording" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="watermarkenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="defaultmaxdevices" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="3"/>
+        <FIELD NAME="protectedcourseids" TYPE="text" NOTNULL="false" COMMENT="Comma-separated course IDs (empty=all)"/>
+        <FIELD NAME="protectedcontenttypes" TYPE="text" NOTNULL="false" COMMENT="Comma-separated content types (empty=all)"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <!-- ─── Content Protection: User Devices ─── -->
+    <TABLE NAME="local_mdf_user_devices" COMMENT="Registered devices per user for content protection">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="deviceid" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Unique device fingerprint"/>
+        <FIELD NAME="devicename" TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="platform" TYPE="char" LENGTH="20" NOTNULL="true" COMMENT="android, ios, web, windows, macos, linux"/>
+        <FIELD NAME="osversion" TYPE="char" LENGTH="100" NOTNULL="false"/>
+        <FIELD NAME="appversion" TYPE="char" LENGTH="50" NOTNULL="false"/>
+        <FIELD NAME="lastactive" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_deviceid_unique" UNIQUE="true" FIELDS="userid,deviceid"/>
+        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Content Protection: Per-User Device Limits ─── -->
+    <TABLE NAME="local_mdf_device_limits" COMMENT="Per-user device limit overrides">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="maxdevices" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="3"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ─── Content Protection: Audit Log ─── -->
+    <TABLE NAME="local_mdf_protection_log" COMMENT="Content protection audit log">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="device_registered, device_revoked, access_denied, settings_changed, etc."/>
+        <FIELD NAME="details" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="devicename" TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="platform" TYPE="char" LENGTH="20" NOTNULL="false"/>
+        <FIELD NAME="ipaddress" TYPE="char" LENGTH="45" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="action_idx" UNIQUE="false" FIELDS="action"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

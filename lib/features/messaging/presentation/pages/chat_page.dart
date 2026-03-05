@@ -1,9 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../../../app/di/injection.dart';
+import '../../../../app/theme/colors.dart';
 import '../../domain/entities/message.dart';
+import '../../data/datasources/messaging_remote_datasource.dart';
 import '../bloc/messaging_bloc.dart';
 
 /// Chat page showing messages in a conversation with send functionality.
@@ -68,6 +71,19 @@ class _ChatPageState extends State<ChatPage> {
                         userId: widget.userId,
                       ),
                     );
+                  } else if (state is MessageDeleted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(tr('message_actions.deleted')),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                    _bloc.add(
+                      LoadMessages(
+                        conversationId: widget.conversationId,
+                        userId: widget.userId,
+                      ),
+                    );
                   }
                 },
                 builder: (context, state) {
@@ -88,6 +104,9 @@ class _ChatPageState extends State<ChatPage> {
                         return _MessageBubble(
                           message: msg,
                           isMe: msg.userIdFrom == widget.userId,
+                          onLongPress: msg.userIdFrom == widget.userId
+                              ? () => _showDeleteDialog(msg)
+                              : null,
                         );
                       },
                     );
@@ -115,6 +134,12 @@ class _ChatPageState extends State<ChatPage> {
               ),
               child: Row(
                 children: [
+                  // Attachment button
+                  IconButton(
+                    icon: const Icon(Icons.attach_file),
+                    onPressed: _pickAndSendFile,
+                    tooltip: 'Attach file',
+                  ),
                   Expanded(
                     child: TextField(
                       controller: _msgController,
@@ -150,13 +175,73 @@ class _ChatPageState extends State<ChatPage> {
     if (text.isEmpty) return;
     _bloc.add(SendMessageEvent(toUserId: widget.toUserId, message: text));
   }
+
+  Future<void> _pickAndSendFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles();
+      if (result == null || result.files.isEmpty) return;
+      final file = result.files.first;
+      if (file.path == null) return;
+
+      // Upload file via Moodle API
+      final ds = sl<MessagingRemoteDataSource>();
+      final itemId = await ds.uploadFile(file.path!, file.name);
+      if (itemId > 0) {
+        // Send message with file reference
+        final fileMsg = '📎 ${file.name}';
+        _bloc.add(SendMessageEvent(toUserId: widget.toUserId, message: fileMsg));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('messages.upload_failed'.tr()),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showDeleteDialog(Message msg) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr('message_actions.delete')),
+        content: Text(tr('message_actions.delete_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(tr('common.cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _bloc.add(DeleteMessageEvent(
+                messageId: msg.id,
+                userId: widget.userId,
+                conversationId: widget.conversationId,
+              ));
+            },
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            child: Text(tr('message_actions.delete')),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _MessageBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
+  final VoidCallback? onLongPress;
 
-  const _MessageBubble({required this.message, required this.isMe});
+  const _MessageBubble({
+    required this.message,
+    required this.isMe,
+    this.onLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +255,9 @@ class _MessageBubble extends StatelessWidget {
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         constraints: BoxConstraints(
@@ -215,6 +302,7 @@ class _MessageBubble extends StatelessWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }

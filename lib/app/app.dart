@@ -11,6 +11,7 @@ import '../core/theme/theme_cubit.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../core/network/connectivity_cubit.dart';
 import '../core/widgets/connectivity_wrapper.dart';
+import '../features/content_protection/presentation/widgets/content_protection_initializer.dart';
 
 class MdfApp extends StatelessWidget {
   const MdfApp({super.key});
@@ -74,9 +75,10 @@ class _AppViewState extends State<_AppView> {
       // ─── Router ───
       routerConfig: _appRouter.router,
 
-      // ─── Connectivity wrapper ───
-      builder: (context, child) =>
-          ConnectivityWrapper(child: child ?? const SizedBox.shrink()),
+      // ─── Connectivity wrapper + Content Protection ───
+      builder: (context, child) => ContentProtectionInitializer(
+        child: ConnectivityWrapper(child: child ?? const SizedBox.shrink()),
+      ),
 
       // ─── Debug ───
       debugShowCheckedModeBanner: false,

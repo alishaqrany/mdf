@@ -644,6 +644,10 @@ class _QuestionCard extends StatelessWidget {
         return _buildTextInput(parsed, theme, maxLines: 1, numeric: true);
       case _QuestionType.matching:
         return _buildMatchingWidget(parsed, theme);
+      case _QuestionType.cloze:
+        return _buildClozeWidget(parsed, theme);
+      case _QuestionType.dragdrop:
+        return _buildDragDropWidget(parsed, theme);
       case _QuestionType.unknown:
         // Fallback: render raw question HTML
         return HtmlWidget(question.html, textStyle: theme.textTheme.bodyMedium);
@@ -787,6 +791,289 @@ class _QuestionCard extends StatelessWidget {
     );
   }
 
+  /// Builds a Cloze (embedded answers / multianswer) question widget.
+  /// Cloze questions have embedded dropdowns, text fields, or radio groups inline.
+  Widget _buildClozeWidget(_ParsedQuestion parsed, ThemeData theme) {
+    // Cloze questions embed sub-questions inline. We render each sub-question
+    // as a numbered item with the appropriate widget (dropdown, text, or radio).
+    if (parsed.matchingPairs.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(),
+          ...parsed.matchingPairs.map((pair) {
+            final key = pair.inputName;
+            if (pair.choices.isNotEmpty) {
+              // Dropdown sub-question
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: pair.questionHtml.isNotEmpty
+                          ? HtmlWidget(pair.questionHtml, textStyle: theme.textTheme.bodyMedium)
+                          : Text(pair.questionText),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 3,
+                      child: DropdownButtonFormField<String>(
+                        value: answers[key],
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        ),
+                        isExpanded: true,
+                        items: pair.choices.map((c) {
+                          return DropdownMenuItem(
+                            value: c.value,
+                            child: Text(c.text, overflow: TextOverflow.ellipsis),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) onAnswerChanged(key, val);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              // Text input sub-question
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    if (pair.questionText.isNotEmpty)
+                      Expanded(
+                        flex: 2,
+                        child: Text(pair.questionText),
+                      ),
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: TextEditingController(text: answers[key] ?? ''),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: const OutlineInputBorder(),
+                          hintText: 'quiz.enter_answer'.tr(),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        ),
+                        onChanged: (val) => onAnswerChanged(key, val),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+          }),
+        ],
+      );
+    }
+
+    // Fallback: render raw HTML (Moodle renders cloze natively in WebView)
+    return HtmlWidget(question.html, textStyle: theme.textTheme.bodyMedium);
+  }
+
+  /// Builds a drag-and-drop question widget using Flutter Draggable/DragTarget.
+  Widget _buildDragDropWidget(_ParsedQuestion parsed, ThemeData theme) {
+    // Extract drag choices and drop zones from the HTML
+    final dragChoices = <String>[];
+    final dropZones = <String, String>{};
+
+    // Parse drag choices from HTML
+    final dragMatches = RegExp(
+      r'class="draghome[^"]*"[^>]*>(.*?)</(?:span|div|p)>',
+      dotAll: true,
+    ).allMatches(question.html);
+    for (final m in dragMatches) {
+      final text = m.group(1)?.replaceAll(RegExp(r'<[^>]+>'), '').trim() ?? '';
+      if (text.isNotEmpty && !dragChoices.contains(text)) {
+        dragChoices.add(text);
+      }
+    }
+
+    // Parse drop zones
+    final dropMatches = RegExp(
+      r'class="[^"]*dropzone[^"]*"[^>]*(?:data-group="(\d+)")?[^>]*>',
+      dotAll: true,
+    ).allMatches(question.html);
+    int zoneIndex = 0;
+    for (final m in dropMatches) {
+      final key = '${parsed.inputName}_p$zoneIndex';
+      dropZones[key] = m.group(1) ?? '$zoneIndex';
+      zoneIndex++;
+    }
+
+    if (dragChoices.isEmpty) {
+      // Fallback to raw HTML
+      return HtmlWidget(question.html, textStyle: theme.textTheme.bodyMedium);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        // Available choices as draggable chips
+        Text('quiz.drag_choices'.tr(), style: theme.textTheme.labelMedium),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: dragChoices.map((choice) {
+            final isUsed = answers.values.contains(choice);
+            return Draggable<String>(
+              data: choice,
+              feedback: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(choice, style: const TextStyle(color: Colors.white)),
+                ),
+              ),
+              childWhenDragging: Opacity(
+                opacity: 0.4,
+                child: Chip(label: Text(choice)),
+              ),
+              child: Chip(
+                label: Text(choice),
+                backgroundColor: isUsed
+                    ? theme.colorScheme.surfaceContainerHighest
+                    : AppColors.primary.withValues(alpha: 0.1),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+        // Drop zones
+        Text('quiz.drop_zones'.tr(), style: theme.textTheme.labelMedium),
+        const SizedBox(height: 8),
+        ...dropZones.entries.map((entry) {
+          final key = entry.key;
+          final currentValue = answers[key];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: DragTarget<String>(
+              onAcceptWithDetails: (details) {
+                onAnswerChanged(key, details.data);
+              },
+              builder: (context, candidateData, rejectedData) {
+                final isHovering = candidateData.isNotEmpty;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  constraints: const BoxConstraints(minHeight: 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isHovering
+                        ? AppColors.primary.withValues(alpha: 0.15)
+                        : theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isHovering ? AppColors.primary : Colors.grey.shade300,
+                      width: isHovering ? 2 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.drag_indicator,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          currentValue ?? 'quiz.drop_here'.tr(),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontStyle: currentValue == null ? FontStyle.italic : null,
+                            color: currentValue == null
+                                ? theme.colorScheme.onSurface.withValues(alpha: 0.4)
+                                : null,
+                          ),
+                        ),
+                      ),
+                      if (currentValue != null)
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          onPressed: () => onAnswerChanged(key, ''),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  /// Parses Cloze (multianswer) sub-questions from the HTML.
+  void _parseClozeSubQuestions(
+    String html, {
+    required List<_MatchingPair> parsed,
+    required String inputName,
+  }) {
+    // Look for select elements (dropdown sub-questions)
+    final selectMatches = RegExp(
+      r'<select[^>]*name="([^"]*)"[^>]*>(.*?)</select>',
+      dotAll: true,
+    ).allMatches(html);
+
+    int subIdx = 0;
+    for (final selMatch in selectMatches) {
+      final selName = selMatch.group(1) ?? '${inputName}_sub$subIdx';
+      final optionsHtml = selMatch.group(2) ?? '';
+      final choices = <_MatchChoice>[];
+
+      final optMatches = RegExp(
+        r'<option[^>]*value="([^"]*)"[^>]*>(.*?)</option>',
+        dotAll: true,
+      ).allMatches(optionsHtml);
+      for (final om in optMatches) {
+        final val = om.group(1) ?? '';
+        final text = om.group(2)?.replaceAll(RegExp(r'<[^>]+>'), '').trim() ?? '';
+        if (text.isNotEmpty) {
+          choices.add(_MatchChoice(value: val, text: text));
+        }
+      }
+
+      parsed.add(_MatchingPair(
+        questionText: '${subIdx + 1}.',
+        questionHtml: '',
+        inputName: selName,
+        choices: choices,
+      ));
+      subIdx++;
+    }
+
+    // Look for text inputs (shortanswer sub-questions)
+    final inputMatches = RegExp(
+      r'<input[^>]*type="text"[^>]*name="([^"]*)"[^>]*>',
+      dotAll: true,
+    ).allMatches(html);
+    for (final inMatch in inputMatches) {
+      final inName = inMatch.group(1) ?? '${inputName}_sub$subIdx';
+      // Only add if not already captured as a select
+      if (!parsed.any((p) => p.inputName == inName)) {
+        parsed.add(_MatchingPair(
+          questionText: '${subIdx + 1}.',
+          questionHtml: '',
+          inputName: inName,
+          choices: const [],
+        ));
+        subIdx++;
+      }
+    }
+  }
+
   /// Parses Moodle question HTML to extract question text and answer options.
   _ParsedQuestion _parseQuestion(String html) {
     String questionText = '';
@@ -824,6 +1111,14 @@ class _QuestionCard extends StatelessWidget {
       // Detect question type from CSS classes or input types
       final isMatchingQ =
           html.contains('class="answer') && html.contains('<select');
+      final isCloze = question.type == 'multianswer' ||
+          html.contains('class="subquestion') ||
+          html.contains('class="cloze');
+      final isDragDrop = question.type == 'ddwtos' ||
+          question.type == 'ddimageortext' ||
+          question.type == 'ddmarker' ||
+          html.contains('class="draghome') ||
+          html.contains('class="dropzone');
       final hasCheckbox = html.contains('type="checkbox"');
       final hasRadio = html.contains('type="radio"');
       final hasTextInput = RegExp(
@@ -835,7 +1130,12 @@ class _QuestionCard extends StatelessWidget {
           (hasRadio &&
               RegExp(r'>\s*(True|False|صح|خطأ|صواب)\s*<').hasMatch(html));
 
-      if (isMatchingQ) {
+      if (isCloze) {
+        questionType = _QuestionType.cloze;
+        _parseClozeSubQuestions(html, parsed: matchingPairs, inputName: inputName);
+      } else if (isDragDrop) {
+        questionType = _QuestionType.dragdrop;
+      } else if (isMatchingQ) {
         questionType = _QuestionType.matching;
         _parseMatching(html, matchingPairs, inputName);
       } else if (hasTextArea || question.type == 'essay') {
@@ -1001,6 +1301,8 @@ enum _QuestionType {
   essay,
   numerical,
   matching,
+  cloze,
+  dragdrop,
   unknown,
 }
 

@@ -294,7 +294,7 @@ class _AdminDashboardViewState extends State<_AdminDashboardView> {
                       ),
                     ),
 
-                  // ─── Quick Actions ───
+                  // ─── Admin Tools ───
                   SliverToBoxAdapter(
                     child: FadeInUp(
                       duration: const Duration(milliseconds: 500),
@@ -304,64 +304,191 @@ class _AdminDashboardViewState extends State<_AdminDashboardView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 16),
-                            Text(
-                              tr('admin.quick_actions'),
-                              style: theme.textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
+                            const SizedBox(height: 24),
+                            Row(
                               children: [
-                                _QuickActionChip(
-                                  icon: Icons.person_add_rounded,
-                                  label: tr('admin.add_user'),
-                                  onTap: () =>
-                                      context.push('/admin/users/create'),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primaryContainer,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    Icons.dashboard_customize_rounded,
+                                    color: theme.colorScheme.onPrimaryContainer,
+                                    size: 20,
+                                  ),
                                 ),
-                                _QuickActionChip(
-                                  icon: Icons.add_box_rounded,
-                                  label: tr('admin.create_course'),
-                                  onTap: () =>
-                                      context.push('/admin/courses/create'),
+                                const SizedBox(width: 12),
+                                Text(
+                                  tr('admin.quick_actions'),
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                _QuickActionChip(
-                                  icon: Icons.group_add_rounded,
-                                  label: tr('admin.manage_enrollments'),
-                                  onTap: () =>
-                                      context.push('/admin/enrollment'),
-                                ),
-                                _QuickActionChip(
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // ─── Quick Action Grid (top 6 most used) ───
+                            GridView.count(
+                              crossAxisCount: 3,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 0.95,
+                              children: [
+                                _QuickActionGridItem(
                                   icon: Icons.people_rounded,
                                   label: tr('admin.user_management'),
+                                  color: const Color(0xFF6C63FF),
                                   onTap: () => context.push('/admin/users'),
                                 ),
-                                _QuickActionChip(
-                                  icon: Icons.bar_chart_rounded,
-                                  label: tr('admin.view_reports'),
-                                  onTap: () {},
+                                _QuickActionGridItem(
+                                  icon: Icons.person_add_rounded,
+                                  label: tr('admin.add_user'),
+                                  color: const Color(0xFF00BFA6),
+                                  onTap: () => context.push('/admin/users/create'),
                                 ),
-                                _QuickActionChip(
-                                  icon: Icons.visibility_off_rounded,
-                                  label: tr('admin.course_visibility'),
-                                  onTap: () =>
-                                      context.push('/admin/course-visibility'),
+                                _QuickActionGridItem(
+                                  icon: Icons.group_add_rounded,
+                                  label: tr('admin.manage_enrollments'),
+                                  color: const Color(0xFFFF6B6B),
+                                  onTap: () => context.push('/admin/enrollment'),
                                 ),
-                                _QuickActionChip(
-                                  icon: Icons.groups_rounded,
-                                  label: tr('admin.manage_cohorts'),
-                                  onTap: () => context.push('/admin/cohorts'),
+                                _QuickActionGridItem(
+                                  icon: Icons.add_box_rounded,
+                                  label: tr('admin.create_course'),
+                                  color: const Color(0xFFFFB74D),
+                                  onTap: () => context.push('/admin/courses/create'),
                                 ),
-                                _QuickActionChip(
+                                _QuickActionGridItem(
+                                  icon: Icons.shield_rounded,
+                                  label: tr('content_protection.title'),
+                                  color: const Color(0xFF26A69A),
+                                  onTap: () => context.push('/admin/content-protection'),
+                                ),
+                                _QuickActionGridItem(
                                   icon: Icons.smart_toy_rounded,
                                   label: tr('admin.ai_settings'),
-                                  onTap: () =>
-                                      context.push('/admin/ai-settings'),
+                                  color: const Color(0xFF7C4DFF),
+                                  onTap: () => context.push('/admin/ai-settings'),
                                 ),
-                                _QuickActionChip(
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+
+                            // ─── User & Enrollment Management ───
+                            _AdminToolsGroup(
+                              title: tr('admin.user_management'),
+                              icon: Icons.people_alt_rounded,
+                              accentColor: const Color(0xFF6C63FF),
+                              children: [
+                                _AdminToolTile(
+                                  icon: Icons.people_rounded,
+                                  label: tr('admin.user_management'),
+                                  subtitle: tr('admin.manage_all_users'),
+                                  onTap: () => context.push('/admin/users'),
+                                ),
+                                _AdminToolTile(
+                                  icon: Icons.person_add_rounded,
+                                  label: tr('admin.add_user'),
+                                  subtitle: tr('admin.create_new_user'),
+                                  onTap: () => context.push('/admin/users/create'),
+                                ),
+                                _AdminToolTile(
+                                  icon: Icons.group_add_rounded,
+                                  label: tr('admin.manage_enrollments'),
+                                  subtitle: tr('admin.enroll_unenroll'),
+                                  onTap: () => context.push('/admin/enrollment'),
+                                ),
+                                _AdminToolTile(
+                                  icon: Icons.groups_rounded,
+                                  label: tr('admin.manage_cohorts'),
+                                  subtitle: tr('admin.cohort_management'),
+                                  onTap: () => context.push('/admin/cohorts'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // ─── Course Management ───
+                            _AdminToolsGroup(
+                              title: tr('admin.create_course'),
+                              icon: Icons.school_rounded,
+                              accentColor: const Color(0xFFFFB74D),
+                              children: [
+                                _AdminToolTile(
+                                  icon: Icons.add_box_rounded,
+                                  label: tr('admin.create_course'),
+                                  subtitle: tr('admin.add_new_course'),
+                                  onTap: () => context.push('/admin/courses/create'),
+                                ),
+                                _AdminToolTile(
+                                  icon: Icons.visibility_off_rounded,
+                                  label: tr('admin.course_visibility'),
+                                  subtitle: tr('admin.show_hide_courses'),
+                                  onTap: () => context.push('/admin/course-visibility'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // ─── Security & Protection ───
+                            _AdminToolsGroup(
+                              title: tr('content_protection.title'),
+                              icon: Icons.security_rounded,
+                              accentColor: const Color(0xFF26A69A),
+                              children: [
+                                _AdminToolTile(
+                                  icon: Icons.shield_rounded,
+                                  label: tr('content_protection.title'),
+                                  subtitle: tr('admin.protection_settings'),
+                                  onTap: () => context.push('/admin/content-protection'),
+                                ),
+                                _AdminToolTile(
+                                  icon: Icons.devices_rounded,
+                                  label: tr('admin.device_management'),
+                                  subtitle: tr('admin.manage_devices'),
+                                  onTap: () => context.push('/admin/device-management'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // ─── Notifications & Communication ───
+                            _AdminToolsGroup(
+                              title: tr('admin.notifications'),
+                              icon: Icons.notifications_rounded,
+                              accentColor: const Color(0xFFFF6B6B),
+                              children: [
+                                _AdminToolTile(
+                                  icon: Icons.send_rounded,
+                                  label: tr('admin.send_notification'),
+                                  subtitle: tr('admin.push_notifications'),
+                                  onTap: () => context.push('/admin/notification-admin'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // ─── AI & Settings ───
+                            _AdminToolsGroup(
+                              title: tr('admin.ai_settings'),
+                              icon: Icons.settings_rounded,
+                              accentColor: const Color(0xFF7C4DFF),
+                              children: [
+                                _AdminToolTile(
+                                  icon: Icons.smart_toy_rounded,
+                                  label: tr('admin.ai_settings'),
+                                  subtitle: tr('admin.configure_ai'),
+                                  onTap: () => context.push('/admin/ai-settings'),
+                                ),
+                                _AdminToolTile(
                                   icon: Icons.dashboard_customize_rounded,
                                   label: tr('admin.student_view'),
+                                  subtitle: tr('admin.preview_student'),
                                   onTap: () => context.push('/student'),
                                 ),
                               ],
@@ -589,24 +716,171 @@ class _AdminStatCard extends StatelessWidget {
 }
 
 // ─── Quick Action Chip ───
-class _QuickActionChip extends StatelessWidget {
+/// A compact grid item for the top quick action grid.
+class _QuickActionGridItem extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color color;
   final VoidCallback onTap;
 
-  const _QuickActionChip({
+  const _QuickActionGridItem({
     required this.icon,
     required this.label,
+    required this.color,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      avatar: Icon(icon, size: 18),
-      label: Text(label),
-      onPressed: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    final theme = Theme.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withValues(alpha: 0.18)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A grouped card of admin tool tiles with a category header.
+class _AdminToolsGroup extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color accentColor;
+  final List<_AdminToolTile> children;
+
+  const _AdminToolsGroup({
+    required this.title,
+    required this.icon,
+    required this.children,
+    this.accentColor = const Color(0xFF6C63FF),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.06),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 16, color: accentColor),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: accentColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...children,
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+}
+
+/// A single admin tool row (list-tile style).
+class _AdminToolTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? subtitle;
+  final VoidCallback onTap;
+
+  const _AdminToolTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return ListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
+      leading: CircleAvatar(
+        radius: 18,
+        backgroundColor: cs.primaryContainer,
+        child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
+      ),
+      title: Text(label, style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        fontWeight: FontWeight.w500,
+      )),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: cs.onSurfaceVariant,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )
+          : null,
+      trailing: Icon(Icons.chevron_right, size: 20, color: cs.outline),
+      onTap: onTap,
     );
   }
 }

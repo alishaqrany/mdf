@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/colors.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -233,7 +236,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  // TODO: Forgot password flow
+                                  context.pushNamed(AppRoutes.forgotPassword);
                                 },
                                 child: Text(
                                   tr('login.forgot_password'),

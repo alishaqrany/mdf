@@ -16,4 +16,10 @@ abstract class AssignmentRepository {
     int? fileItemId,
   );
   Future<Either<Failure, void>> submitForGrading(int assignmentId);
+  Future<Either<Failure, void>> saveGrade(
+    int assignmentId,
+    int userId,
+    double grade,
+    String? feedback,
+  );
 }

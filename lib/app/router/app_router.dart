@@ -60,6 +60,12 @@ import '../../features/course_management/presentation/pages/add_activity_page.da
 import '../../features/course_management/presentation/pages/edit_activity_page.dart';
 import '../../features/course_management/presentation/pages/manage_sections_page.dart';
 import '../../features/notification_admin/presentation/pages/notification_admin_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/assignments/presentation/pages/assignment_grading_page.dart';
+import '../../features/content_protection/presentation/pages/content_protection_admin_page.dart';
+import '../../features/content_protection/presentation/pages/device_management_page.dart';
+import '../../features/content_protection/presentation/pages/protection_log_page.dart';
+import '../../features/content_protection/presentation/pages/my_devices_page.dart';
 
 /// Route name constants
 abstract class AppRoutes {
@@ -123,6 +129,12 @@ abstract class AppRoutes {
   static const editActivity = 'edit-activity';
   static const manageSections = 'manage-sections';
   static const notificationAdmin = 'notification-admin';
+  static const forgotPassword = 'forgot-password';
+  static const assignmentGrading = 'assignment-grading';
+  static const contentProtection = 'content-protection';
+  static const deviceManagement = 'device-management';
+  static const protectionLog = 'protection-log';
+  static const myDevices = 'my-devices';
 }
 
 /// GoRouter configuration with role-based guards
@@ -183,6 +195,13 @@ class AppRouter {
         path: '/login',
         name: AppRoutes.login,
         builder: (context, state) => const LoginPage(),
+      ),
+
+      // ─── Forgot Password ───
+      GoRoute(
+        path: '/forgot-password',
+        name: AppRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordPage(),
       ),
 
       // ─── Student Shell ───
@@ -261,6 +280,11 @@ class AppRouter {
             path: '/student/downloads',
             name: '${AppRoutes.downloads}-student',
             builder: (context, state) => const DownloadsPage(),
+          ),
+          GoRoute(
+            path: '/student/my-devices',
+            name: '${AppRoutes.myDevices}-student',
+            builder: (context, state) => const MyDevicesPage(),
           ),
           GoRoute(
             path: '/student/ai-insights',
@@ -516,6 +540,28 @@ class AppRouter {
             name: AppRoutes.notificationAdmin,
             builder: (context, state) => const NotificationAdminPage(),
           ),
+          // ─── Content Protection Routes ───
+          GoRoute(
+            path: '/admin/content-protection',
+            name: AppRoutes.contentProtection,
+            builder: (context, state) =>
+                const ContentProtectionAdminPage(),
+          ),
+          GoRoute(
+            path: '/admin/device-management',
+            name: AppRoutes.deviceManagement,
+            builder: (context, state) {
+              final userId = int.tryParse(
+                state.uri.queryParameters['userId'] ?? '',
+              );
+              return DeviceManagementPage(userId: userId);
+            },
+          ),
+          GoRoute(
+            path: '/admin/protection-log',
+            name: AppRoutes.protectionLog,
+            builder: (context, state) => const ProtectionLogPage(),
+          ),
           // ─── Course Content Management (Admin) ───
           GoRoute(
             path: '/admin/course/:courseId/add-activity/:sectionNum',
@@ -638,6 +684,11 @@ class AppRouter {
             path: '/teacher/downloads',
             name: '${AppRoutes.downloads}-teacher',
             builder: (context, state) => const DownloadsPage(),
+          ),
+          GoRoute(
+            path: '/teacher/my-devices',
+            name: '${AppRoutes.myDevices}-teacher',
+            builder: (context, state) => const MyDevicesPage(),
           ),
           GoRoute(
             path: '/teacher/ai-insights',
@@ -838,6 +889,22 @@ List<RouteBase> get _featureRoutes => [
     name: AppRoutes.assignmentDetail,
     builder: (context, state) {
       return AssignmentDetailPage(assignment: _extra(state, 'assignment'));
+    },
+  ),
+  GoRoute(
+    path: '/assignment/:assignmentId/grading',
+    name: AppRoutes.assignmentGrading,
+    builder: (context, state) {
+      final assignmentId =
+          int.tryParse(state.pathParameters['assignmentId'] ?? '') ?? 0;
+      final name = state.uri.queryParameters['name'] ?? '';
+      final maxGrade =
+          int.tryParse(state.uri.queryParameters['maxGrade'] ?? '') ?? 100;
+      return AssignmentGradingPage(
+        assignmentId: assignmentId,
+        assignmentName: name,
+        maxGrade: maxGrade,
+      );
     },
   ),
 

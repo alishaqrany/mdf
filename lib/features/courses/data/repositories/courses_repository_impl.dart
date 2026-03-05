@@ -35,16 +35,20 @@ class CoursesRepositoryImpl implements CoursesRepository {
         return _hiddenCourseIds!;
       }
     } catch (_) {
-      // Plugin not available — no filtering.
+      // Plugin not available or error — no filtering.
     }
     _hiddenCourseIds = {};
     return _hiddenCourseIds!;
   }
 
-  /// Filter out hidden courses.
+  /// Filter out hidden courses. Safety: if hidden set covers ALL courses,
+  /// something is wrong — don't filter.
   List<Course> _filterHidden(List<Course> courses, Set<int> hidden) {
     if (hidden.isEmpty) return courses;
-    return courses.where((c) => !hidden.contains(c.id)).toList();
+    final filtered = courses.where((c) => !hidden.contains(c.id)).toList();
+    // Sanity: if filtering removes everything, return the original list.
+    if (filtered.isEmpty && courses.isNotEmpty) return courses;
+    return filtered;
   }
 
   @override
@@ -58,8 +62,13 @@ class CoursesRepositoryImpl implements CoursesRepository {
           key: 'enrolled_$userId',
           data: courses.map((c) => c.toJson()).toList(),
         );
-        // Filter hidden courses
-        final hidden = await _getHiddenCourseIds();
+        // Filter hidden courses (wrapped in try-catch so it never blocks course display)
+        Set<int> hidden = {};
+        try {
+          hidden = await _getHiddenCourseIds();
+        } catch (_) {
+          // If hidden courses fetch fails, show all courses.
+        }
         return Right(_filterHidden(courses, hidden));
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));

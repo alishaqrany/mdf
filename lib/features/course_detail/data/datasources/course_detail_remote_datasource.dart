@@ -6,6 +6,9 @@ import '../../../courses/data/models/course_model.dart';
 /// Data source for fetching single course details.
 abstract class CourseDetailRemoteDataSource {
   Future<Course> getCourseDetail(int courseId);
+  Future<void> selfEnrol(int courseId);
+  Future<void> manualEnrol(int courseId, int userId, {int roleId = 5});
+  Future<void> manualUnenrol(int courseId, int userId);
 }
 
 class CourseDetailRemoteDataSourceImpl implements CourseDetailRemoteDataSource {
@@ -82,5 +85,36 @@ class CourseDetailRemoteDataSourceImpl implements CourseDetailRemoteDataSource {
 
     // Return minimal course if nothing found
     return Course(id: courseId, shortName: '', fullName: '');
+  }
+
+  @override
+  Future<void> selfEnrol(int courseId) async {
+    await apiClient.call(
+      MoodleApiEndpoints.selfEnrolUser,
+      params: {'courseid': courseId},
+    );
+  }
+
+  @override
+  Future<void> manualEnrol(int courseId, int userId, {int roleId = 5}) async {
+    await apiClient.call(
+      MoodleApiEndpoints.manualEnrolUsers,
+      params: {
+        'enrolments[0][roleid]': roleId,
+        'enrolments[0][userid]': userId,
+        'enrolments[0][courseid]': courseId,
+      },
+    );
+  }
+
+  @override
+  Future<void> manualUnenrol(int courseId, int userId) async {
+    await apiClient.call(
+      MoodleApiEndpoints.manualUnenrolUsers,
+      params: {
+        'enrolments[0][userid]': userId,
+        'enrolments[0][courseid]': courseId,
+      },
+    );
   }
 }

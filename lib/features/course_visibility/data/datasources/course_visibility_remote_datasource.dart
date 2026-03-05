@@ -89,15 +89,31 @@ class CourseVisibilityRemoteDataSourceImpl
 
   @override
   Future<List<int>> getHiddenCourses() async {
-    final response = await apiClient.call(
-      MoodleApiEndpoints.mdfGetHiddenCourses,
-    );
+    try {
+      final response = await apiClient.call(
+        MoodleApiEndpoints.mdfGetHiddenCourses,
+      );
 
-    if (response is Map<String, dynamic> && response.containsKey('courseids')) {
-      return (response['courseids'] as List).map((e) => e as int).toList();
-    }
-    if (response is List) {
-      return response.map((e) => e as int).toList();
+      if (response is Map<String, dynamic> &&
+          response.containsKey('courseids')) {
+        final raw = response['courseids'];
+        if (raw is List) {
+          return raw
+              .map((e) => e is int ? e : int.tryParse('$e'))
+              .whereType<int>()
+              .where((id) => id > 0)
+              .toList();
+        }
+      }
+      if (response is List) {
+        return response
+            .map((e) => e is int ? e : int.tryParse('$e'))
+            .whereType<int>()
+            .where((id) => id > 0)
+            .toList();
+      }
+    } catch (_) {
+      // Plugin not available or unexpected response — treat as no hidden courses.
     }
     return [];
   }

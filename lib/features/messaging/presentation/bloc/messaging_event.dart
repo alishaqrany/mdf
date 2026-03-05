@@ -28,3 +28,16 @@ class SendMessageEvent extends MessagingEvent {
   @override
   List<Object?> get props => [toUserId, message];
 }
+
+class DeleteMessageEvent extends MessagingEvent {
+  final int messageId;
+  final int userId;
+  final int conversationId;
+  const DeleteMessageEvent({
+    required this.messageId,
+    required this.userId,
+    required this.conversationId,
+  });
+  @override
+  List<Object?> get props => [messageId, userId, conversationId];
+}

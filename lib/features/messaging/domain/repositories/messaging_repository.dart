@@ -9,4 +9,5 @@ abstract class MessagingRepository {
     int userId,
   );
   Future<Either<Failure, void>> sendMessage(int userId, String message);
+  Future<Either<Failure, void>> deleteMessage(int messageId, int userId);
 }

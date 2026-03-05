@@ -264,6 +264,25 @@ class MoodleApiEndpoints {
       'local_mdf_api_get_notification_log';
   static const String mdfGetUsersList = 'local_mdf_api_get_users_list';
 
+  // ─── Content Protection (local_mdf_api) ───
+  static const String mdfGetProtectionSettings =
+      'local_mdf_api_get_protection_settings';
+  static const String mdfSaveProtectionSettings =
+      'local_mdf_api_save_protection_settings';
+  static const String mdfRegisterDevice = 'local_mdf_api_register_device';
+  static const String mdfGetUserDevices = 'local_mdf_api_get_user_devices';
+  static const String mdfRevokeDevice = 'local_mdf_api_revoke_device';
+  static const String mdfRevokeAllDevices =
+      'local_mdf_api_revoke_all_devices';
+  static const String mdfSetUserDeviceLimit =
+      'local_mdf_api_set_user_device_limit';
+  static const String mdfGetUserDeviceLimit =
+      'local_mdf_api_get_user_device_limit';
+  static const String mdfGetProtectionLog =
+      'local_mdf_api_get_protection_log';
+  static const String mdfValidateDeviceAccess =
+      'local_mdf_api_validate_device_access';
+
   // ─── AI Management (local_mdf_api) ───
   static const String mdfSaveAiConfig = 'local_mdf_api_save_ai_config';
   static const String mdfGetAiConfig = 'local_mdf_api_get_ai_config';

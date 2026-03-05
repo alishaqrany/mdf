@@ -467,12 +467,16 @@ class _ModuleItem extends StatelessWidget {
       _openResourceContent(context);
     } else if (module.modName.isNotEmpty) {
       // Construct a fallback Moodle URL from modName + id
-      final fallbackUrl =
-          'https://ecoursesdesgin.com/moodle/mod/${module.modName}/view.php?id=${module.id}';
-      context.push(
-        '/content/html',
-        extra: {'title': module.name, 'url': fallbackUrl},
-      );
+      sl<MoodleApiClient>().getBaseUrl().then((baseUrl) {
+        if (context.mounted) {
+          final fallbackUrl =
+              '${baseUrl ?? ''}/mod/${module.modName}/view.php?id=${module.id}';
+          context.push(
+            '/content/html',
+            extra: {'title': module.name, 'url': fallbackUrl},
+          );
+        }
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -610,9 +614,10 @@ class _ModuleItem extends StatelessWidget {
 
     // Fallback: open URL directly
     if (context.mounted) {
+      final baseUrl = await sl<MoodleApiClient>().getBaseUrl() ?? '';
       final pageUrl =
           module.url ??
-          'https://ecoursesdesgin.com/moodle/mod/page/view.php?id=${module.id}';
+          '$baseUrl/mod/page/view.php?id=${module.id}';
       context.push(
         '/content/html',
         extra: {'title': module.name, 'url': pageUrl},
@@ -631,12 +636,16 @@ class _ModuleItem extends StatelessWidget {
       }
       // Construct fallback URL from modName + id
       if (module.modName.isNotEmpty) {
-        final fallbackUrl =
-            'https://ecoursesdesgin.com/moodle/mod/${module.modName}/view.php?id=${module.id}';
-        context.push(
-          '/content/html',
-          extra: {'title': module.name, 'url': fallbackUrl},
-        );
+        sl<MoodleApiClient>().getBaseUrl().then((baseUrl) {
+          if (context.mounted) {
+            final fallbackUrl =
+                '${baseUrl ?? ''}/mod/${module.modName}/view.php?id=${module.id}';
+            context.push(
+              '/content/html',
+              extra: {'title': module.name, 'url': fallbackUrl},
+            );
+          }
+        });
       }
       return;
     }

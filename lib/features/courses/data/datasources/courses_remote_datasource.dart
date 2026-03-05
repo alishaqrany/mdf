@@ -28,66 +28,79 @@ class CoursesRemoteDataSourceImpl implements CoursesRemoteDataSource {
     }
     if (resolvedUserId == 0) return [];
 
+    // ─── Strategy 1: Timeline classification (most reliable for mobile tokens) ───
+    try {
+      final timeline = await apiClient.call(
+        MoodleApiEndpoints.getCoursesByTimeline,
+        params: {
+          'classification': 'all',
+          'sort': 'fullname',
+          'offset': 0,
+          'limit': 200,
+        },
+      );
+
+      if (timeline is Map && timeline['courses'] is List) {
+        final courses = (timeline['courses'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map((json) => CourseModel.fromEnrolledCourse(json))
+            .toList();
+        if (courses.isNotEmpty) return courses;
+      }
+    } catch (_) {}
+
+    // ─── Strategy 1b: Timeline with 'inprogress' (in case 'all' isn't supported) ───
+    try {
+      final timeline = await apiClient.call(
+        MoodleApiEndpoints.getCoursesByTimeline,
+        params: {
+          'classification': 'inprogress',
+          'sort': 'fullname',
+          'offset': 0,
+          'limit': 200,
+        },
+      );
+
+      if (timeline is Map && timeline['courses'] is List) {
+        final courses = (timeline['courses'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map((json) => CourseModel.fromEnrolledCourse(json))
+            .toList();
+        if (courses.isNotEmpty) return courses;
+      }
+    } catch (_) {}
+
+    // ─── Strategy 2: enrol_get_users_courses ───
     try {
       final response = await apiClient.call(
         MoodleApiEndpoints.getUsersCourses,
         params: {'userid': resolvedUserId},
       );
 
-      if (response is List) {
+      if (response is List && response.isNotEmpty) {
         return response
-            .map(
-              (json) =>
-                  CourseModel.fromEnrolledCourse(json as Map<String, dynamic>),
-            )
+            .whereType<Map<String, dynamic>>()
+            .map((json) => CourseModel.fromEnrolledCourse(json))
             .toList();
       }
-      return [];
-    } catch (_) {
-      // Safe fallback 1: timeline endpoint (enrolled-only view).
-      try {
-        final timeline = await apiClient.call(
-          MoodleApiEndpoints.getCoursesByTimeline,
-          params: {
-            'classification': 'all',
-            'sort': 'fullname',
-            'offset': 0,
-            'limit': 200,
-          },
-        );
+    } catch (_) {}
 
-        if (timeline is Map && timeline['courses'] is List) {
-          final courses = (timeline['courses'] as List)
-              .map(
-                (json) => CourseModel.fromEnrolledCourse(
-                  json as Map<String, dynamic>,
-                ),
-              )
-              .toList();
-          if (courses.isNotEmpty) return courses;
-        }
-      } catch (_) {}
+    // ─── Strategy 3: Recent courses ───
+    try {
+      final recent = await apiClient.call(
+        MoodleApiEndpoints.getRecentCourses,
+        params: {'userid': resolvedUserId, 'limit': 50},
+      );
 
-      // Safe fallback 2: recent courses endpoint (also enrolled-only).
-      try {
-        final recent = await apiClient.call(
-          MoodleApiEndpoints.getRecentCourses,
-          params: {'userid': resolvedUserId, 'limit': 50},
-        );
+      if (recent is List && recent.isNotEmpty) {
+        return recent
+            .whereType<Map<String, dynamic>>()
+            .map((json) => CourseModel.fromEnrolledCourse(json))
+            .toList();
+      }
+    } catch (_) {}
 
-        if (recent is List) {
-          return recent
-              .map(
-                (json) => CourseModel.fromEnrolledCourse(
-                  json as Map<String, dynamic>,
-                ),
-              )
-              .toList();
-        }
-      } catch (_) {}
-
-      return [];
-    }
+    return [];
   }
 
   @override

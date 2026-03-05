@@ -580,6 +580,72 @@ $functions = [
         'ajax'          => true,
         'capabilities'  => 'local/mdf_api:useai',
     ],
+
+    // ─── Content Protection ───
+    'local_mdf_api_get_protection_settings' => [
+        'classname'     => 'local_mdf_api\external\get_protection_settings',
+        'description'   => 'Get content protection settings',
+        'type'          => 'read',
+        'ajax'          => true,
+    ],
+    'local_mdf_api_save_protection_settings' => [
+        'classname'     => 'local_mdf_api\external\save_protection_settings',
+        'description'   => 'Save content protection settings',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'local/mdf_api:manageprotection',
+    ],
+    'local_mdf_api_register_device' => [
+        'classname'     => 'local_mdf_api\external\register_device',
+        'description'   => 'Register a user device for content protection tracking',
+        'type'          => 'write',
+        'ajax'          => true,
+    ],
+    'local_mdf_api_get_user_devices' => [
+        'classname'     => 'local_mdf_api\external\get_user_devices',
+        'description'   => 'Get devices registered for a user',
+        'type'          => 'read',
+        'ajax'          => true,
+    ],
+    'local_mdf_api_revoke_device' => [
+        'classname'     => 'local_mdf_api\external\revoke_device',
+        'description'   => 'Revoke a specific device for a user',
+        'type'          => 'write',
+        'ajax'          => true,
+    ],
+    'local_mdf_api_revoke_all_devices' => [
+        'classname'     => 'local_mdf_api\external\revoke_all_devices',
+        'description'   => 'Revoke all devices for a user',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'local/mdf_api:manageprotection',
+    ],
+    'local_mdf_api_set_user_device_limit' => [
+        'classname'     => 'local_mdf_api\external\set_user_device_limit',
+        'description'   => 'Set device limit for a specific user',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'local/mdf_api:manageprotection',
+    ],
+    'local_mdf_api_get_user_device_limit' => [
+        'classname'     => 'local_mdf_api\external\get_user_device_limit',
+        'description'   => 'Get device limit for a specific user',
+        'type'          => 'read',
+        'ajax'          => true,
+    ],
+    'local_mdf_api_get_protection_log' => [
+        'classname'     => 'local_mdf_api\external\get_protection_log',
+        'description'   => 'Get protection audit log with filters',
+        'type'          => 'read',
+        'ajax'          => true,
+        'capabilities'  => 'local/mdf_api:manageprotection',
+    ],
+    'local_mdf_api_validate_device_access' => [
+        'classname'     => 'local_mdf_api\external\validate_device_access',
+        'description'   => 'Validate whether current device is allowed for this user',
+        'type'          => 'read',
+        'ajax'          => true,
+    ],
 ];
 
 $services = [

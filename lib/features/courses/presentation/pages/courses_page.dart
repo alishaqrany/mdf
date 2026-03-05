@@ -177,15 +177,19 @@ class _CoursesViewState extends State<_CoursesView>
             );
           }
 
-          if (state is CoursesLoaded) {
+          if (state is CoursesLoaded || state is CoursesSearchResults) {
+            final courses = state is CoursesLoaded 
+                ? state.courses 
+                : (state as CoursesSearchResults).courses;
+
             return TabBarView(
               controller: _tabController,
               children: [
                 // All Courses
-                _CoursesList(courses: state.courses, isGrid: _isGridView),
+                _CoursesList(courses: courses, isGrid: _isGridView),
                 // In Progress
                 _CoursesList(
-                  courses: state.courses
+                  courses: courses
                       .where(
                         (c) => (c.progress ?? 0) > 0 && (c.progress ?? 0) < 100,
                       )
@@ -195,7 +199,7 @@ class _CoursesViewState extends State<_CoursesView>
                 ),
                 // Completed
                 _CoursesList(
-                  courses: state.courses
+                  courses: courses
                       .where((c) => (c.progress ?? 0) >= 100)
                       .toList(),
                   isGrid: _isGridView,

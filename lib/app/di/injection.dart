@@ -158,6 +158,10 @@ import '../../features/course_management/presentation/bloc/course_management_blo
 import '../../features/notification_admin/data/datasources/notification_admin_remote_datasource.dart';
 import '../../features/notification_admin/presentation/bloc/notification_admin_bloc.dart';
 
+// ─── Content Protection ───
+import '../../features/content_protection/data/datasources/content_protection_remote_datasource.dart';
+import '../../features/content_protection/presentation/bloc/content_protection_bloc.dart';
+
 final sl = GetIt.instance;
 
 /// Initialize all dependencies.
@@ -464,4 +468,10 @@ Future<void> initDependencies() async {
     () => NotificationAdminRemoteDataSourceImpl(apiClient: sl()),
   );
   sl.registerFactory(() => NotificationAdminBloc(dataSource: sl()));
+
+  // ─── Content Protection Feature ───
+  sl.registerLazySingleton<ContentProtectionRemoteDataSource>(
+    () => ContentProtectionRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerFactory(() => ContentProtectionBloc(dataSource: sl()));
 }

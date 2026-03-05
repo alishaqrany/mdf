@@ -26,6 +26,8 @@ class MessagesLoaded extends MessagingState {
 
 class MessageSent extends MessagingState {}
 
+class MessageDeleted extends MessagingState {}
+
 class MessagingError extends MessagingState {
   final String message;
   const MessagingError({required this.message});

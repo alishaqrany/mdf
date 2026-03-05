@@ -12,6 +12,12 @@ abstract class AssignmentRemoteDataSource {
     int? fileItemId,
   );
   Future<void> submitForGrading(int assignmentId);
+  Future<void> saveGrade(
+    int assignmentId,
+    int userId,
+    double grade,
+    String? feedback,
+  );
 }
 
 class AssignmentRemoteDataSourceImpl implements AssignmentRemoteDataSource {
@@ -114,5 +120,28 @@ class AssignmentRemoteDataSourceImpl implements AssignmentRemoteDataSource {
       MoodleApiEndpoints.submitForGrading,
       params: {'assignmentid': assignmentId},
     );
+  }
+
+  @override
+  Future<void> saveGrade(
+    int assignmentId,
+    int userId,
+    double grade,
+    String? feedback,
+  ) async {
+    final params = <String, dynamic>{
+      'assignmentid': assignmentId,
+      'userid': userId,
+      'grade': grade,
+      'attemptnumber': -1,
+      'addattempt': 0,
+      'workflowstate': 'graded',
+      'applytoall': 0,
+    };
+    if (feedback != null && feedback.isNotEmpty) {
+      params['plugindata[assignfeedbackcomments_editor][text]'] = feedback;
+      params['plugindata[assignfeedbackcomments_editor][format]'] = 1;
+    }
+    await apiClient.call(MoodleApiEndpoints.saveGrade, params: params);
   }
 }

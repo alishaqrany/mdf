@@ -527,5 +527,91 @@ function xmldb_local_mdf_api_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026030400, 'local', 'mdf_api');
     }
 
+    // =====================================================================
+    // v2.3.0 — Content Protection tables.
+    // =====================================================================
+    if ($oldversion < 2026030500) {
+
+        // 1. local_mdf_protection_settings — Global protection settings.
+        $table = new xmldb_table('local_mdf_protection_settings');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id',                     XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('enabled',                XMLDB_TYPE_INTEGER, '1',  null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('preventscreencapture',   XMLDB_TYPE_INTEGER, '1',  null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('preventscreenrecording', XMLDB_TYPE_INTEGER, '1',  null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('watermarkenabled',       XMLDB_TYPE_INTEGER, '1',  null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('defaultmaxdevices',      XMLDB_TYPE_INTEGER, '5',  null, XMLDB_NOTNULL, null, '3');
+            $table->add_field('protectedcourseids',     XMLDB_TYPE_TEXT,    null, null, null);
+            $table->add_field('protectedcontenttypes',  XMLDB_TYPE_TEXT,    null, null, null);
+            $table->add_field('timecreated',            XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $table->add_field('timemodified',           XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+            $dbman->create_table($table);
+        }
+
+        // 2. local_mdf_user_devices — Registered devices per user.
+        $table = new xmldb_table('local_mdf_user_devices');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id',           XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('userid',       XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL);
+            $table->add_field('deviceid',     XMLDB_TYPE_CHAR,    '255', null, XMLDB_NOTNULL);
+            $table->add_field('devicename',   XMLDB_TYPE_CHAR,    '255', null, null);
+            $table->add_field('platform',     XMLDB_TYPE_CHAR,    '20',  null, XMLDB_NOTNULL);
+            $table->add_field('osversion',    XMLDB_TYPE_CHAR,    '100', null, null);
+            $table->add_field('appversion',   XMLDB_TYPE_CHAR,    '50',  null, null);
+            $table->add_field('lastactive',   XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL);
+            $table->add_field('timecreated',  XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL);
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL);
+
+            $table->add_key('primary',    XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('userid_fk',  XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+            $table->add_index('userid_deviceid_unique', XMLDB_INDEX_UNIQUE, ['userid', 'deviceid']);
+            $table->add_index('userid_idx', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+
+            $dbman->create_table($table);
+        }
+
+        // 3. local_mdf_device_limits — Per-user device limit overrides.
+        $table = new xmldb_table('local_mdf_device_limits');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id',           XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('userid',       XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $table->add_field('maxdevices',   XMLDB_TYPE_INTEGER, '5',  null, XMLDB_NOTNULL, null, '3');
+            $table->add_field('timecreated',  XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+
+            $table->add_key('primary',   XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+            $table->add_index('userid_unique', XMLDB_INDEX_UNIQUE, ['userid']);
+
+            $dbman->create_table($table);
+        }
+
+        // 4. local_mdf_protection_log — Content protection audit log.
+        $table = new xmldb_table('local_mdf_protection_log');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id',           XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('userid',       XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL);
+            $table->add_field('action',       XMLDB_TYPE_CHAR,    '50',  null, XMLDB_NOTNULL);
+            $table->add_field('details',      XMLDB_TYPE_TEXT,    null,  null, null);
+            $table->add_field('devicename',   XMLDB_TYPE_CHAR,    '255', null, null);
+            $table->add_field('platform',     XMLDB_TYPE_CHAR,    '20',  null, null);
+            $table->add_field('ipaddress',    XMLDB_TYPE_CHAR,    '45',  null, null);
+            $table->add_field('timecreated',  XMLDB_TYPE_INTEGER, '10',  null, XMLDB_NOTNULL);
+
+            $table->add_key('primary',   XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+            $table->add_index('userid_idx',      XMLDB_INDEX_NOTUNIQUE, ['userid']);
+            $table->add_index('action_idx',      XMLDB_INDEX_NOTUNIQUE, ['action']);
+            $table->add_index('timecreated_idx', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
+
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026030500, 'local', 'mdf_api');
+    }
+
     return true;
 }

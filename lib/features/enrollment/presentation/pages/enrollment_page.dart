@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/di/injection.dart';
 import '../../../../app/theme/colors.dart';
 import '../../domain/entities/enrolled_user.dart';
+import '../../../../features/courses/domain/entities/course.dart';
+import '../../../../features/courses/domain/repositories/courses_repository.dart';
 import '../bloc/enrollment_bloc.dart';
 import '../bloc/enrollment_event.dart';
 import '../bloc/enrollment_state.dart';
@@ -24,8 +26,9 @@ class EnrollmentPage extends StatefulWidget {
 
 class _EnrollmentPageState extends State<EnrollmentPage> {
   late final EnrollmentBloc _bloc;
-  final _courseIdController = TextEditingController();
   int? _currentCourseId;
+  List<Course>? _allCourses;
+  bool _loadingCourses = true;
 
   @override
   void initState() {
@@ -33,24 +36,44 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
     _bloc = EnrollmentBloc(repository: sl());
     if (widget.preselectedCourseId != null) {
       _currentCourseId = widget.preselectedCourseId;
-      _courseIdController.text = widget.preselectedCourseId.toString();
       _bloc.add(LoadEnrolledUsers(courseId: widget.preselectedCourseId!));
+    }
+    _loadAllCourses();
+  }
+
+  Future<void> _loadAllCourses() async {
+    final coursesRepo = sl<CoursesRepository>();
+    final result = await coursesRepo.getAllCourses();
+    if (mounted) {
+      setState(() {
+        _loadingCourses = false;
+        result.fold(
+          (failure) => _allCourses = [],
+          (courses) => _allCourses = courses,
+        );
+        // Clean up course list
+        _allCourses?.removeWhere((c) => c.fullName.trim().isEmpty);
+
+        // Ensure current course ID is valid if set
+        if (_currentCourseId != null && _allCourses != null) {
+          final exists = _allCourses!.any((c) => c.id == _currentCourseId);
+          if (!exists) {
+            _currentCourseId = null;
+          }
+        }
+      });
     }
   }
 
   @override
   void dispose() {
-    _courseIdController.dispose();
     _bloc.close();
     super.dispose();
   }
 
-  void _loadCourse() {
-    final id = int.tryParse(_courseIdController.text.trim());
-    if (id != null && id > 0) {
-      setState(() => _currentCourseId = id);
-      _bloc.add(LoadEnrolledUsers(courseId: id));
-    }
+  void _loadCourse(int id) {
+    setState(() => _currentCourseId = id);
+    _bloc.add(LoadEnrolledUsers(courseId: id));
   }
 
   void _confirmUnenroll(EnrolledUser user) {
@@ -118,31 +141,30 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
             : null,
         body: Column(
           children: [
-            // Course ID input
+            // Course selection
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _courseIdController,
-                      keyboardType: TextInputType.number,
+              child: _loadingCourses
+                  ? const Center(child: CircularProgressIndicator())
+                  : DropdownButtonFormField<int>(
+                      value: _currentCourseId,
+                      isExpanded: true,
                       decoration: InputDecoration(
-                        labelText: 'enrollment.course_id'.tr(),
+                        labelText: 'courses.my_courses'.tr(), // Or 'enrollment.select_course'.tr() if available
                         hintText: 'enrollment.enter_course_id'.tr(),
                         prefixIcon: const Icon(Icons.school),
                         border: const OutlineInputBorder(),
                       ),
-                      onSubmitted: (_) => _loadCourse(),
+                      items: _allCourses?.map((course) {
+                        return DropdownMenuItem<int>(
+                          value: course.id,
+                          child: Text(course.fullName),
+                        );
+                      }).toList() ?? [],
+                      onChanged: (id) {
+                        if (id != null) _loadCourse(id);
+                      },
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  FilledButton(
-                    onPressed: _loadCourse,
-                    child: Text('enrollment.load'.tr()),
-                  ),
-                ],
-              ),
             ),
             const Divider(height: 1),
 

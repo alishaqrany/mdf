@@ -46,3 +46,18 @@ class LoadGrades extends AssignmentEvent {
   @override
   List<Object?> get props => [assignmentId];
 }
+
+class SaveGradeEvent extends AssignmentEvent {
+  final int assignmentId;
+  final int userId;
+  final double grade;
+  final String? feedback;
+  const SaveGradeEvent({
+    required this.assignmentId,
+    required this.userId,
+    required this.grade,
+    this.feedback,
+  });
+  @override
+  List<Object?> get props => [assignmentId, userId, grade, feedback];
+}
