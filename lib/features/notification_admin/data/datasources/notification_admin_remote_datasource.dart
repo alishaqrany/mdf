@@ -42,18 +42,40 @@ class NotificationAdminRemoteDataSourceImpl
     required String message,
     bool sendFcm = true,
   }) async {
-    final params = <String, dynamic>{
+    // 1. Send Moodle internal notification.
+    final moodleParams = <String, dynamic>{
       'subject': subject,
-      'message': message,
-      'sendfcm': sendFcm ? 1 : 0,
+      'fullmessage': message,
     };
     for (int i = 0; i < userIds.length; i++) {
-      params['userids[$i]'] = userIds[i];
+      moodleParams['userids[$i]'] = userIds[i];
     }
     final result = await _apiClient.call(
       MoodleApiEndpoints.mdfSendMoodleNotification,
-      params: params,
+      params: moodleParams,
     );
+
+    // 2. Also send FCM push notification if requested.
+    if (sendFcm) {
+      try {
+        final fcmParams = <String, dynamic>{
+          'title': subject,
+          'body': message.length > 300
+              ? '${message.substring(0, 297)}...'
+              : message,
+        };
+        for (int i = 0; i < userIds.length; i++) {
+          fcmParams['userids[$i]'] = userIds[i];
+        }
+        await _apiClient.call(
+          MoodleApiEndpoints.mdfSendPushNotification,
+          params: fcmParams,
+        );
+      } catch (_) {
+        // FCM push is best-effort — don't fail the whole operation
+      }
+    }
+
     return Map<String, dynamic>.from(result);
   }
 

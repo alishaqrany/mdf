@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/quiz.dart';
 import '../../domain/repositories/quiz_repository.dart';
@@ -22,10 +22,8 @@ class QuizRepositoryImpl implements QuizRepository {
     try {
       final quizzes = await remoteDataSource.getQuizzesByCourse(courseId);
       return Right(quizzes);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Quizzes'));
     }
   }
 
@@ -38,10 +36,8 @@ class QuizRepositoryImpl implements QuizRepository {
     try {
       final attempts = await remoteDataSource.getUserAttempts(quizId, userId);
       return Right(attempts);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Quizzes'));
     }
   }
 
@@ -51,10 +47,8 @@ class QuizRepositoryImpl implements QuizRepository {
     try {
       final attempt = await remoteDataSource.startAttempt(quizId);
       return Right(attempt);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Quizzes'));
     }
   }
 
@@ -67,10 +61,8 @@ class QuizRepositoryImpl implements QuizRepository {
     try {
       final questions = await remoteDataSource.getAttemptData(attemptId, page);
       return Right(questions);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Quizzes'));
     }
   }
 
@@ -83,10 +75,8 @@ class QuizRepositoryImpl implements QuizRepository {
     try {
       await remoteDataSource.saveAttempt(attemptId, data);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Quizzes'));
     }
   }
 
@@ -96,10 +86,8 @@ class QuizRepositoryImpl implements QuizRepository {
     try {
       await remoteDataSource.submitAttempt(attemptId);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Quizzes'));
     }
   }
 
@@ -111,10 +99,8 @@ class QuizRepositoryImpl implements QuizRepository {
     try {
       final questions = await remoteDataSource.getAttemptReview(attemptId);
       return Right(questions);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Quizzes'));
     }
   }
 }

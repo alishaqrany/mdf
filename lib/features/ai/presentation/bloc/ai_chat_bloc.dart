@@ -62,14 +62,18 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
     _history.add(userMsg);
     emit(AiChatActive(messages: List.of(_history), isTyping: true));
 
-    // Get AI response
-    final result = await repository.chat(event.userId, event.message, _history);
+    // Pass history WITHOUT the latest user message — proxyAiRequest() will
+    // append it, so including it here would duplicate the user turn.
+    final historyForApi = _history.sublist(0, _history.length - 1);
+    final result = await repository.chat(event.userId, event.message, historyForApi);
 
     result.fold(
       (failure) {
         final errorMsg = AiChatMessage(
           id: '${DateTime.now().millisecondsSinceEpoch}_err',
-          content: 'Sorry, I encountered an error. Please try again.',
+          content: failure.message.isNotEmpty
+              ? failure.message
+              : 'Sorry, I encountered an error. Please try again.',
           isUser: false,
           timestamp: DateTime.now(),
           type: AiMessageType.error,

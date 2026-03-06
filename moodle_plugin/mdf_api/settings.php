@@ -36,11 +36,34 @@ if ($hassiteconfig) {
         0
     ));
 
-    // FCM Server Key.
+    // FCM Server Key (legacy - deprecated).
     $settings->add(new admin_setting_configpasswordunmask(
         'local_mdf_api/fcm_server_key',
         get_string('fcm_server_key', 'local_mdf_api'),
         get_string('fcm_server_key_desc', 'local_mdf_api'),
+        ''
+    ));
+
+    // ── FCM V1 API Settings ──
+    $settings->add(new admin_setting_heading(
+        'local_mdf_api/fcm_v1_heading',
+        get_string('fcm_v1_heading', 'local_mdf_api'),
+        get_string('fcm_v1_heading_desc', 'local_mdf_api')
+    ));
+
+    // Firebase Project ID.
+    $settings->add(new admin_setting_configtext(
+        'local_mdf_api/fcm_project_id',
+        get_string('fcm_project_id', 'local_mdf_api'),
+        get_string('fcm_project_id_desc', 'local_mdf_api'),
+        '', PARAM_TEXT
+    ));
+
+    // FCM Service Account JSON.
+    $settings->add(new admin_setting_configtextarea(
+        'local_mdf_api/fcm_service_account_json',
+        get_string('fcm_service_account_json', 'local_mdf_api'),
+        get_string('fcm_service_account_json_desc', 'local_mdf_api'),
         ''
     ));
 

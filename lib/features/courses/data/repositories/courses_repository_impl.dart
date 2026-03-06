@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../core/storage/cache_config.dart';
 import '../../../../core/storage/cache_manager.dart';
@@ -79,7 +79,7 @@ class CoursesRepositoryImpl implements CoursesRepository {
           // If hidden courses fetch fails, show all courses.
         }
         return Right(_filterHidden(courses, hidden));
-      } on ServerException catch (e) {
+      } catch (e) {
         // API error — try cache before returning error
         final cached = CacheManager.getList<Course>(
           boxName: CacheConfig.coursesBox,
@@ -88,17 +88,7 @@ class CoursesRepositoryImpl implements CoursesRepository {
           fromJson: (json) => CourseModel.fromEnrolledCourse(json),
         );
         if (cached != null && cached.isNotEmpty) return Right(cached);
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        // Unexpected error — try cache before returning error
-        final cached = CacheManager.getList<Course>(
-          boxName: CacheConfig.coursesBox,
-          key: cacheKey,
-          ttl: CacheConfig.longTTL,
-          fromJson: (json) => CourseModel.fromEnrolledCourse(json),
-        );
-        if (cached != null && cached.isNotEmpty) return Right(cached);
-        return Left(UnexpectedFailure(message: e.toString()));
+        return Left(MdfErrorHandler.handleException(e, featureName: 'Courses'));
       }
     }
     // Offline: try cache
@@ -131,10 +121,8 @@ class CoursesRepositoryImpl implements CoursesRepository {
           hidden = await _getHiddenCourseIds();
         } catch (_) {}
         return Right(_filterHidden(courses, hidden));
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(UnexpectedFailure(message: e.toString()));
+        return Left(MdfErrorHandler.handleException(e, featureName: 'Courses'));
       }
     }
     final cached = CacheManager.getList<Course>(
@@ -155,10 +143,8 @@ class CoursesRepositoryImpl implements CoursesRepository {
     try {
       final courses = await remoteDataSource.searchCourses(query);
       return Right(courses);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Courses'));
     }
   }
 
@@ -175,10 +161,8 @@ class CoursesRepositoryImpl implements CoursesRepository {
           );
         }
         return Right(courses);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(UnexpectedFailure(message: e.toString()));
+        return Left(MdfErrorHandler.handleException(e, featureName: 'Courses'));
       }
     }
     final cached = CacheManager.getList<Course>(
@@ -199,10 +183,8 @@ class CoursesRepositoryImpl implements CoursesRepository {
     try {
       final categories = await remoteDataSource.getCategories();
       return Right(categories);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Courses'));
     }
   }
 
@@ -214,10 +196,8 @@ class CoursesRepositoryImpl implements CoursesRepository {
     try {
       final course = await remoteDataSource.getCourseById(courseId);
       return Right(course);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Courses'));
     }
   }
 }

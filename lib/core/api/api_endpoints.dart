@@ -33,7 +33,7 @@ class MoodleApiEndpoints {
   static const String viewCourse = 'core_course_view_course';
 
   // ─── Enrollment ───
-  static const String getEnrolledUsers = 'enrol_get_enrolled_users';
+  static const String getEnrolledUsers = 'core_enrol_get_enrolled_users';
   static const String getUsersCourses = 'enrol_get_users_courses';
   static const String manualEnrolUsers = 'enrol_manual_enrol_users';
   static const String manualUnenrolUsers = 'enrol_manual_unenrol_users';

@@ -34,15 +34,25 @@ class EnrollmentRemoteDataSourceImpl implements EnrollmentRemoteDataSource {
 
   @override
   Future<List<EnrolledUserModel>> getEnrolledUsers(int courseId) async {
-    final response = await apiClient.call(
-      MoodleApiEndpoints.getEnrolledUsers,
-      params: {'courseid': courseId},
-    );
+    try {
+      final response = await apiClient.call(
+        MoodleApiEndpoints.getEnrolledUsers,
+        params: {'courseid': courseId},
+      );
 
-    if (response is List) {
-      return response
-          .map((u) => EnrolledUserModel.fromJson(u as Map<String, dynamic>))
-          .toList();
+      if (response is List) {
+        return response
+            .map((u) => EnrolledUserModel.fromJson(u as Map<String, dynamic>))
+            .toList();
+      }
+    } catch (e) {
+      // If the core function fails (e.g., no enrolment instance), return empty
+      // rather than crashing. The admin can still enroll users manually.
+      if (e.toString().contains('invalidrecordunknown') ||
+          e.toString().contains('invalidrecord')) {
+        return [];
+      }
+      rethrow;
     }
     return [];
   }

@@ -69,7 +69,14 @@ class _StudentDashboardView extends StatelessWidget {
           heroTag: 'ai_chat_fab',
           onPressed: () => context.push('/student/ai-chat'),
           icon: const Icon(Icons.auto_awesome_rounded),
-          label: Text(tr('ai.ask_ai')),
+          label: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 140),
+            child: Text(
+              tr('ai.ask_ai'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
         ),

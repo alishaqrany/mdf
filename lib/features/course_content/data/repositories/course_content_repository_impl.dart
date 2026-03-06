@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../core/storage/cache_config.dart';
 import '../../../../core/storage/cache_manager.dart';
@@ -31,15 +31,10 @@ class CourseContentRepositoryImpl implements CourseContentRepository {
           data: sections.map((s) => s.toJson()).toList(),
         );
         return Right(sections);
-      } on ServerException catch (e) {
-        final lowerMessage = e.message.toLowerCase();
-        if (lowerMessage.contains('accessexception') ||
-            lowerMessage.contains('nopermissions')) {
-          return const Right(<CourseSection>[]);
-        }
-        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(UnexpectedFailure(message: e.toString()));
+        return Left(
+          MdfErrorHandler.handleException(e, featureName: 'Course Content'),
+        );
       }
     }
     final cached = CacheManager.getList<CourseSection>(
@@ -63,10 +58,10 @@ class CourseContentRepositoryImpl implements CourseContentRepository {
     try {
       await remoteDataSource.updateActivityCompletion(cmId, completed);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'Course Content'),
+      );
     }
   }
 }

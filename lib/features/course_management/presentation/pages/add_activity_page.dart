@@ -366,7 +366,7 @@ class _AddActivityViewState extends State<_AddActivityView> {
         config = {
           if (_dueDate != null)
             'duedate': (_dueDate!.millisecondsSinceEpoch ~/ 1000).toString(),
-          'grade': _maxGrade.toString(),
+          'maxgrade': _maxGrade.toString(),
         };
         break;
       case 'quiz':
@@ -375,7 +375,7 @@ class _AddActivityViewState extends State<_AddActivityView> {
         }
         break;
       case 'url':
-        config = {'externalurl': _urlController.text};
+        config = {'url': _urlController.text};
         break;
     }
 

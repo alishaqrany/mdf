@@ -555,16 +555,19 @@ class _ProviderConfigFormState extends State<_ProviderConfigForm> {
         const SizedBox(height: 16),
         FilledButton(
           onPressed: () {
+            final apiKey = _apikeyCtrl.text.trim();
+            // Auto-enable the provider when an API key is provided
+            final isEnabled = apiKey.isNotEmpty ? true : _enabled;
             context.read<AiAdminBloc>().add(
               SaveAiProviderConfig(
                 config: AiConfigModel(
                   provider: widget.config.provider,
-                  apikey: _apikeyCtrl.text.trim(),
+                  apikey: apiKey,
                   model: _modelCtrl.text.trim(),
                   systemprompt: _promptCtrl.text.trim(),
                   maxtokens: int.tryParse(_maxTokensCtrl.text) ?? 1024,
                   temperature: _temperature,
-                  enabled: _enabled,
+                  enabled: isEnabled,
                 ),
               ),
             );

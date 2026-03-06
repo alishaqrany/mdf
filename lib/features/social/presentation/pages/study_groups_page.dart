@@ -50,7 +50,14 @@ class _StudyGroupsView extends StatelessWidget {
         heroTag: 'create_group_fab',
         onPressed: () => _showCreateGroupDialog(context),
         icon: const Icon(Icons.group_add_rounded),
-        label: Text(tr('social.create_group')),
+        label: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 140),
+          child: Text(
+            tr('social.create_group'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),

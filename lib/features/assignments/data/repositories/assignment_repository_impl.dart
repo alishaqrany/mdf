@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/assignment.dart';
 import '../../domain/repositories/assignment_repository.dart';
@@ -26,10 +26,8 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
         courseId,
       );
       return Right(assignments);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
     }
   }
 
@@ -41,10 +39,8 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
     try {
       final submissions = await remoteDataSource.getSubmissions(assignmentId);
       return Right(submissions);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
     }
   }
 
@@ -56,10 +52,8 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
     try {
       final grades = await remoteDataSource.getGrades(assignmentId);
       return Right(grades);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
     }
   }
 
@@ -77,10 +71,8 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
         fileItemId,
       );
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
     }
   }
 
@@ -90,10 +82,8 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
     try {
       await remoteDataSource.submitForGrading(assignmentId);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
     }
   }
 
@@ -108,10 +98,8 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
     try {
       await remoteDataSource.saveGrade(assignmentId, userId, grade, feedback);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
     }
   }
 }

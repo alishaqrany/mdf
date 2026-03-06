@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../course_content/domain/entities/course_content.dart';
+import '../../../course_content/presentation/bloc/course_content_bloc.dart';
 import 'detail_module_item.dart';
 import 'detail_sub_section_expander.dart';
 
@@ -135,16 +137,22 @@ class _DetailSectionCardState extends State<DetailSectionCard> {
                       vertical: 8,
                     ),
                     child: OutlinedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         final loc = GoRouterState.of(context).matchedLocation;
                         final prefix = loc.startsWith('/admin')
                             ? '/admin'
                             : loc.startsWith('/teacher')
                             ? '/teacher'
                             : '/student';
-                        context.push(
+                        final result = await context.push<bool>(
                           '$prefix/course/${widget.courseId}/add-activity/${widget.section.sectionNumber}?sectionName=${Uri.encodeComponent(widget.section.name)}',
                         );
+                        // Reload course content if an activity was added
+                        if (result == true && context.mounted) {
+                          context.read<CourseContentBloc>().add(
+                            LoadCourseContent(courseId: widget.courseId),
+                          );
+                        }
                       },
                       icon: const Icon(Icons.add_circle_outline),
                       label: Text(tr('course_mgmt.add_activity')),

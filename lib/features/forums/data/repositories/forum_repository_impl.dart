@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/forum.dart';
 import '../../domain/repositories/forum_repository.dart';
@@ -22,10 +22,8 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       final forums = await remoteDataSource.getForumsByCourse(courseId);
       return Right(forums);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }
   }
 
@@ -37,10 +35,8 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       final discussions = await remoteDataSource.getDiscussions(forumId);
       return Right(discussions);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }
   }
 
@@ -52,10 +48,8 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       final posts = await remoteDataSource.getDiscussionPosts(discussionId);
       return Right(posts);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }
   }
 
@@ -69,10 +63,8 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       await remoteDataSource.addDiscussion(forumId, subject, message);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }
   }
 
@@ -86,10 +78,8 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       await remoteDataSource.addReply(postId, subject, message);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }
   }
 
@@ -102,10 +92,8 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       await remoteDataSource.togglePinDiscussion(discussionId, pinned);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }
   }
 
@@ -115,10 +103,8 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       await remoteDataSource.deletePost(postId);
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(UnexpectedFailure(message: e.toString()));
+      return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }
   }
 }

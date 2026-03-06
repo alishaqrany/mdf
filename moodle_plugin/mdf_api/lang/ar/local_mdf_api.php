@@ -35,8 +35,17 @@ $string['settings_heading'] = 'إعدادات MDF Academy API';
 $string['settings_heading_desc'] = 'ضبط إعدادات إضافة واجهة MDF Academy للجوال.';
 $string['enable_push'] = 'تفعيل إشعارات الدفع';
 $string['enable_push_desc'] = 'عند التفعيل، سيتم إرسال إشعارات الدفع إلى الأجهزة المحمولة عبر Firebase Cloud Messaging للأحداث الرئيسية (التسجيل، الدرجات، منشورات المنتدى، إلخ).';
-$string['fcm_server_key'] = 'مفتاح خادم FCM';
-$string['fcm_server_key_desc'] = 'مفتاح خادم Firebase Cloud Messaging (القديم) من وحدة تحكم مشروع Firebase. يوجد ضمن إعدادات المشروع ← المراسلة السحابية ← مفتاح الخادم.';
+$string['fcm_server_key'] = 'مفتاح خادم FCM (قديم)';
+$string['fcm_server_key_desc'] = 'مفتاح خادم Firebase Cloud Messaging (القديم، متوقف). يُستخدم فقط إذا لم يتم إعداد FCM V1 أدناه.';
+
+// FCM V1 API settings.
+$string['fcm_v1_heading'] = 'FCM V1 API (مُوصى به)';
+$string['fcm_v1_heading_desc'] = 'إعداد Firebase Cloud Messaging V1 API باستخدام حساب خدمة. هذه هي الطريقة المُوصى بها لأن API القديم متوقف من قِبل Google.';
+$string['fcm_project_id'] = 'معرّف مشروع Firebase';
+$string['fcm_project_id_desc'] = 'معرّف مشروع Firebase، يوجد في وحدة تحكم Firebase ← إعدادات المشروع ← عام.';
+$string['fcm_service_account_json'] = 'JSON حساب الخدمة';
+$string['fcm_service_account_json_desc'] = 'الصق المحتوى الكامل لملف مفتاح JSON لحساب الخدمة. يمكنك إنشاؤه من وحدة تحكم Firebase ← إعدادات المشروع ← حسابات الخدمة ← إنشاء مفتاح خاص جديد.';
+$string['fcmauthfailed'] = 'فشل المصادقة مع FCM V1 API. تحقق من بيانات اعتماد حساب الخدمة.';
 
 // Error strings.
 $string['fcmkeynotconfigured'] = 'لم يتم إعداد مفتاح خادم FCM. يرجى ضبطه في إعدادات الإضافة.';

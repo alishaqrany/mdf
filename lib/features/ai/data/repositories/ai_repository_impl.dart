@@ -198,9 +198,36 @@ class AiRepositoryImpl implements AiRepository {
             ),
           );
         }
-        // If proxy returned error, fall through to local engine
-      } catch (_) {
-        // Proxy failed — fall through to local engine
+
+        // If proxy returned a real error (not just 'no provider'),
+        // surface it so the user knows the AI configuration is broken.
+        if (!proxyResponse.success &&
+            proxyResponse.error != null &&
+            proxyResponse.error!.isNotEmpty &&
+            proxyResponse.error != 'no_provider') {
+          return Left(
+            ServerFailure(
+              message: 'AI provider error: ${proxyResponse.error}',
+            ),
+          );
+        }
+        // If error is 'no_provider', fall through to local engine
+      } catch (e) {
+        // If the error looks like an access / permission issue, surface it
+        // instead of silently falling back to the local engine.
+        final msg = e.toString().toLowerCase();
+        if (msg.contains('accessexception') ||
+            msg.contains('access denied') ||
+            msg.contains('not allowed') ||
+            msg.contains('capability')) {
+          return Left(
+            ServerFailure(
+              message:
+                  'AI service access denied. Please check the web-service token capabilities.',
+            ),
+          );
+        }
+        // Proxy network/connection error — fall through to local engine
       }
     }
 

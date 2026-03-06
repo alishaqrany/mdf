@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../core/storage/cache_config.dart';
 import '../../../../core/storage/cache_manager.dart';
@@ -33,10 +33,8 @@ class GradeRepositoryImpl implements GradeRepository {
           data: items.map((i) => i.toJson()).toList(),
         );
         return Right(items);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(UnexpectedFailure(message: e.toString()));
+        return Left(MdfErrorHandler.handleException(e, featureName: 'Grades'));
       }
     }
     final cached = CacheManager.getList<GradeItem>(
@@ -60,10 +58,8 @@ class GradeRepositoryImpl implements GradeRepository {
           data: grades.map((g) => g.toJson()).toList(),
         );
         return Right(grades);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(UnexpectedFailure(message: e.toString()));
+        return Left(MdfErrorHandler.handleException(e, featureName: 'Grades'));
       }
     }
     final cached = CacheManager.getList<CourseGrade>(

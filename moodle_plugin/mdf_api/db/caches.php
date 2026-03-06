@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data.
+ * Cache definitions for local_mdf_api.
  *
  * @package    local_mdf_api
  * @copyright  2026 MDF Academy
@@ -24,8 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026030505;        // YYYYMMDDXX format.
-$plugin->requires  = 2022112800;        // Moodle 4.1+.
-$plugin->component = 'local_mdf_api';   // Full name of the plugin.                                                               
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.4.0';           // FCM V1 API, AI fix, activity params fix.
+$definitions = [
+    'fcm_tokens' => [
+        'mode'       => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'ttl'        => 3600, // 1 hour, matches Google OAuth2 token lifetime.
+    ],
+];

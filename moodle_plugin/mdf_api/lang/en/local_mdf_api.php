@@ -35,8 +35,17 @@ $string['settings_heading'] = 'MDF Academy API Settings';
 $string['settings_heading_desc'] = 'Configure the MDF Academy mobile API plugin.';
 $string['enable_push'] = 'Enable push notifications';
 $string['enable_push_desc'] = 'When enabled, push notifications will be sent to mobile devices via Firebase Cloud Messaging for key events (enrolment, grades, forum posts, etc.).';
-$string['fcm_server_key'] = 'FCM Server Key';
-$string['fcm_server_key_desc'] = 'The Firebase Cloud Messaging server key (legacy) from your Firebase project console. Found under Project Settings → Cloud Messaging → Server key.';
+$string['fcm_server_key'] = 'FCM Server Key (Legacy)';
+$string['fcm_server_key_desc'] = 'The Firebase Cloud Messaging server key (legacy, deprecated). Only used if FCM V1 settings below are not configured.';
+
+// FCM V1 API settings.
+$string['fcm_v1_heading'] = 'FCM V1 API (Recommended)';
+$string['fcm_v1_heading_desc'] = 'Configure Firebase Cloud Messaging V1 API using a service account. This is the recommended method as the legacy API is deprecated by Google.';
+$string['fcm_project_id'] = 'Firebase Project ID';
+$string['fcm_project_id_desc'] = 'Your Firebase project ID, found in Firebase Console → Project Settings → General.';
+$string['fcm_service_account_json'] = 'Service Account JSON';
+$string['fcm_service_account_json_desc'] = 'Paste the full contents of your Firebase service account JSON key file. Generate one from Firebase Console → Project Settings → Service Accounts → Generate New Private Key.';
+$string['fcmauthfailed'] = 'Failed to authenticate with FCM V1 API. Check your service account credentials.';
 
 // Error strings.
 $string['fcmkeynotconfigured'] = 'FCM server key is not configured. Please set it in the plugin settings.';

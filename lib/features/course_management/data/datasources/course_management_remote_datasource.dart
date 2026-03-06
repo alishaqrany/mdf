@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/api/moodle_api_client.dart';
 
@@ -149,16 +151,13 @@ class CourseManagementRemoteDataSourceImpl
   }) async {
     final params = <String, dynamic>{
       'courseid': courseId,
-      'sectionnum': sectionNum,
-      'modulename': moduleName,
+      'section': sectionNum,
+      'moduletype': moduleName,
       'name': name,
-      if (intro != null) 'intro': intro,
+      if (intro != null) 'description': intro,
     };
-    if (config != null) {
-      // Flatten config map for Moodle POST params
-      for (final entry in config.entries) {
-        params['config[${entry.key}]'] = entry.value;
-      }
+    if (config != null && config.isNotEmpty) {
+      params['config'] = jsonEncode(config);
     }
     final result = await _apiClient.call(
       MoodleApiEndpoints.mdfAddCourseModule,

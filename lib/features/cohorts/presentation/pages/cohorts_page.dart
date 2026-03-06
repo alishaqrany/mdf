@@ -121,7 +121,14 @@ class _CohortsViewState extends State<_CohortsView> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateCohortDialog(context),
         icon: const Icon(Icons.group_add_rounded),
-        label: Text(tr('cohorts.create')),
+        label: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 140),
+          child: Text(
+            tr('cohorts.create'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ),
       body: Column(
         children: [

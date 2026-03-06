@@ -43,7 +43,14 @@ class _SessionsView extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateSession(context),
         icon: const Icon(Icons.add_rounded),
-        label: Text(tr('social.new_session')),
+        label: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 140),
+          child: Text(
+            tr('social.new_session'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ),
       body: BlocConsumer<CollaborativeBloc, CollaborativeState>(
         listener: (context, state) {

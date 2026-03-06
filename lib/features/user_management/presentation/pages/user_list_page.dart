@@ -220,7 +220,14 @@ class _UserListPageState extends State<UserListPage> {
             }
           },
           icon: const Icon(Icons.person_add),
-          label: Text('users.add_user'.tr()),
+          label: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 140),
+            child: Text(
+              'users.add_user'.tr(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ),
       ),
     );

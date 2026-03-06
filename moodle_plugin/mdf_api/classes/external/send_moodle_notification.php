@@ -13,6 +13,7 @@ use core_external\external_value;
 
 /**
  * Send Moodle native notifications to users (appears in their notification popup).
+ * Optionally also sends FCM push notifications via the V1 API.
  *
  * @package    local_mdf_api
  */
