@@ -372,8 +372,7 @@ class DetailModuleItem extends StatelessWidget {
     if (context.mounted) {
       final baseUrl = await _getBaseUrl();
       final pageUrl =
-          module.url ??
-          '$baseUrl/mod/page/view.php?id=${module.id}';
+          module.url ?? '$baseUrl/mod/page/view.php?id=${module.id}';
       context.push(
         '/content/html',
         extra: {'title': module.name, 'url': pageUrl},

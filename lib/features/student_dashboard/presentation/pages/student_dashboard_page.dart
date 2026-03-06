@@ -62,291 +62,295 @@ class _StudentDashboardView extends StatelessWidget {
         }
       },
       child: Scaffold(
-      floatingActionButton: FadeInUp(
-        duration: const Duration(milliseconds: 600),
-        delay: const Duration(milliseconds: 500),
-        child: FloatingActionButton.extended(
-          heroTag: 'ai_chat_fab',
-          onPressed: () => context.push('/student/ai-chat'),
-          icon: const Icon(Icons.auto_awesome_rounded),
-          label: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 140),
-            child: Text(
-              tr('ai.ask_ai'),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-        ),
-      ),
-      body: BlocBuilder<StudentDashboardBloc, StudentDashboardState>(
-        builder: (context, state) {
-          if (state is StudentDashboardLoading) {
-            return const _DashboardShimmer();
-          }
-
-          if (state is StudentDashboardError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
-                  const SizedBox(height: 16),
-                  Text(state.message, style: theme.textTheme.bodyLarge),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (user != null) {
-                        context.read<StudentDashboardBloc>().add(
-                          LoadStudentDashboard(userId: user.id),
-                        );
-                      }
-                    },
-                    child: Text(tr('common.retry')),
-                  ),
-                ],
+        floatingActionButton: FadeInUp(
+          duration: const Duration(milliseconds: 600),
+          delay: const Duration(milliseconds: 500),
+          child: FloatingActionButton.extended(
+            heroTag: 'ai_chat_fab',
+            onPressed: () => context.push('/student/ai-chat'),
+            icon: const Icon(Icons.auto_awesome_rounded),
+            label: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 140),
+              child: Text(
+                tr('ai.ask_ai'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            );
-          }
+            ),
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+          ),
+        ),
+        body: BlocBuilder<StudentDashboardBloc, StudentDashboardState>(
+          builder: (context, state) {
+            if (state is StudentDashboardLoading) {
+              return const _DashboardShimmer();
+            }
 
-          if (state is StudentDashboardLoaded) {
-            final isWide = ResponsiveLayout.isWide(context);
-            final gridCols = ResponsiveLayout.gridColumns(context);
+            if (state is StudentDashboardError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(state.message, style: theme.textTheme.bodyLarge),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (user != null) {
+                          context.read<StudentDashboardBloc>().add(
+                            LoadStudentDashboard(userId: user.id),
+                          );
+                        }
+                      },
+                      child: Text(tr('common.retry')),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-            return RefreshIndicator(
-              onRefresh: () async {
-                if (user != null) {
-                  context.read<StudentDashboardBloc>().add(
-                    RefreshStudentDashboard(userId: user.id),
-                  );
-                }
-              },
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: ResponsiveLayout.contentMaxWidth(context),
-                  ),
-                  child: CustomScrollView(
-                    slivers: [
-                      // ─── Welcome Header ───
-                      SliverToBoxAdapter(
-                        child: FadeInDown(
-                          duration: const Duration(milliseconds: 500),
-                          child: _WelcomeHeader(
-                            userName: user?.firstName ?? '',
-                            profileImageUrl: user?.profileImageUrl,
-                            userId: user?.id ?? 0,
-                          ),
-                        ),
-                      ),
+            if (state is StudentDashboardLoaded) {
+              final isWide = ResponsiveLayout.isWide(context);
+              final gridCols = ResponsiveLayout.gridColumns(context);
 
-                      // ─── Stats Cards ───
-                      SliverToBoxAdapter(
-                        child: FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 100),
-                          child: _StatsRow(
-                            enrolled: state.totalEnrolled,
-                            inProgress: state.totalInProgress,
-                            completed: state.totalCompleted,
-                          ),
-                        ),
-                      ),
-
-                      // ─── Quick Access Grid ───
-                      SliverToBoxAdapter(
-                        child: FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 150),
-                          child: _QuickAccessGrid(userId: user?.id ?? 0),
-                        ),
-                      ),
-
-                      // ─── Upcoming Events ───
-                      if (state.upcomingEvents.isNotEmpty) ...[
+              return RefreshIndicator(
+                onRefresh: () async {
+                  if (user != null) {
+                    context.read<StudentDashboardBloc>().add(
+                      RefreshStudentDashboard(userId: user.id),
+                    );
+                  }
+                },
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: ResponsiveLayout.contentMaxWidth(context),
+                    ),
+                    child: CustomScrollView(
+                      slivers: [
+                        // ─── Welcome Header ───
                         SliverToBoxAdapter(
-                          child: FadeInUp(
+                          child: FadeInDown(
                             duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 160),
-                            child: _SectionHeader(
-                              title: tr('dashboard.upcoming_events'),
-                              onViewAll: () =>
-                                  context.go('/student/calendar'),
+                            child: _WelcomeHeader(
+                              userName: user?.firstName ?? '',
+                              profileImageUrl: user?.profileImageUrl,
+                              userId: user?.id ?? 0,
                             ),
                           ),
                         ),
+
+                        // ─── Stats Cards ───
                         SliverToBoxAdapter(
                           child: FadeInUp(
                             duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 170),
-                            child: _UpcomingEventsPreview(
-                              events: state.upcomingEvents,
+                            delay: const Duration(milliseconds: 100),
+                            child: _StatsRow(
+                              enrolled: state.totalEnrolled,
+                              inProgress: state.totalInProgress,
+                              completed: state.totalCompleted,
                             ),
                           ),
                         ),
-                      ],
 
-                      // ─── AI Insights Preview ───
-                      SliverToBoxAdapter(
-                        child: FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 175),
-                          child: _AiInsightsPreview(userId: user?.id ?? 0),
-                        ),
-                      ),
-
-                      // ─── Social Learning Preview ───
-                      SliverToBoxAdapter(
-                        child: FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 185),
-                          child: const _SocialLearningPreview(),
-                        ),
-                      ),
-
-                      // ─── Gamification Preview ───
-                      SliverToBoxAdapter(
-                        child: FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 190),
-                          child: const _GamificationPreview(),
-                        ),
-                      ),
-
-                      // ─── Continue Learning Section ───
-                      if (state.recentCourses.isNotEmpty) ...[
+                        // ─── Quick Access Grid ───
                         SliverToBoxAdapter(
                           child: FadeInUp(
                             duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 200),
+                            delay: const Duration(milliseconds: 150),
+                            child: _QuickAccessGrid(userId: user?.id ?? 0),
+                          ),
+                        ),
+
+                        // ─── Upcoming Events ───
+                        if (state.upcomingEvents.isNotEmpty) ...[
+                          SliverToBoxAdapter(
+                            child: FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 160),
+                              child: _SectionHeader(
+                                title: tr('dashboard.upcoming_events'),
+                                onViewAll: () =>
+                                    context.go('/student/calendar'),
+                              ),
+                            ),
+                          ),
+                          SliverToBoxAdapter(
+                            child: FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 170),
+                              child: _UpcomingEventsPreview(
+                                events: state.upcomingEvents,
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // ─── AI Insights Preview ───
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 175),
+                            child: _AiInsightsPreview(userId: user?.id ?? 0),
+                          ),
+                        ),
+
+                        // ─── Social Learning Preview ───
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 185),
+                            child: const _SocialLearningPreview(),
+                          ),
+                        ),
+
+                        // ─── Gamification Preview ───
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 190),
+                            child: const _GamificationPreview(),
+                          ),
+                        ),
+
+                        // ─── Continue Learning Section ───
+                        if (state.recentCourses.isNotEmpty) ...[
+                          SliverToBoxAdapter(
+                            child: FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 200),
+                              child: _SectionHeader(
+                                title: tr('dashboard.continue_learning'),
+                                onViewAll: () => context.go('/student/courses'),
+                              ),
+                            ),
+                          ),
+                          SliverToBoxAdapter(
+                            child: FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 250),
+                              child: SizedBox(
+                                height: 200,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  itemCount: state.recentCourses.length,
+                                  itemBuilder: (context, index) =>
+                                      _ContinueLearningCard(
+                                        course: state.recentCourses[index],
+                                        cardWidth: isWide ? 320 : 280,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // ─── My Courses Section ───
+                        SliverToBoxAdapter(
+                          child: FadeInUp(
+                            duration: const Duration(milliseconds: 500),
+                            delay: const Duration(milliseconds: 300),
                             child: _SectionHeader(
-                              title: tr('dashboard.continue_learning'),
+                              title: tr('dashboard.my_courses'),
                               onViewAll: () => context.go('/student/courses'),
                             ),
                           ),
                         ),
-                        SliverToBoxAdapter(
-                          child: FadeInUp(
-                            duration: const Duration(milliseconds: 500),
-                            delay: const Duration(milliseconds: 250),
-                            child: SizedBox(
-                              height: 200,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                itemCount: state.recentCourses.length,
-                                itemBuilder: (context, index) =>
-                                    _ContinueLearningCard(
-                                      course: state.recentCourses[index],
-                                      cardWidth: isWide ? 320 : 280,
+                        if (state.enrolledCourses.isEmpty)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                children: [
+                                  const Icon(
+                                    Icons.school_outlined,
+                                    size: 80,
+                                    color: AppColors.textTertiaryLight,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    tr('dashboard.no_courses'),
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: AppColors.textSecondaryLight,
                                     ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-
-                      // ─── My Courses Section ───
-                      SliverToBoxAdapter(
-                        child: FadeInUp(
-                          duration: const Duration(milliseconds: 500),
-                          delay: const Duration(milliseconds: 300),
-                          child: _SectionHeader(
-                            title: tr('dashboard.my_courses'),
-                            onViewAll: () => context.go('/student/courses'),
-                          ),
-                        ),
-                      ),
-                      if (state.enrolledCourses.isEmpty)
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.school_outlined,
-                                  size: 80,
-                                  color: AppColors.textTertiaryLight,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  tr('dashboard.no_courses'),
-                                  style: theme.textTheme.bodyLarge?.copyWith(
-                                    color: AppColors.textSecondaryLight,
+                          )
+                        else if (isWide)
+                          // Tablet/Desktop: Course Grid
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            sliver: SliverGrid(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: gridCols,
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 10,
+                                    childAspectRatio: 2.5,
+                                  ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) => FadeInUp(
+                                  duration: const Duration(milliseconds: 400),
+                                  delay: Duration(
+                                    milliseconds: 350 + (index * 50),
+                                  ),
+                                  child: _CourseListItem(
+                                    course: state.enrolledCourses[index],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        )
-                      else if (isWide)
-                        // Tablet/Desktop: Course Grid
-                        SliverPadding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          sliver: SliverGrid(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: gridCols,
-                                  mainAxisSpacing: 10,
-                                  crossAxisSpacing: 10,
-                                  childAspectRatio: 2.5,
-                                ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => FadeInUp(
-                                duration: const Duration(milliseconds: 400),
-                                delay: Duration(
-                                  milliseconds: 350 + (index * 50),
-                                ),
-                                child: _CourseListItem(
-                                  course: state.enrolledCourses[index],
+                                childCount: state.enrolledCourses.length.clamp(
+                                  0,
+                                  8,
                                 ),
                               ),
-                              childCount: state.enrolledCourses.length.clamp(
-                                0,
-                                8,
+                            ),
+                          )
+                        else
+                          // Phone: Course List
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            sliver: SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) => FadeInUp(
+                                  duration: const Duration(milliseconds: 400),
+                                  delay: Duration(
+                                    milliseconds: 350 + (index * 50),
+                                  ),
+                                  child: _CourseListItem(
+                                    course: state.enrolledCourses[index],
+                                  ),
+                                ),
+                                childCount: state.enrolledCourses.length.clamp(
+                                  0,
+                                  5,
+                                ),
                               ),
                             ),
                           ),
-                        )
-                      else
-                        // Phone: Course List
-                        SliverPadding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => FadeInUp(
-                                duration: const Duration(milliseconds: 400),
-                                delay: Duration(
-                                  milliseconds: 350 + (index * 50),
-                                ),
-                                child: _CourseListItem(
-                                  course: state.enrolledCourses[index],
-                                ),
-                              ),
-                              childCount: state.enrolledCourses.length.clamp(
-                                0,
-                                5,
-                              ),
-                            ),
-                          ),
-                        ),
 
-                      const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                    ],
+                        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          return const SizedBox();
-        },
+            return const SizedBox();
+          },
+        ),
       ),
-    ),
     );
   }
 }
@@ -386,13 +390,16 @@ class _WelcomeHeader extends StatelessWidget {
           Builder(
             builder: (ctx) {
               final authState = ctx.read<AuthBloc>().state;
-              final isAdmin = authState is AuthAuthenticated &&
-                  authState.user.isAdmin;
+              final isAdmin =
+                  authState is AuthAuthenticated && authState.user.isAdmin;
               if (!isAdmin) return const SizedBox.shrink();
               return Padding(
                 padding: const EdgeInsetsDirectional.only(end: 4),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                  icon: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: Colors.white,
+                  ),
                   tooltip: tr('common.back'),
                   onPressed: () => ctx.go('/admin'),
                 ),
@@ -680,9 +687,9 @@ class _QuickAccessGrid extends StatelessWidget {
                       Text(
                         item.label,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -1577,10 +1584,9 @@ class _GamificationQuickAction extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: color,
-                fontSize: 9,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: color, fontSize: 9),
             ),
           ],
         ),

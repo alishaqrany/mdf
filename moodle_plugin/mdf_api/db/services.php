@@ -685,13 +685,93 @@ $services = [
                 'core_course_get_enrolled_courses_by_timeline_classification',
                 'core_course_view_course',
                 'core_files_upload',
+                'core_files_get_files',
 
                 // Completion.
                 'core_completion_get_activities_completion_status',
+                'core_completion_update_activity_completion_status_manually',
 
                 // Unenrolment.
                 'enrol_manual_unenrol_users',
                 'enrol_self_enrol_user',
+
+                // Content modules (resources, pages, books, etc.).
+                'mod_resource_get_resources_by_courses',
+                'mod_url_get_urls_by_courses',
+                'mod_page_get_pages_by_courses',
+                'mod_folder_get_folders_by_courses',
+                'mod_book_get_books_by_courses',
+                'mod_label_get_labels_by_courses',
+                'mod_lesson_get_lessons_by_courses',
+                'mod_lesson_get_pages',
+                'mod_scorm_get_scorms_by_courses',
+                'mod_scorm_get_scorm_attempt_count',
+                'mod_scorm_get_scorm_sco_tracks',
+                'mod_scorm_get_scorm_scoes',
+                'mod_scorm_insert_scorm_tracks',
+                'mod_h5pactivity_get_h5pactivities_by_courses',
+                'mod_h5pactivity_get_attempts',
+                'mod_h5pactivity_get_results',
+
+                // Quiz.
+                'mod_quiz_get_quizzes_by_courses',
+                'mod_quiz_get_quiz_access_information',
+                'mod_quiz_start_attempt',
+                'mod_quiz_get_attempt_data',
+                'mod_quiz_process_attempt',
+                'mod_quiz_save_attempt',
+                'mod_quiz_get_attempt_summary',
+                'mod_quiz_submit_attempt',
+                'mod_quiz_get_attempt_review',
+                'mod_quiz_get_user_attempts',
+                'mod_quiz_get_user_best_grade',
+
+                // Assignments.
+                'mod_assign_get_assignments',
+                'mod_assign_get_submissions',
+                'mod_assign_submit_for_grading',
+                'mod_assign_save_submission',
+                'mod_assign_save_grade',
+                'mod_assign_get_grades',
+
+                // Forums.
+                'mod_forum_get_forums_by_courses',
+                'mod_forum_get_forum_discussions',
+                'mod_forum_get_discussion_posts',
+                'mod_forum_add_discussion',
+                'mod_forum_add_discussion_post',
+                'mod_forum_set_pin_state',
+                'mod_forum_delete_post',
+
+                // Grades.
+                'gradereport_user_get_grades_table',
+                'gradereport_user_get_grade_items',
+                'gradereport_overview_get_course_grades',
+
+                // Messaging & Notifications.
+                'core_message_get_messages',
+                'core_message_send_instant_messages',
+                'core_message_get_conversations',
+                'core_message_get_conversation_messages',
+                'message_popup_get_popup_notifications',
+                'message_popup_get_unread_popup_notification_count',
+                'core_message_mark_notification_read',
+
+                // Calendar.
+                'core_calendar_get_calendar_events',
+                'core_calendar_get_calendar_monthly_view',
+                'core_calendar_get_calendar_upcoming_view',
+                'core_calendar_create_calendar_events',
+                'core_calendar_delete_calendar_events',
+
+                // BigBlueButton (video meetings).
+                'mod_bigbluebuttonbn_get_bigbluebuttonbns_by_courses',
+                'mod_bigbluebuttonbn_meeting_info',
+                'mod_bigbluebuttonbn_view_bigbluebuttonbn',
+
+                // Roles.
+                'core_role_assign_roles',
+                'core_role_unassign_roles',
             ]
         ))),
         'restrictedusers'   => 0,

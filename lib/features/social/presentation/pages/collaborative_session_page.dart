@@ -21,8 +21,7 @@ class CollaborativeSessionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          sl<CollaborativeBloc>()..add(LoadGroupSessions(groupId)),
+      create: (_) => sl<CollaborativeBloc>()..add(LoadGroupSessions(groupId)),
       child: _SessionsView(groupId: groupId, groupName: groupName),
     );
   }
@@ -55,20 +54,16 @@ class _SessionsView extends StatelessWidget {
       body: BlocConsumer<CollaborativeBloc, CollaborativeState>(
         listener: (context, state) {
           if (state is CollaborativeActionSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.action)),
-            );
-            context.read<CollaborativeBloc>().add(
-              LoadGroupSessions(groupId),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.action)));
+            context.read<CollaborativeBloc>().add(LoadGroupSessions(groupId));
           }
           if (state is CollaborativeSessionCreated) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(tr('social.session_created'))),
             );
-            context.read<CollaborativeBloc>().add(
-              LoadGroupSessions(groupId),
-            );
+            context.read<CollaborativeBloc>().add(LoadGroupSessions(groupId));
           }
         },
         builder: (context, state) {
@@ -81,14 +76,18 @@ class _SessionsView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(height: 16),
                   Text(state.message, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 16),
                   FilledButton.icon(
-                    onPressed: () => context
-                        .read<CollaborativeBloc>()
-                        .add(LoadGroupSessions(groupId)),
+                    onPressed: () => context.read<CollaborativeBloc>().add(
+                      LoadGroupSessions(groupId),
+                    ),
                     icon: const Icon(Icons.refresh_rounded),
                     label: Text(tr('common.retry')),
                   ),
@@ -127,15 +126,17 @@ class _SessionsView extends StatelessWidget {
                 .where((s) => s.status == SessionStatus.scheduled)
                 .toList();
             final ended = state.sessions
-                .where((s) =>
-                    s.status == SessionStatus.ended ||
-                    s.status == SessionStatus.cancelled)
+                .where(
+                  (s) =>
+                      s.status == SessionStatus.ended ||
+                      s.status == SessionStatus.cancelled,
+                )
                 .toList();
 
             return RefreshIndicator(
-              onRefresh: () async => context
-                  .read<CollaborativeBloc>()
-                  .add(LoadGroupSessions(groupId)),
+              onRefresh: () async => context.read<CollaborativeBloc>().add(
+                LoadGroupSessions(groupId),
+              ),
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                 children: [
@@ -151,8 +152,7 @@ class _SessionsView extends StatelessWidget {
                         delay: Duration(milliseconds: e.key * 80),
                         child: _SessionCard(
                           session: e.value,
-                          onTap: () =>
-                              _showSessionDetail(context, e.value),
+                          onTap: () => _showSessionDetail(context, e.value),
                         ),
                       ),
                     ),
@@ -170,8 +170,7 @@ class _SessionsView extends StatelessWidget {
                         delay: Duration(milliseconds: e.key * 80),
                         child: _SessionCard(
                           session: e.value,
-                          onTap: () =>
-                              _showSessionDetail(context, e.value),
+                          onTap: () => _showSessionDetail(context, e.value),
                         ),
                       ),
                     ),
@@ -189,8 +188,7 @@ class _SessionsView extends StatelessWidget {
                         delay: Duration(milliseconds: e.key * 80),
                         child: _SessionCard(
                           session: e.value,
-                          onTap: () =>
-                              _showSessionDetail(context, e.value),
+                          onTap: () => _showSessionDetail(context, e.value),
                         ),
                       ),
                     ),
@@ -220,7 +218,9 @@ class _SessionsView extends StatelessWidget {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) => Padding(
           padding: EdgeInsets.fromLTRB(
-            20, 20, 20,
+            20,
+            20,
+            20,
             20 + MediaQuery.of(ctx).viewInsets.bottom,
           ),
           child: Column(
@@ -251,9 +251,7 @@ class _SessionsView extends StatelessWidget {
               const SizedBox(height: 12),
               ListTile(
                 title: Text(tr('social.start_time')),
-                subtitle: Text(
-                  DateFormat.yMd().add_jm().format(startTime),
-                ),
+                subtitle: Text(DateFormat.yMd().add_jm().format(startTime)),
                 leading: const Icon(Icons.access_time_rounded),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -274,8 +272,11 @@ class _SessionsView extends StatelessWidget {
                     if (time != null) {
                       setState(() {
                         startTime = DateTime(
-                          date.year, date.month, date.day,
-                          time.hour, time.minute,
+                          date.year,
+                          date.month,
+                          date.day,
+                          time.hour,
+                          time.minute,
                         );
                       });
                     }
@@ -329,7 +330,9 @@ class _SessionsView extends StatelessWidget {
         expand: false,
         builder: (_, scrollCtrl) => Padding(
           padding: EdgeInsets.fromLTRB(
-            20, 20, 20,
+            20,
+            20,
+            20,
             20 + MediaQuery.of(ctx).viewInsets.bottom,
           ),
           child: ListView(
@@ -350,8 +353,9 @@ class _SessionsView extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _sessionStatusColor(session.status)
-                          .withValues(alpha: 0.12),
+                      color: _sessionStatusColor(
+                        session.status,
+                      ).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -574,10 +578,7 @@ class _SessionCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      session.title,
-                      style: theme.textTheme.titleSmall,
-                    ),
+                    Text(session.title, style: theme.textTheme.titleSmall),
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -588,9 +589,7 @@ class _SessionCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          DateFormat.yMd()
-                              .add_jm()
-                              .format(session.startTime),
+                          DateFormat.yMd().add_jm().format(session.startTime),
                           style: theme.textTheme.bodySmall,
                         ),
                       ],

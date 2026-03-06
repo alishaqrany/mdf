@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
@@ -26,8 +27,19 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
         courseId,
       );
       return Right(assignments);
+    } on MoodleException catch (e) {
+      if (e.errorCode == 'accessexception') return const Right([]);
+      return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
+    } on ServerException catch (e) {
+      if (e.message.toLowerCase().contains('accessexception') ||
+          e.errorCode == 'accessexception') {
+        return const Right([]);
+      }
+      return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
     } catch (e) {
-      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'Assignments'),
+      );
     }
   }
 
@@ -40,7 +52,9 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
       final submissions = await remoteDataSource.getSubmissions(assignmentId);
       return Right(submissions);
     } catch (e) {
-      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'Assignments'),
+      );
     }
   }
 
@@ -53,7 +67,9 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
       final grades = await remoteDataSource.getGrades(assignmentId);
       return Right(grades);
     } catch (e) {
-      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'Assignments'),
+      );
     }
   }
 
@@ -72,7 +88,9 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
       );
       return const Right(null);
     } catch (e) {
-      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'Assignments'),
+      );
     }
   }
 
@@ -83,7 +101,9 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
       await remoteDataSource.submitForGrading(assignmentId);
       return const Right(null);
     } catch (e) {
-      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'Assignments'),
+      );
     }
   }
 
@@ -99,7 +119,9 @@ class AssignmentRepositoryImpl implements AssignmentRepository {
       await remoteDataSource.saveGrade(assignmentId, userId, grade, feedback);
       return const Right(null);
     } catch (e) {
-      return Left(MdfErrorHandler.handleException(e, featureName: 'Assignments'));
+      return Left(
+        MdfErrorHandler.handleException(e, featureName: 'Assignments'),
+      );
     }
   }
 }

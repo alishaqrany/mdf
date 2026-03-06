@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
@@ -33,6 +34,9 @@ class GradeRepositoryImpl implements GradeRepository {
           data: items.map((i) => i.toJson()).toList(),
         );
         return Right(items);
+      } on MoodleException catch (e) {
+        if (e.errorCode == 'accessexception') return const Right([]);
+        return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
       } catch (e) {
         return Left(MdfErrorHandler.handleException(e, featureName: 'Grades'));
       }
@@ -58,6 +62,9 @@ class GradeRepositoryImpl implements GradeRepository {
           data: grades.map((g) => g.toJson()).toList(),
         );
         return Right(grades);
+      } on MoodleException catch (e) {
+        if (e.errorCode == 'accessexception') return const Right([]);
+        return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
       } catch (e) {
         return Left(MdfErrorHandler.handleException(e, featureName: 'Grades'));
       }

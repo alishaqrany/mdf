@@ -272,14 +272,12 @@ class MoodleApiEndpoints {
   static const String mdfRegisterDevice = 'local_mdf_api_register_device';
   static const String mdfGetUserDevices = 'local_mdf_api_get_user_devices';
   static const String mdfRevokeDevice = 'local_mdf_api_revoke_device';
-  static const String mdfRevokeAllDevices =
-      'local_mdf_api_revoke_all_devices';
+  static const String mdfRevokeAllDevices = 'local_mdf_api_revoke_all_devices';
   static const String mdfSetUserDeviceLimit =
       'local_mdf_api_set_user_device_limit';
   static const String mdfGetUserDeviceLimit =
       'local_mdf_api_get_user_device_limit';
-  static const String mdfGetProtectionLog =
-      'local_mdf_api_get_protection_log';
+  static const String mdfGetProtectionLog = 'local_mdf_api_get_protection_log';
   static const String mdfValidateDeviceAccess =
       'local_mdf_api_validate_device_access';
 

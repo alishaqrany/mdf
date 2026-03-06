@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
@@ -22,6 +23,15 @@ class ForumRepositoryImpl implements ForumRepository {
     try {
       final forums = await remoteDataSource.getForumsByCourse(courseId);
       return Right(forums);
+    } on MoodleException catch (e) {
+      if (e.errorCode == 'accessexception') return const Right([]);
+      return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
+    } on ServerException catch (e) {
+      if (e.message.toLowerCase().contains('accessexception') ||
+          e.errorCode == 'accessexception') {
+        return const Right([]);
+      }
+      return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
     } catch (e) {
       return Left(MdfErrorHandler.handleException(e, featureName: 'Forums'));
     }

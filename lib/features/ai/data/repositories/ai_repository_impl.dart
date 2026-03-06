@@ -206,9 +206,7 @@ class AiRepositoryImpl implements AiRepository {
             proxyResponse.error!.isNotEmpty &&
             proxyResponse.error != 'no_provider') {
           return Left(
-            ServerFailure(
-              message: 'AI provider error: ${proxyResponse.error}',
-            ),
+            ServerFailure(message: 'AI provider error: ${proxyResponse.error}'),
           );
         }
         // If error is 'no_provider', fall through to local engine

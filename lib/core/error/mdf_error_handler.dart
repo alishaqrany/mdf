@@ -49,7 +49,8 @@ class MdfErrorHandler {
         // Instead of giving a fatal token error, give a softer message that the module/feature
         // is disabled or restricted.
         return ServerFailure(
-          message: 'لا تملك الصلاحية للوصول إلى هذه الميزة (${featureName}). قد تكون مقيدة أو غير مفعلة.\nAccess denied to $featureName.',
+          message:
+              'لا تملك الصلاحية للوصول إلى هذه الميزة (${featureName}). قد تكون مقيدة أو غير مفعلة.\nAccess denied to $featureName.',
           errorCode: 'accessexception',
         );
       }
@@ -66,7 +67,8 @@ class MdfErrorHandler {
     if (e is ServerException) {
       if (e.errorCode == 'accessexception') {
         return ServerFailure(
-          message: 'لا تملك الصلاحية للوصول إلى هذه الميزة (${featureName}). قد تكون مقيدة أو غير مفعلة.\nAccess denied to $featureName.',
+          message:
+              'لا تملك الصلاحية للوصول إلى هذه الميزة (${featureName}). قد تكون مقيدة أو غير مفعلة.\nAccess denied to $featureName.',
           errorCode: 'accessexception',
         );
       }
@@ -76,7 +78,8 @@ class MdfErrorHandler {
     // Fallback: check string patterns for wrapped exceptions
     if (msg.contains('accessexception')) {
       return ServerFailure(
-        message: 'لا تملك الصلاحية للوصول إلى هذه الميزة (${featureName}). قد تكون مقيدة أو غير مفعلة.\nAccess denied to $featureName.',
+        message:
+            'لا تملك الصلاحية للوصول إلى هذه الميزة (${featureName}). قد تكون مقيدة أو غير مفعلة.\nAccess denied to $featureName.',
         errorCode: 'accessexception',
       );
     }

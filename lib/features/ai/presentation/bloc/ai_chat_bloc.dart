@@ -65,7 +65,11 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
     // Pass history WITHOUT the latest user message — proxyAiRequest() will
     // append it, so including it here would duplicate the user turn.
     final historyForApi = _history.sublist(0, _history.length - 1);
-    final result = await repository.chat(event.userId, event.message, historyForApi);
+    final result = await repository.chat(
+      event.userId,
+      event.message,
+      historyForApi,
+    );
 
     result.fold(
       (failure) {

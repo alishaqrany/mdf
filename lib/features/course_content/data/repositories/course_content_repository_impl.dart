@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/mdf_error_handler.dart';
 import '../../../../core/network/network_info.dart';
@@ -31,6 +32,18 @@ class CourseContentRepositoryImpl implements CourseContentRepository {
           data: sections.map((s) => s.toJson()).toList(),
         );
         return Right(sections);
+      } on MoodleException catch (e) {
+        if (e.errorCode == 'accessexception') {
+          return const Right(<CourseSection>[]);
+        }
+        return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
+      } on ServerException catch (e) {
+        final lowerMessage = e.message.toLowerCase();
+        if (lowerMessage.contains('accessexception') ||
+            lowerMessage.contains('nopermissions')) {
+          return const Right(<CourseSection>[]);
+        }
+        return Left(ServerFailure(message: e.message, errorCode: e.errorCode));
       } catch (e) {
         return Left(
           MdfErrorHandler.handleException(e, featureName: 'Course Content'),
