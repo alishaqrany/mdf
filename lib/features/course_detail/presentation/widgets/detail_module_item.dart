@@ -285,7 +285,9 @@ class DetailModuleItem extends StatelessWidget {
         final fileurl = file['fileurl'] as String?;
         if (filename != null && fileurl != null) {
           var cleanUrl = fileurl.replaceAll(
-            RegExp(r'[?&]forcedownload=[^&]*'), '');
+            RegExp(r'[?&]forcedownload=[^&]*'),
+            '',
+          );
           final sep = cleanUrl.contains('?') ? '&' : '?';
           final authedUrl = '$cleanUrl${sep}token=$token';
           content = content.replaceAll('@@PLUGINFILE@@/$filename', authedUrl);
@@ -307,18 +309,20 @@ class DetailModuleItem extends StatelessWidget {
             final furl = f['fileurl'] as String?;
             if (furl != null) {
               final m = RegExp(r'pluginfile\.php/(\d+)/').firstMatch(furl);
-              if (m != null) { ctxId = m.group(1); break; }
+              if (m != null) {
+                ctxId = m.group(1);
+                break;
+              }
             }
           }
         }
         ctxId ??= module.id.toString();
-        content = content.replaceAllMapped(
-          RegExp(r'@@PLUGINFILE@@/([^"<\s]+)'),
-          (match) {
-            final path = match.group(1)!;
-            return '$baseUrl/webservice/pluginfile.php/$ctxId/mod_page/content/0/$path?token=$token';
-          },
-        );
+        content = content.replaceAllMapped(RegExp(r'@@PLUGINFILE@@/([^"<\s]+)'), (
+          match,
+        ) {
+          final path = match.group(1)!;
+          return '$baseUrl/webservice/pluginfile.php/$ctxId/mod_page/content/0/$path?token=$token';
+        });
       }
     }
 
