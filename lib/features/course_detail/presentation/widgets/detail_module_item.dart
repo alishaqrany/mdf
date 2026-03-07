@@ -257,13 +257,124 @@ class DetailModuleItem extends StatelessWidget {
     }
   }
 
+  /// Authenticate pluginfile URLs by appending the user's REST token.
+  String _authPluginFileUrls(String html, String token) {
+    return html.replaceAllMapped(
+      RegExp(r'(https?://[^"\s<>]*pluginfile\.php/[^"\s<>]+)'),
+      (match) {
+        var url = match.group(1)!;
+        if (url.contains('token=')) return url;
+        url = url.replaceAll(RegExp(r'[?&]forcedownload=[^&]*'), '');
+        final sep = url.contains('?') ? '&' : '?';
+        return '$url${sep}token=$token';
+      },
+    );
+  }
+
+  /// Resolve @@PLUGINFILE@@ placeholders using file metadata + token.
+  Future<String> _resolvePluginFiles(
+    String content,
+    String token,
+    List<dynamic> allFiles,
+  ) async {
+    if (!content.contains('@@PLUGINFILE@@')) return content;
+
+    for (final file in allFiles) {
+      if (file is Map<String, dynamic>) {
+        final filename = file['filename'] as String?;
+        final fileurl = file['fileurl'] as String?;
+        if (filename != null && fileurl != null) {
+          var cleanUrl = fileurl.replaceAll(
+            RegExp(r'[?&]forcedownload=[^&]*'), '');
+          final sep = cleanUrl.contains('?') ? '&' : '?';
+          final authedUrl = '$cleanUrl${sep}token=$token';
+          content = content.replaceAll('@@PLUGINFILE@@/$filename', authedUrl);
+          final enc = Uri.encodeComponent(filename);
+          if (enc != filename) {
+            content = content.replaceAll('@@PLUGINFILE@@/$enc', authedUrl);
+          }
+        }
+      }
+    }
+
+    // Remaining unresolved @@PLUGINFILE@@ — build from context id
+    if (content.contains('@@PLUGINFILE@@')) {
+      final baseUrl = await sl<MoodleApiClient>().getBaseUrl();
+      if (baseUrl != null) {
+        String? ctxId;
+        for (final f in allFiles) {
+          if (f is Map<String, dynamic>) {
+            final furl = f['fileurl'] as String?;
+            if (furl != null) {
+              final m = RegExp(r'pluginfile\.php/(\d+)/').firstMatch(furl);
+              if (m != null) { ctxId = m.group(1); break; }
+            }
+          }
+        }
+        ctxId ??= module.id.toString();
+        content = content.replaceAllMapped(
+          RegExp(r'@@PLUGINFILE@@/([^"<\s]+)'),
+          (match) {
+            final path = match.group(1)!;
+            return '$baseUrl/webservice/pluginfile.php/$ctxId/mod_page/content/0/$path?token=$token';
+          },
+        );
+      }
+    }
+
+    return content;
+  }
+
+  /// Navigate to inline HTML page content viewer.
+  void _showPageContent(BuildContext context, String content) {
+    if (!context.mounted) return;
+    context.push(
+      '/content/html',
+      extra: {
+        'title': module.name,
+        'description': HtmlContentPage.preprocessVideoLinks(content),
+      },
+    );
+  }
+
   Future<void> _fetchAndShowPage(BuildContext context) async {
+    final apiClient = sl<MoodleApiClient>();
+    final token = await sl<FlutterSecureStorage>().read(
+      key: AppConstants.tokenKey,
+    );
+
+    // ── Attempt 1: Custom MDF endpoint (returns pre-resolved content) ──
     try {
-      final apiClient = sl<MoodleApiClient>();
-      final token = await sl<FlutterSecureStorage>().read(
-        key: AppConstants.tokenKey,
+      final customResponse = await apiClient.call(
+        MoodleApiEndpoints.mdfGetPageContent,
+        params: {'cmid': module.id},
       );
 
+      if (customResponse is Map<String, dynamic>) {
+        var content = (customResponse['content'] as String? ?? '').trim();
+        final intro = (customResponse['intro'] as String? ?? '').trim();
+
+        if (content.isEmpty) {
+          content = intro;
+        } else if (intro.isNotEmpty) {
+          content = '$intro\n$content';
+        }
+
+        if (token != null && content.isNotEmpty) {
+          content = _authPluginFileUrls(content, token);
+        }
+
+        if (content.isNotEmpty) {
+          _showPageContent(context, content);
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('[Page] Custom endpoint failed: $e');
+    }
+
+    // ── Attempt 2: Standard Moodle mod_page_get_pages_by_courses ──
+    try {
       final response = await apiClient.call(
         MoodleApiEndpoints.getPages,
         params: {'courseids[0]': courseId},
@@ -271,7 +382,6 @@ class DetailModuleItem extends StatelessWidget {
 
       if (response is Map<String, dynamic> && response.containsKey('pages')) {
         final pages = response['pages'] as List<dynamic>;
-
         Map<String, dynamic>? pageData;
         for (final p in pages) {
           if (p is Map<String, dynamic> && p['coursemodule'] == module.id) {
@@ -280,116 +390,45 @@ class DetailModuleItem extends StatelessWidget {
           }
         }
 
-        if (pageData != null) {
+        if (pageData != null && token != null) {
           var content = pageData['content'] as String? ?? '';
-          final contentFiles = pageData['contentfiles'] as List<dynamic>? ?? [];
-          final introFiles = pageData['introfiles'] as List<dynamic>? ?? [];
-          final allFiles = [...contentFiles, ...introFiles];
+          final allFiles = [
+            ...(pageData['contentfiles'] as List<dynamic>? ?? []),
+            ...(pageData['introfiles'] as List<dynamic>? ?? []),
+          ];
 
-          if (token != null && content.contains('@@PLUGINFILE@@')) {
-            for (final file in allFiles) {
-              if (file is Map<String, dynamic>) {
-                final filename = file['filename'] as String?;
-                final fileurl = file['fileurl'] as String?;
-                if (filename != null && fileurl != null) {
-                  var cleanUrl = fileurl.replaceAll(
-                    RegExp(r'[?&]forcedownload=[^&]*'),
-                    '',
-                  );
-                  final sep = cleanUrl.contains('?') ? '&' : '?';
-                  final authedUrl = '$cleanUrl${sep}token=$token';
+          content = await _resolvePluginFiles(content, token, allFiles);
+          content = _authPluginFileUrls(content, token);
 
-                  content = content.replaceAll(
-                    '@@PLUGINFILE@@/$filename',
-                    authedUrl,
-                  );
-                  final encodedName = Uri.encodeComponent(filename);
-                  if (encodedName != filename) {
-                    content = content.replaceAll(
-                      '@@PLUGINFILE@@/$encodedName',
-                      authedUrl,
-                    );
-                  }
-                }
-              }
-            }
-
-            final baseUrl = await apiClient.getBaseUrl();
-            if (baseUrl != null) {
-              String? contextId;
-              for (final file in allFiles) {
-                if (file is Map<String, dynamic>) {
-                  final furl = file['fileurl'] as String?;
-                  if (furl != null) {
-                    final m = RegExp(
-                      r'pluginfile\.php/(\d+)/',
-                    ).firstMatch(furl);
-                    if (m != null) {
-                      contextId = m.group(1);
-                      break;
-                    }
-                  }
-                }
-              }
-              contextId ??= module.id.toString();
-
-              content = content.replaceAllMapped(
-                RegExp(r'@@PLUGINFILE@@/([^"<\s]+)'),
-                (match) {
-                  final path = match.group(1)!;
-                  return '$baseUrl/webservice/pluginfile.php/'
-                      '$contextId/mod_page/content/0/$path?token=$token';
-                },
-              );
-            }
-          }
-
-          if (token != null) {
-            content = content.replaceAllMapped(
-              RegExp(r'(https?://[^"\s<>]*pluginfile\.php/[^"\s<>]+)'),
-              (match) {
-                var url = match.group(1)!;
-                if (url.contains('token=')) return url;
-                url = url.replaceAll(RegExp(r'[?&]forcedownload=[^&]*'), '');
-                final sep = url.contains('?') ? '&' : '?';
-                return '$url${sep}token=$token';
-              },
-            );
-          }
-
-          if (content.isNotEmpty && context.mounted) {
-            content = HtmlContentPage.preprocessVideoLinks(content);
-            context.push(
-              '/content/html',
-              extra: {'title': module.name, 'description': content},
-            );
+          if (content.isNotEmpty) {
+            _showPageContent(context, content);
             return;
           }
         }
       }
     } catch (e) {
-      // API failed — fall through to description fallback below
+      debugPrint('[Page] Standard endpoint failed: $e');
     }
 
     if (!context.mounted) return;
 
-    // Fallback: show intro/description if available — never open the raw
-    // Moodle web URL which requires a browser session and shows a login page.
+    // ── Attempt 3: Show module description/intro (already in memory) ──
     final desc = module.description ?? '';
     if (desc.isNotEmpty) {
-      context.push(
-        '/content/html',
-        extra: {'title': module.name, 'description': desc},
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(tr('common.content_unavailable')),
-          backgroundColor: AppColors.error,
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      var html = desc;
+      if (token != null) html = _authPluginFileUrls(html, token);
+      _showPageContent(context, html);
+      return;
     }
+
+    // ── No content available — show error message ──
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(tr('content.page_load_error')),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 4),
+      ),
+    );
   }
 
   void _openResourceContent(BuildContext context) {

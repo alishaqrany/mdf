@@ -164,6 +164,7 @@
     "mark_complete": "وضع علامة مكتمل",
     "completed": "مكتمل",
     "no_content": "لا يوجد محتوى",
+    "page_load_error": "تعذر تحميل محتوى الصفحة. حاول مرة أخرى لاحقاً",
     "section_unnamed": "قسم بدون عنوان",
     "activities": "أنشطة",
     "attachments": "المرفقات",

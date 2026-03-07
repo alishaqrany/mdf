@@ -83,7 +83,7 @@ class send_moodle_notification extends external_api {
                 $message = new \core\message\message();
                 $message->component = 'local_mdf_api';
                 $message->name = 'admin_notification';
-                $message->userfrom = \core_user::get_noreply_user();
+                $message->userfrom = $USER;
                 $message->userto = $userto;
                 $message->subject = $params['subject'];
                 $message->fullmessage = strip_tags($params['fullmessage']);

@@ -646,6 +646,12 @@ $functions = [
         'type'          => 'read',
         'ajax'          => true,
     ],
+    'local_mdf_api_get_page_content' => [
+        'classname'     => 'local_mdf_api\external\get_page_content',
+        'description'   => 'Get page activity content by course module id',
+        'type'          => 'read',
+        'ajax'          => true,
+    ],
 ];
 
 $services = [
@@ -657,6 +663,7 @@ $services = [
                 'core_webservice_get_site_info',
                 'tool_mobile_get_config',
                 'tool_mobile_get_public_config',
+                'tool_mobile_get_autologin_key',
 
                 // User management.
                 'core_user_get_users',

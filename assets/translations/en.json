@@ -164,6 +164,7 @@
     "mark_complete": "Mark as Complete",
     "completed": "Completed",
     "no_content": "No content available",
+    "page_load_error": "Could not load page content. Please try again later",
     "section_unnamed": "Untitled Section",
     "activities": "activities",
     "attachments": "Attachments",

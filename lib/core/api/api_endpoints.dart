@@ -245,6 +245,7 @@ class MoodleApiEndpoints {
   // ─── Teacher Role (local_mdf_api) ───
   static const String mdfGetUserRoleSummary =
       'local_mdf_api_get_user_role_summary';
+  static const String mdfGetPageContent = 'local_mdf_api_get_page_content';
 
   // ─── Course Content Management (local_mdf_api) ───
   static const String mdfManageCourseSection =

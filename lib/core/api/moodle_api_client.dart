@@ -103,6 +103,8 @@ class MoodleApiClient {
               key: AppConstants.privateTokenKey,
               value: privateToken,
             );
+          } else if (currentService == AppConstants.moodleService) {
+            await _tryStorePrivateToken(username: username, password: password);
           }
           return data;
         }
@@ -155,6 +157,41 @@ class MoodleApiClient {
     if (lastAuthException != null) throw lastAuthException;
     if (lastServerException != null) throw lastServerException;
     throw const ServerException(message: 'Login failed');
+  }
+
+  Future<void> _tryStorePrivateToken({
+    required String username,
+    required String password,
+  }) async {
+    final baseUrl = await getBaseUrl();
+    if (baseUrl == null) {
+      return;
+    }
+
+    try {
+      final response = await _dio.post(
+        '$baseUrl${AppConstants.moodleLoginPath}',
+        data: {
+          'username': username,
+          'password': password,
+          'service': 'moodle_mobile_app',
+        },
+      );
+
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final privateToken = data['privatetoken']?.toString();
+        if (privateToken != null && privateToken.isNotEmpty) {
+          await _secureStorage.write(
+            key: AppConstants.privateTokenKey,
+            value: privateToken,
+          );
+        }
+      }
+    } catch (_) {
+      // Keep the main mdf_mobile token even if the auxiliary private token
+      // could not be obtained. URL-based activities may still require relogin.
+    }
   }
 
   /// Call a Moodle Web Service function.

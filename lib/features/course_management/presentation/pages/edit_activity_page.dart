@@ -311,8 +311,7 @@ class _EditActivityViewState extends State<_EditActivityView> {
     if (!_formKey.currentState!.validate()) return;
 
     Map<String, dynamic>? config;
-    if (widget.moduleName == 'page' &&
-        _pageContentController.text.isNotEmpty) {
+    if (widget.moduleName == 'page' && _pageContentController.text.isNotEmpty) {
       config = {'content': _pageContentController.text};
     }
 
@@ -326,4 +325,4 @@ class _EditActivityViewState extends State<_EditActivityView> {
       ),
     );
   }
-}
+}
