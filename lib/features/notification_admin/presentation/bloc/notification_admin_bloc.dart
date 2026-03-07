@@ -50,12 +50,27 @@ class NotificationAdminBloc
         message: event.message,
         sendFcm: event.sendFcm,
       );
+      final totalSent = result['total_sent'] ?? 0;
+      final totalFailed = result['total_failed'] ?? 0;
+
+      // Build detail message including per-user failure reasons.
+      var detail = '$totalSent sent, $totalFailed failed';
+      if (totalFailed > 0 && result['results'] is List) {
+        final failedDetails = (result['results'] as List)
+            .where((r) => r is Map && r['status'] != 'sent')
+            .map((r) => 'User ${r['userid']}: ${r['message'] ?? 'unknown'}')
+            .take(3)
+            .toList();
+        if (failedDetails.isNotEmpty) {
+          detail += '\n${failedDetails.join('\n')}';
+        }
+      }
+
       emit(
         NotificationSent(
-          totalSent: result['total_sent'] ?? 0,
-          totalFailed: result['total_failed'] ?? 0,
-          message:
-              '${result['total_sent'] ?? 0} sent, ${result['total_failed'] ?? 0} failed',
+          totalSent: totalSent,
+          totalFailed: totalFailed,
+          message: detail,
         ),
       );
     } catch (e) {

@@ -69,17 +69,29 @@ class send_moodle_notification extends external_api {
 
         foreach ($params['userids'] as $userid) {
             try {
+                $userto = \core_user::get_user($userid);
+                if (!$userto || isguestuser($userto) || $userto->deleted) {
+                    $total_failed++;
+                    $results[] = [
+                        'userid'  => $userid,
+                        'status'  => 'failed',
+                        'message' => 'User not found or invalid (id=' . $userid . ')',
+                    ];
+                    continue;
+                }
+
                 $message = new \core\message\message();
                 $message->component = 'local_mdf_api';
                 $message->name = 'admin_notification';
-                $message->userfrom = $USER;
-                $message->userto = \core_user::get_user($userid);
+                $message->userfrom = \core_user::get_noreply_user();
+                $message->userto = $userto;
                 $message->subject = $params['subject'];
                 $message->fullmessage = strip_tags($params['fullmessage']);
                 $message->fullmessageformat = FORMAT_HTML;
                 $message->fullmessagehtml = $params['fullmessage'];
                 $message->smallmessage = $params['smallmessage'];
                 $message->notification = 1;
+                $message->courseid = SITEID;
 
                 if (!empty($params['contexturl'])) {
                     $message->contexturl = $params['contexturl'];
@@ -100,10 +112,10 @@ class send_moodle_notification extends external_api {
                     $results[] = [
                         'userid'  => $userid,
                         'status'  => 'failed',
-                        'message' => 'message_send returned false',
+                        'message' => 'message_send returned false — check notification preferences',
                     ];
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $total_failed++;
                 $results[] = [
                     'userid'  => $userid,

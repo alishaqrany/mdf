@@ -13,6 +13,7 @@ class UserModel extends User {
     super.profileImageUrl,
     super.lang,
     super.isSiteAdmin,
+    super.isCourseCreator,
     super.isTeacher,
     super.teacherCourseIds,
     super.siteId,
@@ -64,6 +65,7 @@ class UserModel extends User {
       'profileImageUrl': profileImageUrl,
       'lang': lang,
       'isSiteAdmin': isSiteAdmin,
+      'isCourseCreator': isCourseCreator,
       'isTeacher': isTeacher,
       'teacherCourseIds': teacherCourseIds,
       'siteId': siteId,
@@ -84,6 +86,7 @@ class UserModel extends User {
       profileImageUrl: json['profileImageUrl'] as String?,
       lang: json['lang'] as String?,
       isSiteAdmin: json['isSiteAdmin'] as bool? ?? false,
+      isCourseCreator: json['isCourseCreator'] as bool? ?? false,
       isTeacher: json['isTeacher'] as bool? ?? false,
       teacherCourseIds:
           (json['teacherCourseIds'] as List<dynamic>?)

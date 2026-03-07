@@ -99,14 +99,15 @@ class get_users_list extends external_api {
 
         $users = [];
         foreach ($records as $rec) {
-            $userpicture = new \user_picture($rec);
+            $userctx = \context_user::instance($rec->id);
+            $profileimageurl = \moodle_url::make_webservice_pluginfile_url(
+                $userctx->id, 'user', 'icon', null, '/', 'f1'
+            )->out(false);
             $users[] = [
                 'id'              => (int)$rec->id,
                 'fullname'        => trim($rec->firstname . ' ' . $rec->lastname),
                 'email'           => $rec->email,
-                'profileimageurl' => $userpicture->get_url(
-                    \context_system::instance(), 'local_mdf_api'
-                )->out(false),
+                'profileimageurl' => $profileimageurl,
             ];
         }
 

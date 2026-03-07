@@ -129,7 +129,7 @@ class DetailModuleItem extends StatelessWidget {
                       ? '/teacher'
                       : '/student';
                   context.push(
-                    '$prefix/edit-activity/${module.id}?module=${Uri.encodeComponent(module.modName)}&name=${Uri.encodeComponent(module.name)}',
+                    '$prefix/edit-activity/${module.id}?module=${Uri.encodeComponent(module.modName)}&name=${Uri.encodeComponent(module.name)}&courseId=$courseId',
                   );
                 },
               )
@@ -367,15 +367,27 @@ class DetailModuleItem extends StatelessWidget {
           }
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      // API failed — fall through to description fallback below
+    }
 
-    if (context.mounted) {
-      final baseUrl = await _getBaseUrl();
-      final pageUrl =
-          module.url ?? '$baseUrl/mod/page/view.php?id=${module.id}';
+    if (!context.mounted) return;
+
+    // Fallback: show intro/description if available — never open the raw
+    // Moodle web URL which requires a browser session and shows a login page.
+    final desc = module.description ?? '';
+    if (desc.isNotEmpty) {
       context.push(
         '/content/html',
-        extra: {'title': module.name, 'url': pageUrl},
+        extra: {'title': module.name, 'description': desc},
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(tr('common.content_unavailable')),
+          backgroundColor: AppColors.error,
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }

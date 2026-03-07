@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/di/injection.dart';
 import '../../../../app/theme/colors.dart';
+import '../../../../core/api/api_endpoints.dart';
+import '../../../../core/api/moodle_api_client.dart';
 import '../bloc/course_management_bloc.dart';
 import '../bloc/course_management_event.dart';
 import '../bloc/course_management_state.dart';
@@ -15,6 +17,7 @@ class EditActivityPage extends StatelessWidget {
   final String currentName;
   final String? currentIntro;
   final bool isVisible;
+  final int courseId;
 
   const EditActivityPage({
     super.key,
@@ -23,6 +26,7 @@ class EditActivityPage extends StatelessWidget {
     required this.currentName,
     this.currentIntro,
     this.isVisible = true,
+    this.courseId = 0,
   });
 
   @override
@@ -35,6 +39,7 @@ class EditActivityPage extends StatelessWidget {
         currentName: currentName,
         currentIntro: currentIntro,
         isVisible: isVisible,
+        courseId: courseId,
       ),
     );
   }
@@ -46,6 +51,7 @@ class _EditActivityView extends StatefulWidget {
   final String currentName;
   final String? currentIntro;
   final bool isVisible;
+  final int courseId;
 
   const _EditActivityView({
     required this.cmid,
@@ -53,6 +59,7 @@ class _EditActivityView extends StatefulWidget {
     required this.currentName,
     this.currentIntro,
     required this.isVisible,
+    required this.courseId,
   });
 
   @override
@@ -63,20 +70,53 @@ class _EditActivityViewState extends State<_EditActivityView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _descController;
+  late final TextEditingController _pageContentController;
   late bool _isVisible;
+  bool _loadingContent = false;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.currentName);
     _descController = TextEditingController(text: widget.currentIntro ?? '');
+    _pageContentController = TextEditingController();
     _isVisible = widget.isVisible;
+
+    if (widget.moduleName == 'page' && widget.courseId > 0) {
+      _fetchPageContent();
+    }
+  }
+
+  Future<void> _fetchPageContent() async {
+    setState(() => _loadingContent = true);
+    try {
+      final apiClient = sl<MoodleApiClient>();
+      final response = await apiClient.call(
+        MoodleApiEndpoints.getPages,
+        params: {'courseids[0]': widget.courseId},
+      );
+      if (response is Map<String, dynamic> && response.containsKey('pages')) {
+        final pages = response['pages'] as List<dynamic>;
+        for (final p in pages) {
+          if (p is Map<String, dynamic> && p['coursemodule'] == widget.cmid) {
+            final content = p['content'] as String? ?? '';
+            if (mounted) _pageContentController.text = content;
+            break;
+          }
+        }
+      }
+    } catch (_) {
+      // Failed silently — user can still type content manually
+    } finally {
+      if (mounted) setState(() => _loadingContent = false);
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
+    _pageContentController.dispose();
     super.dispose();
   }
 
@@ -152,9 +192,33 @@ class _EditActivityViewState extends State<_EditActivityView> {
                     labelText: tr('course_mgmt.field_description'),
                     border: const OutlineInputBorder(),
                   ),
-                  maxLines: 4,
+                  maxLines: 3,
                 ),
                 const SizedBox(height: 16),
+
+                // Page content editor (only for 'page' module type)
+                if (widget.moduleName == 'page') ...[
+                  if (_loadingContent)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else
+                    TextFormField(
+                      controller: _pageContentController,
+                      decoration: InputDecoration(
+                        labelText: tr('course_mgmt.field_page_content'),
+                        hintText: tr('course_mgmt.field_page_content_hint'),
+                        border: const OutlineInputBorder(),
+                        alignLabelWithHint: true,
+                      ),
+                      maxLines: 12,
+                      keyboardType: TextInputType.multiline,
+                    ),
+                  const SizedBox(height: 16),
+                ],
 
                 // Visibility toggle
                 SwitchListTile(
@@ -246,13 +310,20 @@ class _EditActivityViewState extends State<_EditActivityView> {
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
+    Map<String, dynamic>? config;
+    if (widget.moduleName == 'page' &&
+        _pageContentController.text.isNotEmpty) {
+      config = {'content': _pageContentController.text};
+    }
+
     context.read<CourseManagementBloc>().add(
       UpdateModule(
         cmid: widget.cmid,
         name: _nameController.text,
         intro: _descController.text,
         visible: _isVisible ? 1 : 0,
+        config: config,
       ),
     );
   }
-}
+}

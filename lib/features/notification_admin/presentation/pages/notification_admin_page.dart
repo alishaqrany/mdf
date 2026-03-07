@@ -122,10 +122,17 @@ class _ComposeTabState extends State<_ComposeTab> {
         if (state is UsersLoaded) {
           setState(() => _users = state.users);
         } else if (state is NotificationSent) {
+          final allFailed = state.totalSent == 0 && state.totalFailed > 0;
+          final hasFailures = state.totalFailed > 0;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.success,
+              backgroundColor: allFailed
+                  ? AppColors.error
+                  : hasFailures
+                      ? Colors.orange
+                      : AppColors.success,
+              duration: Duration(seconds: hasFailures ? 6 : 3),
             ),
           );
           _subjectController.clear();

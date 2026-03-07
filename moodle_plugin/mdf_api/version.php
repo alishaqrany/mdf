@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026030601;        // YYYYMMDDXX format.
+$plugin->version   = 2026030700;        // YYYYMMDDXX format.
 $plugin->requires  = 2022112800;        // Moodle 4.1+.
 $plugin->component = 'local_mdf_api';   // Full name of the plugin.                                                               
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.4.0';           // FCM V1 API, AI fix, activity params fix.
+$plugin->release   = '2.4.1';           // Fix notifications, site-level roles, page fallback.

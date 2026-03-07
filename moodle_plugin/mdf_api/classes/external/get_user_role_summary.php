@@ -48,12 +48,13 @@ class get_user_role_summary extends external_api {
         }
         $teacher_courseids = array_values($teacher_courseids);
 
-        // Check for course creator role at system level.
+        // Check for course creator role (roleid 2) or manager role (roleid 1)
+        // at system level — these are site-level roles.
         $is_course_creator = $DB->record_exists_sql(
             "SELECT 1 FROM {role_assignments} ra
                JOIN {context} ctx ON ctx.id = ra.contextid
               WHERE ra.userid = :userid
-                AND ra.roleid = 2
+                AND ra.roleid IN (1, 2)
                 AND ctx.contextlevel = 10",
             ['userid' => $USER->id]
         );

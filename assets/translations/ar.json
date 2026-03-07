@@ -484,7 +484,8 @@
     "messages": "الرسائل",
     "notifications": "الإشعارات",
     "remove": "إزالة",
-    "required": "هذا الحقل مطلوب"
+    "required": "هذا الحقل مطلوب",
+    "content_unavailable": "تعذر تحميل محتوى الصفحة. يرجى التواصل مع المسؤول."
   },
   "course_visibility": {
     "title": "إدارة ظهور الدورات",
@@ -788,6 +789,8 @@
     "field_time_limit": "المدة الزمنية (دقائق)",
     "field_time_limit_help": "0 = بدون حد زمني",
     "field_url": "رابط خارجي",
+    "field_page_content": "محتوى الصفحة (HTML)",
+    "field_page_content_hint": "يمكنك استخدام وسوم HTML للتنسيق",
     "field_visible": "مرئي للطلاب",
     "visible_yes": "يمكن للطلاب رؤية هذا النشاط",
     "visible_no": "مخفي عن الطلاب",

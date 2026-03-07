@@ -173,7 +173,7 @@ class AppRouter {
         if (authState.user.isAdmin) {
           return '/admin';
         }
-        if (authState.user.isTeacher) {
+        if (authState.user.isCourseCreator) {
           return '/teacher';
         }
         return '/student';
@@ -625,10 +625,13 @@ class AppRouter {
               final moduleName =
                   state.uri.queryParameters['module'] ?? 'resource';
               final currentName = state.uri.queryParameters['name'] ?? '';
+              final courseId =
+                  int.tryParse(state.uri.queryParameters['courseId'] ?? '') ?? 0;
               return EditActivityPage(
                 cmid: cmid,
                 moduleName: moduleName,
                 currentName: currentName,
+                courseId: courseId,
               );
             },
           ),
@@ -763,10 +766,13 @@ class AppRouter {
               final moduleName =
                   state.uri.queryParameters['module'] ?? 'resource';
               final currentName = state.uri.queryParameters['name'] ?? '';
+              final courseId =
+                  int.tryParse(state.uri.queryParameters['courseId'] ?? '') ?? 0;
               return EditActivityPage(
                 cmid: cmid,
                 moduleName: moduleName,
                 currentName: currentName,
+                courseId: courseId,
               );
             },
           ),

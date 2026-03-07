@@ -63,6 +63,9 @@ class _AddActivityViewState extends State<_AddActivityView> {
   // Quiz config
   int _timeLimit = 0;
 
+  // Page content
+  final _pageContentController = TextEditingController();
+
   // URL config
   final _urlController = TextEditingController();
 
@@ -82,6 +85,7 @@ class _AddActivityViewState extends State<_AddActivityView> {
     _nameController.dispose();
     _descController.dispose();
     _dueDateController.dispose();
+    _pageContentController.dispose();
     _urlController.dispose();
     super.dispose();
   }
@@ -337,6 +341,21 @@ class _AddActivityViewState extends State<_AddActivityView> {
           ),
         ];
 
+      case 'page':
+        return [
+          TextFormField(
+            controller: _pageContentController,
+            decoration: InputDecoration(
+              labelText: tr('course_mgmt.field_page_content'),
+              hintText: tr('course_mgmt.field_page_content_hint'),
+              border: const OutlineInputBorder(),
+              alignLabelWithHint: true,
+            ),
+            maxLines: 12,
+            keyboardType: TextInputType.multiline,
+          ),
+        ];
+
       case 'url':
         return [
           TextFormField(
@@ -372,6 +391,11 @@ class _AddActivityViewState extends State<_AddActivityView> {
       case 'quiz':
         if (_timeLimit > 0) {
           config = {'timelimit': (_timeLimit * 60).toString()};
+        }
+        break;
+      case 'page':
+        if (_pageContentController.text.isNotEmpty) {
+          config = {'content': _pageContentController.text};
         }
         break;
       case 'url':

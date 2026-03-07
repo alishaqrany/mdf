@@ -484,7 +484,8 @@
     "messages": "Messages",
     "notifications": "Notifications",
     "remove": "Remove",
-    "required": "This field is required"
+    "required": "This field is required",
+    "content_unavailable": "Page content could not be loaded. Please contact your administrator."
   },
   "course_visibility": {
     "title": "Course Visibility",
@@ -788,6 +789,8 @@
     "field_time_limit": "Time Limit (minutes)",
     "field_time_limit_help": "0 = no time limit",
     "field_url": "External URL",
+    "field_page_content": "Page Content (HTML)",
+    "field_page_content_hint": "You can use HTML tags for formatting",
     "field_visible": "Visible to Students",
     "visible_yes": "Students can see this activity",
     "visible_no": "Hidden from students",

@@ -11,6 +11,7 @@ class User extends Equatable {
   final String? profileImageUrl;
   final String? lang;
   final bool isSiteAdmin;
+  final bool isCourseCreator;
   final bool isTeacher;
   final List<int> teacherCourseIds;
   final int? siteId;
@@ -27,6 +28,7 @@ class User extends Equatable {
     this.profileImageUrl,
     this.lang,
     this.isSiteAdmin = false,
+    this.isCourseCreator = false,
     this.isTeacher = false,
     this.teacherCourseIds = const [],
     this.siteId,
@@ -53,7 +55,11 @@ class User extends Equatable {
       isSiteAdmin || teacherCourseIds.contains(courseId);
 
   /// Copy with updated teacher info.
-  User copyWithTeacherInfo({bool? isTeacher, List<int>? teacherCourseIds}) {
+  User copyWithTeacherInfo({
+    bool? isCourseCreator,
+    bool? isTeacher,
+    List<int>? teacherCourseIds,
+  }) {
     return User(
       id: id,
       username: username,
@@ -64,6 +70,7 @@ class User extends Equatable {
       profileImageUrl: profileImageUrl,
       lang: lang,
       isSiteAdmin: isSiteAdmin,
+      isCourseCreator: isCourseCreator ?? this.isCourseCreator,
       isTeacher: isTeacher ?? this.isTeacher,
       teacherCourseIds: teacherCourseIds ?? this.teacherCourseIds,
       siteId: siteId,
@@ -83,6 +90,7 @@ class User extends Equatable {
     profileImageUrl,
     lang,
     isSiteAdmin,
+    isCourseCreator,
     isTeacher,
     teacherCourseIds,
     siteId,

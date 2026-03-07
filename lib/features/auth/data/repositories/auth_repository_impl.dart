@@ -167,6 +167,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final summary = await remoteDataSource.getUserRoleSummary();
       final isTeacher = summary['is_teacher'] == true;
+      final isCourseCreator = summary['is_course_creator'] == true;
       final courseIds =
           (summary['teacher_courseids'] as List<dynamic>?)
               ?.map((e) => e is int ? e : int.tryParse(e.toString()) ?? 0)
@@ -184,6 +185,7 @@ class AuthRepositoryImpl implements AuthRepository {
         profileImageUrl: user.profileImageUrl,
         lang: user.lang,
         isSiteAdmin: user.isSiteAdmin,
+        isCourseCreator: isCourseCreator,
         isTeacher: isTeacher,
         teacherCourseIds: courseIds,
         siteId: user.siteId,
